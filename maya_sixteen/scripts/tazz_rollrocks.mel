@@ -1,0 +1,11 @@
+global proc tazz_rollrocks()
+{
+	string $selected[] = `ls -sl`;
+	string $str = ("\r\nseed(5);\r\nfloat $mySpeed = 1.0;\r\n");
+	for ($item in $selected)
+	{
+	    $str += "\r\nfloat $speed = rand(5)*$mySpeed;\r\n" + $item + ".rotateX = $speed * time;\r\n";
+	}
+	print $str;
+	expression  -s  $str  -o $selected[0]  -ae 1 -uc all ;
+}

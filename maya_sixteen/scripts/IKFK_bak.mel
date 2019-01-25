@@ -1,0 +1,227 @@
+
+global proc IKFK(){
+    if(`window -q -ex "windowIKFK"`){deleteUI "windowIKFK";}
+
+    string $window = `window -title "IKFK_onekey"
+       -iconName "IKFKkey"
+       -widthHeight 200 116 windowIKFK`;
+    string $columnLayout = `columnLayout -adjustableColumn true`;
+            string $b1 = `button -label "L_Arm_IKFKonekey" -command "LAIF"`;
+            string $b2 = `button -label "R_Arm_IKFKonekey" -command "RAIF"`;
+            string $b3 = `button -label "L_Leg_IKFKonekey" -command "LLIF"`;
+            string $b4 = `button -label "R_Leg_IKFKonekey" -command "RLIF"`;
+            string $b5 = `button -label "Close" -command ("deleteUI -window " + $window)`;
+
+    setParent ..;
+    showWindow $window;
+}
+
+global proc LAIF()
+{
+    int $IKFK_L_Arm =`getAttr FKIKArm_L.FKIKBlend`;
+    if ($IKFK_L_Arm==0)
+    {
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKShoulder_L"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKElbow_L"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKWrist_L"};
+
+        //FK TO IK
+
+        float $AlignIKToWrist_L[]=`xform -q -ws -t AlignIKToWrist_L`;
+        xform -ws -t $AlignIKToWrist_L[0] $AlignIKToWrist_L[1] $AlignIKToWrist_L[2] IKArm_L;
+
+        float $AlignIKToWrist_Lro[]=`xform -q -ws -ro AlignIKToWrist_L`;
+        xform -ws -ro $AlignIKToWrist_Lro[0] $AlignIKToWrist_Lro[1] $AlignIKToWrist_Lro[2] IKArm_L;
+
+        float $L_FK_loc[]=`xform -q -ws -t L_FK_loc`;
+        xform -ws -t $L_FK_loc[0] $L_FK_loc[1] $L_FK_loc[2] PoleArm_L;
+
+        setAttr "FKIKArm_L.FKIKBlend" 10;
+
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKIKArm_L.FKIKBlend"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"PoleArm_L"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"IKArm_L"};
+
+        print 666;
+
+    }else{
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"IKArm_L"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"PoleArm_L"};
+
+        //IK TO FK
+
+        float $IKXShoulder_L[]=`xform -q -ws -ro IKXShoulder_L`;
+        xform -ws -ro $IKXShoulder_L[0] $IKXShoulder_L[1] $IKXShoulder_L[2] FKShoulder_L;
+
+        float $IKXElbow_L[]=`xform -q -ws -ro IKXElbow_L`;
+        xform -ws -ro $IKXElbow_L[0] $IKXElbow_L[1] $IKXElbow_L[2] FKElbow_L;
+
+        float $IKXWrist_L[]=`xform -q -ws -ro IKXWrist_L`;
+        xform -ws -ro $IKXWrist_L[0] $IKXWrist_L[1] $IKXWrist_L[2] FKWrist_L;
+
+        setAttr "FKIKArm_L.FKIKBlend" 0;
+
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKIKArm_L.FKIKBlend"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKShoulder_L"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKElbow_L"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKWrist_L"};
+
+        print 666;
+    }
+}
+
+global proc RAIF()
+{
+    int $IKFK_R_Arm =`getAttr FKIKArm_R.FKIKBlend`;
+    if ($IKFK_R_Arm==0)
+    {
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKShoulder_R"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKElbow_R"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKWrist_R"};
+        //FK TO IK
+
+        float $AlignIKToWrist_R[]=`xform -q -ws -t AlignIKToWrist_R`;
+        xform -ws -t $AlignIKToWrist_R[0] $AlignIKToWrist_R[1] $AlignIKToWrist_R[2] IKArm_R;
+
+        float $AlignIKToWrist_Rro[]=`xform -q -ws -ro AlignIKToWrist_R`;
+        xform -ws -ro $AlignIKToWrist_Rro[0] $AlignIKToWrist_Rro[1] $AlignIKToWrist_Rro[2] IKArm_R;
+
+        float $R_FK_loc[]=`xform -q -ws -t R_FK_loc`;
+        xform -ws -t $R_FK_loc[0] $R_FK_loc[1] $R_FK_loc[2] PoleArm_R;
+
+        setAttr "FKIKArm_R.FKIKBlend" 10;
+
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKIKArm_R.FKIKBlend"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"PoleArm_R"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"IKArm_R"};
+
+        print 666;
+    }else
+    {
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"IKArm_R"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"PoleArm_R"};
+        //IK TO FK
+
+        float $IKXShoulder_R[]=`xform -q -ws -ro IKXShoulder_R`;
+        xform -ws -ro $IKXShoulder_R[0] $IKXShoulder_R[1] $IKXShoulder_R[2] FKShoulder_R;
+
+        float $IKXElbow_R[]=`xform -q -ws -ro IKXElbow_R`;
+        xform -ws -ro $IKXElbow_R[0] $IKXElbow_R[1] $IKXElbow_R[2] FKElbow_R;
+
+        float $IKXWrist_R[]=`xform -q -ws -ro IKXWrist_R`;
+        xform -ws -ro $IKXWrist_R[0] $IKXWrist_R[1] $IKXWrist_R[2] FKWrist_R;
+
+        setAttr "FKIKArm_R.FKIKBlend" 0;
+
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKIKArm_R.FKIKBlend"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKShoulder_R"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKElbow_R"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKWrist_R"};
+
+        print 666;
+    }
+}
+
+global proc LLIF()
+{
+    int $IKFK_L_Leg =`getAttr FKIKLeg_L.FKIKBlend`;
+    if ($IKFK_L_Leg==0)
+    {
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKHip_L"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKKnee_L"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKAnkle_L"};
+        //FK TO IK
+
+        float $AlignIKToAnkle_L[]=`xform -q -ws -t AlignIKToAnkle_L`;
+        xform -ws -t $AlignIKToAnkle_L[0] $AlignIKToAnkle_L[1] $AlignIKToAnkle_L[2] IKLeg_L;
+
+        float $AlignIKToAnkle_Lro[]=`xform -q -ws -ro AlignIKToAnkle_L`;
+        xform -ws -ro $AlignIKToAnkle_Lro[0] $AlignIKToAnkle_Lro[1] $AlignIKToAnkle_Lro[2] IKLeg_L;
+
+        float $L_FK_leg_loc[]=`xform -q -ws -t L_FK_leg_loc`;
+        xform -ws -t $L_FK_leg_loc[0] $L_FK_leg_loc[1] $L_FK_leg_loc[2] PoleLeg_L;
+
+        setAttr "FKIKLeg_L.FKIKBlend" 10;
+
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKIKLeg_L.FKIKBlend"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"PoleLeg_L"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"IKLeg_L"};
+
+        print 666;
+    }else
+    {
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"PoleLeg_L"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"IKLeg_L"};
+        //IK TO FK
+
+        float $IKXHip_L[]=`xform -q -ws -ro IKXHip_L`;
+        xform -ws -ro $IKXHip_L[0] $IKXHip_L[1] $IKXHip_L[2] FKHip_L;
+
+        float $IKXKnee_L[]=`xform -q -ws -ro IKXKnee_L`;
+        xform -ws -ro $IKXKnee_L[0] $IKXKnee_L[1] $IKXKnee_L[2] FKKnee_L;
+
+        float $IKXAnkle_L[]=`xform -q -ws -ro IKXAnkle_L`;
+        xform -ws -ro $IKXAnkle_L[0] $IKXAnkle_L[1] $IKXAnkle_L[2] FKAnkle_L;
+
+        setAttr "FKIKLeg_L.FKIKBlend" 0;
+
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKIKLeg_L.FKIKBlend"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKHip_L"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKKnee_L"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKAnkle_L"};
+
+        print 666;
+    }
+}
+
+global proc RLIF()
+{
+    int $IKFK_R_Leg =`getAttr FKIKLeg_R.FKIKBlend`;
+    if ($IKFK_R_Leg==0)
+    {
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKHip_R"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKKnee_R"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKAnkle_R"};
+        //FK TO IK
+
+        float $AlignIKToAnkle_R[]=`xform -q -ws -t AlignIKToAnkle_R`;
+        xform -ws -t $AlignIKToAnkle_R[0] $AlignIKToAnkle_R[1] $AlignIKToAnkle_R[2] IKLeg_R;
+
+        float $AlignIKToAnkle_Rro[]=`xform -q -ws -ro AlignIKToAnkle_R`;
+        xform -ws -ro $AlignIKToAnkle_Rro[0] $AlignIKToAnkle_Rro[1] $AlignIKToAnkle_Rro[2] IKLeg_R;
+
+        float $R_FK_leg_loc[]=`xform -q -ws -t R_FK_leg_loc`;
+        xform -ws -t $R_FK_leg_loc[0] $R_FK_leg_loc[1] $R_FK_leg_loc[2] PoleLeg_R;
+
+        setAttr "FKIKLeg_R.FKIKBlend" 10;
+
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKIKLeg_R.FKIKBlend"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"PoleLeg_R"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"IKLeg_R"};
+
+        print 666;
+    }else
+    {
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"PoleLeg_R"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"IKLeg_R"};
+        //IK TO FK
+
+        float $IKXHip_R[]=`xform -q -ws -ro IKXHip_R`;
+        xform -ws -ro $IKXHip_R[0] $IKXHip_R[1] $IKXHip_R[2] FKHip_R;
+
+        float $IKXKnee_R[]=`xform -q -ws -ro IKXKnee_R`;
+        xform -ws -ro $IKXKnee_R[0] $IKXKnee_R[1] $IKXKnee_R[2] FKKnee_R;
+
+        float $IKXAnkle_R[]=`xform -q -ws -ro IKXAnkle_R`;
+        xform -ws -ro $IKXAnkle_R[0] $IKXAnkle_R[1] $IKXAnkle_R[2] FKAnkle_R;
+
+        setAttr "FKIKLeg_R.FKIKBlend" 0;
+
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKIKLeg_R.FKIKBlend"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKHip_R"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKKnee_R"};
+        setKeyframe -breakdown 0 -hierarchy none -controlPoints 0 -shape 0 {"FKAnkle_R"};
+
+        print 666;
+    }
+}

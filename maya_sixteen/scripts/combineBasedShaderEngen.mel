@@ -1,0 +1,488 @@
+global proc combineBasedShaderEngen(){
+	if(`window -exists "combineBuss"`){deleteUI "combineBuss";}
+	window -w 300 -h 80 -s 0 -t "combine with shadingEngine_ZQS" "combineBuss";
+		columnLayout -cal "left";
+		text -w 350 -h 120 -l ("CBM\t ==> combine with muilty mat objects\n CBI\t ==> combine with instance objects\n"+
+		"SGMAX\t ==> same mat objs with points less than v1 combine to \n\t"+
+		"    the new combined obj with point less than v2  \n MGMax\t ==> muilty-mat objs with point less than v1 combine to\n\t"+
+		"    the new combined obj with point less than v2  \n ISMAX\t ==> the  max point of combined instance obj \n"+
+		"CMGrpname\t ==> group name for combine objs") "readme";
+			setParent..;
+		rowLayout -w 300 -h 30 -cw2 175 175 -cl2 "center" "center" -nc 4 "CBM_Row";
+			text -l "======>";
+			checkBox -w 80
+				 -v 1
+				 -l "CBM"
+				 -bgc 0.5 0.2 0
+				 "CBMSG";
+			text -l "======>";
+			checkBox -w 80
+				 -v 1
+				 -l "CBI"
+				 "CBMIS";
+			setParent..;
+	//	rowLayout -cl1 "left" -w 360 -h 30  -nc 1 "CB_PARM_ROW";
+			columnLayout;
+				intFieldGrp -l "SGMax" -v1 1000 -v2 10000 -cw3 60 110 110 -nf 2 "sgMax";
+				intFieldGrp -l "MGMax" -v1 500 -v2 10000 -cw3 60 110 110 -nf 2 "mgMax";
+				intFieldGrp -l "ISMax" -v1 50000 -cw2 60 222 -nf 1 "isMax";
+				textFieldGrp -l "CMGrpName" -cw2 60 222 -tx "combineObjGrp" "cmGroupName";
+				setParent..;
+		button -w 350 -h 50 -bgc 0.2 0.5 0.2
+			-c "OCT_combineWithSG" "goCombine";
+	showWindow "combineBuss";
+
+}
+proc OCT_combineWithSG()
+{
+//////////////////////combine with shading engin///////////////////////////////////
+	string $fileOpen = "C:/errorTest.txt";
+	global int $fileId;
+	$fileId = `fopen $fileOpen "w"`;
+	int $isMuiltyCombine = `checkBox -q -v "CBMSG"`; //是否合并多重材质物体，即一个polygon有多个材质球
+	int $instanceCombine = `checkBox -q -v "CBMIS"`;
+	int $instanceMaxPoint = `intFieldGrp -q -v1 "isMax"`;//对于instance物体，尽量一次性combine所有，否则combine之后会丢失其它没有combine的instance
+	int $maxVtoCombine  = `intFieldGrp -q -v1 "sgMax"`;
+	int $maxV_comObj	= `intFieldGrp -q -v2 "sgMax"`;
+	int $maxVtoCombine_com  = `intFieldGrp -q -v1 "mgMax"`;//多重材质物体最大点的数量用于combine
+	int $maxV_comObj_com    = `intFieldGrp -q -v2 "mgMax"`;//多重材质物体合并后的最大点的数
+	/////////针对出错，崩掉的combine组进行测试及跳过操作////////////////
+	global int $debugStat		= 0;  //是否进入debug模式
+	global int $debugIndex_B[]; //debug的物体数量
+	global int $maxCombineCout = 10000;
+	global string $debugGroup[] = {};
+	string $combGrpName = `textFieldGrp -q -tx "cmGroupName"`;
+	string $combGrpName_com = $combGrpName+"_com";
+	string $combineName = "combine_singleMat";
+	string $combineName_com = "combine_muiltyMat";
+	string $SG[] = `ls -type "shadingEngine"`;
+	string $SGT;
+	float $startTime = `timerX`;   //计时开始
+	global string $combineMuilty_noEG[] = {};//合并后多重材质丢失情况
+	global int    $combineMuilty_noEG_index = 0;
+	//int $isInstanceCombine = 0;
+	int $indexSG		= 0;
+	int $index_insG     = 0; //for count instance objects
+	int $index_ins_comG = 0;
+	global int $cout    = 0;
+	//////////////////////////combine instance/////////////////////////////////////////////////
+	int $instanceCout			= 0;
+	string $meshShape[] = `ls -ni  -type "mesh"`;//list non intermediate dag mesh nodes
+	string $meshShapeT;
+	int $isMuilty = 0;
+	for($meshShapeT in $meshShape)
+	{
+		string $instanceEG[] 		= {}; //instance obj list
+		int $index_ins   			= 0; // index of instance obj
+		int $coutP = 0;
+		int $PN[0] = `polyEvaluate -v $meshShapeT`;
+		string $parentTr[] = `listRelatives -ap $meshShapeT`; // -ap ==> -allParents
+		if(size($parentTr)>1)
+		{
+			string $parentTr_temp;
+			for($parentTr_temp in $parentTr)
+			{
+				if(nodeIsVisible($parentTr_temp)>0)
+				{
+
+					$instanceEG[$index_ins] = $parentTr_temp;
+					$index_ins++;
+					$coutP += $PN[0];
+				}
+			}
+		}
+
+		if(size($instanceEG)>1 && $coutP< $instanceMaxPoint)
+		{
+			$isMuilty  = 0;//对于instance物体不考虑是否多重材质
+			combineWithVertexNUM($combGrpName,$combineName,$instanceMaxPoint,$instanceMaxPoint,$instanceEG,$isMuilty);
+			$instanceCout += $index_ins;
+		}
+
+	}
+
+	/////////////////////////based shader/////////////////////////////////////////////////
+
+
+	for($SGT in $SG)
+	{
+	///debug A/////////////////////////////////////
+		int $isDeg = 1;
+		if( $debugStat ){$isDeg = debugIndex($cout);}//当前combine是否是debug group
+		if( $debugStat && $cout >= $maxCombineCout ){fprint $fileId ("the debug print cout A ==>"+$cout+" obj name ==> "+$SGT+"\n");}
+	///debug A/////////////////////////////////////
+		string $shapeEG[] = `listConnections -d 0 -sh 1 -type "mesh"  $SGT`;
+		string $shapeEGT;
+		if(size($shapeEG))
+		{
+	//create shape group
+			string $arrayEG[] = {};
+			string $array_comEG[] = {};
+			int $index_comEG = 0;
+			int $index_EG    = 0; //整体材质index
+			for($shapeEGT in $shapeEG)
+			{
+
+	///debug B/////////////////////////////////////
+		int $isDeg = 1;
+		if($debugStat){$isDeg = debugIndex($cout);}//当前combine是否是debug group
+		if($debugStat && $cout >= $maxCombineCout){fprint $fileId ("the debug print cout B ==>"+$cout+" obj name ==> "+$shapeEGT+"\n");}
+	///debug B/////////////////////////////////////
+	//			if(`gmatch $shapeEGT "*|*"`)
+				//new version to check if it is has only one SG
+				string $engToMesh[] = `listConnections -s 0 -type "shadingEngine" $shapeEGT`;//表示只有一个材质球
+				//check if it is instance obj
+				int $notInstance = 1;
+				string $parentTr[] = `listRelatives -ap $shapeEGT`;
+
+				if(size($parentTr)>1){$notInstance = 0;}
+				if(size($engToMesh)==1 && $notInstance>0)//表示整体赋材质物并且不是instance物体
+				{
+	//				string $trNode[]  = `listRelatives -ap $shapeEGT`;//get all transform nodes, may be it has many instance transform nodes
+					/////////////////只检查其是否可见//////////////////////////////////////////////////
+					if(nodeIsVisible($parentTr[0])>0)//如果没有隐藏，没有在display层里隐藏，也不是instance物体，则添加进来
+					{
+						///debug EE/////////////////////////////////////
+							int $isDeg = 1;
+							if($debugStat){$isDeg = debugIndex($cout);}//当前combine是否是debug group
+							if($debugStat && $cout >= $maxCombineCout){fprint $fileId ("the debug print cout EE ==>"+$cout+" obj name ==> "+$shapeEGT+"\n");}
+						///debug EE/////////////////////////////////////
+						$arrayEG[$index_EG] = $shapeEGT;
+						$index_EG++;
+					}
+				}
+				else if($isMuiltyCombine && $notInstance > 0 && size($engToMesh)>1)
+				{
+
+					if(nodeIsVisible($parentTr[0])>0)//它是可视
+					{
+						///debug FF/////////////////////////////////////
+							int $isDeg = 1;
+							if($debugStat){$isDeg = debugIndex($cout);}//当前combine是否是debug group
+							if($debugStat && $cout >= $maxCombineCout){fprint $fileId ("the debug print cout FF ==>"+$cout+" obj name ==> "+$shapeEGT+"\n");}
+						///debug FF/////////////////////////////////////
+						$array_comEG[$index_comEG] = $shapeEGT;
+						$index_comEG++;
+					}
+				}
+			}
+
+	///debug C/////////////////////////////////////
+		int $isDeg = 1;
+		if($debugStat){$isDeg = debugIndex($cout);}//当前combine是否是debug group
+		if($debugStat&&$isDeg)
+		{
+
+			string $arrayT;
+			//fprint $fileId  $array_comEG;
+			for($arrayT in $arrayEG)
+			{
+				string $sizeTrans[] = `listRelatives -p  $arrayT`;
+				fprint $fileId ("the debug print cout D ==>"+$cout+" shape is  ==> "+$arrayT+" trans is : "+$sizeTrans[0]+" size transform : "+size($sizeTrans)+"\n");
+			}
+			fprint $fileId (" D ==>ok"+$cout+"\n");
+
+		}
+	///debug C/////////////////////////////////////
+			///////////combine with only single SG objects///////////////
+			$isMuilty = 0;
+			combineWithVertexNUM($combGrpName,$combineName,$maxVtoCombine,$maxV_comObj,$arrayEG,$isMuilty);
+			//////combine with muilty-mat objects//////////
+			if($isMuiltyCombine)
+			//if($isMuiltyCombine && ( !$debugStat || ($cout <= $maxCombineCout)))
+			{
+				$isMuilty = 1;
+				combineWithVertexNUM($combGrpName_com,$combineName_com,$maxVtoCombine_com,$maxV_comObj_com,$array_comEG,$isMuilty);
+			}
+		}
+	}
+
+
+	if(size($combineMuilty_noEG))
+	{
+		warning("多重材质物体合并后材质丢失(可以关闭多重材质物体功能避免止问题)，必须手工连接物体shader的物体是以下物体==>\n");
+		string $debugT;
+		for($debugT in $combineMuilty_noEG){print("the bad mat obj is ==> "+$debugT+"\n");}
+	}
+	float $totalTime = `timerX -startTime $startTime`;
+	//print the debug group
+	if(size($debugGroup))
+	{
+		fprint $fileId ("the debug cause to  crash combine mobel is ==>\n");
+		string $debugT;
+		for($debugT in $debugGroup){fprint $fileId ("the debug obj Group is ZZ ==> "+$debugT+"\n");}
+	}
+	print ("the hole evaluate time in seconds is ==>"+$totalTime+" 秒\n");
+	print ("combine instance obj number==>"+$instanceCout+"\n");
+	print "combine succesfull==8888888888888888\n";
+	fclose $fileId;
+}
+////////////////////////proc check visible//////////////////////////
+proc int nodeIsVisible( string $node )
+{
+  // If user is asking about a bogus node, return FALSE.
+  if ( !`objExists $node` ) return false;
+
+  // Object must be a DAG node, or it's not visible.
+  // There's no MEL query to identify a DAG node, but the kDagNode class adds
+  // the '.visibility' attribute, so we'll use its existence as a cue.
+  if ( !`attributeQuery -node $node -exists "visibility"` ) return false;
+
+  // The obvious: Start with the '.visibility' attribute on the node.
+  int $visible = `getAttr ( $node + ".visibility" )`;
+
+  // If this is an intermediate mesh, it's not visible.
+  if ( `attributeQuery -node $node -exists "intermediateObject"` )
+  {
+    $visible = $visible && !`getAttr ( $node + ".intermediateObject" )`;
+  }
+
+  // If the object is in a displayLayer, and the displayLayer is hidden,
+  // then the object is hidden.
+  if($visible)
+  {
+	string $displayLayer[] = `listConnections -type "displayLayer" $node`;
+	if(size($displayLayer))
+	{
+		$visible = `getAttr ($displayLayer[0]+".v")`;
+	}
+  }
+ // check if the shape is in layer shape in the layer
+  if($visible)
+  {
+	string $shape[] = `listRelatives -s $node`;
+	string $shape_T;
+	for($shape_T in $shape)
+	{
+		string $displayLayer[] = `listConnections -type "displayLayer" $shape_T`;
+		if(size($displayLayer))
+		{
+			$visible = `getAttr ($displayLayer[0]+".v")`;
+		}
+	}
+  }
+
+
+  if ( `attributeQuery -node $node -exists "overrideEnabled"` &&
+       `getAttr ( $node + ".overrideEnabled" )` )
+  {
+    $visible = $visible && `getAttr ( $node + ".overrideVisibility" )`;
+  }
+
+  // Ascend the hierarchy and check all of the parent nodes.
+  if ( $visible )
+  {
+    string $parents[] = `listRelatives -parent $node`;
+    if ( `size $parents` > 0 )
+    {
+      $visible = $visible && nodeIsVisible( $parents[0] );
+    }
+  }
+
+  return $visible;
+}
+/////////////////////proc combine///////////////////////////////////
+proc combineWithVertexNUM(string $combGrpName,string $combineName,int $maxVtoCombine,int $maxV_comObj,string $mesh[],int $isMuilty)
+{
+
+
+	string $meshT;
+	global int $cout;
+	global int $debugStat;
+	global int $maxCombineCout;
+	global int $fileId;
+	///////////combine debug///////////////////////////
+	int $isDebug = 1;
+	if($debugStat && $isMuilty && $cout>=$maxCombineCout){$isDebug = debugIndex($cout); fprint $fileId ("start combine muilty A ==>"+$cout+"\n");}
+	else if($debugStat && $cout >= $maxCombineCout ){$isDebug = debugIndex($cout); fprint $fileId ("start combine single A ==>"+$cout+"\n");}
+	///////////combine debug///////////////////////////
+
+	global string $combineMuilty_noEG[];//合并后多重材质丢失情况
+	global int    $combineMuilty_noEG_index;
+//////for debug ////////////////////////
+	global int $debugStat;		//debug state
+	global int $debugIndex_B[];	//debug index of combine group
+	global string $debugGroup[];
+//////for debug ////////////////////////
+	global int $maxCombineCout;
+//	global int      $debugStIndex;
+
+	if(!`objExists $combGrpName`){group -em -n $combGrpName;}
+	string $meshList[] 	= {};
+	int $index 			= 0;
+	int $NUM_V			= 0;
+
+	///////////combine debug///////////////////////////
+	int $isDebug = 1;
+	if($debugStat && $isMuilty && $cout>=$maxCombineCout){$isDebug = debugIndex($cout); fprint $fileId ("start combine muilty B ==>"+$cout+"\n");}
+	else if($debugStat && $cout>=$maxCombineCout){$isDebug = debugIndex($cout); fprint $fileId ("start combine single B ==>"+$cout+"\n");}
+	///////////combine debug///////////////////////////
+
+	//////////get the fist mat sg.dagMembers/////////////
+
+	string $dagMembers  = "";
+	if(`objExists $mesh[0]`)
+	{
+		string $justShape;
+		if(`nodeType($mesh[0])`=="transform")
+		{
+			string $shape[] = `listRelatives -c -s -ni -type "mesh" $mesh[0]`;
+			$justShape = $shape[0];
+		}
+		else{$justShape =  $mesh[0];}
+		string $SG_input[] = `listConnections -s 0 -p 1 -type "shadingEngine" $justShape`;
+		if(size($SG_input)<1||size($SG_input[0])<5){error("no meterial ==>"+$mesh[0]+"\n");}//size($SG_input[0])==>字符串长度
+		$dagMembers = $SG_input[0];
+	}
+
+	///////////combine debug///////////////////////////
+
+	if($debugStat && $cout>=$maxCombineCout){$isDebug = debugIndex($cout); fprint $fileId ("combine C ==>"+$cout+"\n");}
+	///////////combine debug///////////////////////////
+
+	for($meshT in $mesh)
+	{
+			///////////combine debug///////////////////////////
+			if($debugStat && $cout >= $maxCombineCout){fprint $fileId ($meshT+"==>the current combine index is ********** ==>"+$cout+"\n");}
+			///////////combine debug///////////////////////////
+
+		if(`objExists $meshT`)
+		{
+
+			int $mesh_vet[];
+			if(catch($mesh_vet = `polyEvaluate -v $meshT`))
+			{
+				print("it is the polyEvaluate out put "+$meshT+ " =============>");
+				print(`polyEvaluate -v $meshT`);
+				$mesh_vet[0] = `polyEvaluate -v $meshT`;
+				//print "<===============\n";
+			}
+			if($mesh_vet[0]<$maxVtoCombine)
+			{
+				$meshList[$index] = $meshT;
+				$NUM_V += $mesh_vet[0];
+				$index++;
+			}
+		}
+
+	///////////combine debug///////////////////////////
+	int $isDebug = 1;
+	if($debugStat){$isDebug = debugIndex($cout);}
+	if($debugStat && $cout>=$maxCombineCout){fprint $fileId ($meshT+" ==> combine D ==>"+$cout+"\n");}
+	///////////combine debug///////////////////////////
+
+		if($NUM_V >= $maxV_comObj || $meshT == $mesh[(size($mesh)-1)] )//点的数量超过最大值,或者达到最后一个mesh,即要进行分段了
+		{
+			//debug
+			if($debugStat && $cout>=$maxCombineCout){fprint $fileId ($meshT+" ==> combine E ==>"+$cout+"\n");}
+
+
+			string $newCombineObj[] = {""};
+			if(size($meshList)>1)//保证有两个物体物体以上
+			{
+				//debug
+			if($debugStat && $cout>=$maxCombineCout){fprint $fileId ($meshT+" ==> combine F ==>"+$cout+"\n");}
+				//debug///////////////////////////////
+				int $isDeg = 1;
+				if($debugStat){$isDeg = debugIndex($cout);}//当前combine是否是debug group
+				if($debugStat && $isDeg)
+				{
+					fprint $fileId ("the combine group is ignored ==>!!!!!!!!!!!!!!!!!!!!!!!!!!"+$cout+"\n");
+					if(catch(size($meshList))){error("the size is ==> wrong!!!!");}
+					else
+					{
+						fprint $fileId ("the size of $meshList is ==> "+size($meshList)+"\n");
+						appendStringArray($debugGroup,$meshList,size($meshList));
+					}
+					$NUM_V = 0;
+					$index = 0;
+					$meshList = {};
+					fprint $fileId  ("$meshList isClear !!!! "+$cout+"\n");
+					//fprint $fileId ("the number of combined obj is  ==>"+$cout+"\n");
+					$cout++;
+					fprint $fileId  ("$meshList isAdd !!!!"+$cout+"\n");
+					///////debug combine///////////////////////////////
+					int $isDeg = 1;
+					if($debugStat){$isDeg = debugIndex($cout);}//当前combine是否是debug group
+					if($debugStat&&$isDeg){fprint $fileId ("combine is GG ==>"+$cout+"\n");}
+					///////debug combine////////////////////////////////
+				}
+				else if(!catch($newCombineObj = `polyUnite -ch 0 -mergeUVSets 1 $meshList`) )
+				//else if((!$debugStat || ($cout <= $maxCombineCout)) && !catch($newCombineObj = `polyUnite -ch 0 -mergeUVSets 1 $meshList`) )
+				{
+					//debug
+					if($debugStat && $cout>=$maxCombineCout){fprint $fileId ($newCombineObj[0]+" ==> combine G ==>"+$cout+"\n");}
+					///////debug combine///////////////////////////////
+					int $isDeg = 1;
+					if($debugStat){$isDeg = debugIndex($cout);}//当前combine是否是debug group
+					if($debugStat&&$isDeg){fprint $fileId ("combine is E ==>"+$cout+"\n");}
+					///////debug combine////////////////////////////////
+
+					string $sizeNewShape[] = `listRelatives -s -type "mesh" $newCombineObj[0]`;
+					//check if it is has no meterial after combine
+					int $isNoShader = 0;
+					if($isMuilty>0 && size(`listConnections -s 0 -type "shadingEngine" $sizeNewShape[0]`)<1)
+					{
+						//debug
+			if($debugStat && $cout>=$maxCombineCout){fprint $fileId ($newCombineObj[0]+" ==> combine H ==>"+$cout+"\n");}
+						$combineMuilty_noEG[$combineMuilty_noEG_index] = $newCombineObj[0];
+						$combineMuilty_noEG_index++;
+
+					}
+					else if(size(`listConnections -s 0 -type "shadingEngine" $sizeNewShape[0]`)<1)
+					{
+						//debug
+			if($debugStat && $cout>=$maxCombineCout){fprint $fileId ($newCombineObj[0]+" ==> combine J ==>"+$cout+"\n");}
+						$isNoShader++;
+						string $dagToken[];
+						tokenize $dagMembers "[]" $dagToken;
+						int $dagIndex = int($dagToken[1]);
+						string $incomAttr = ($dagToken[0]+"["+$dagIndex+"]"+$dagToken[2]);
+						while(catch(`connectAttr ($sizeNewShape[0]+".instObjGroups[0]")  $incomAttr`))//如果返回错误
+						{
+							$dagIndex++;
+							$incomAttr = ($dagToken[0]+"["+$dagIndex+"]"+$dagToken[2]);
+						}
+						print("the noShader obj is connected new SG==>"+$incomAttr+"\n");
+					}
+
+					//rename the obj
+					string $newCombineName = `rename $newCombineObj[0] ($combineName+$cout)`;
+					if($isNoShader>0){print("合并后材质丢失物体==>"+$newCombineName+"\n");}
+					//group to the combine grp
+					parent $newCombineName $combGrpName;
+					$NUM_V = 0;
+					$index = 0;
+					$meshList = {};
+					print("the number of combined obj is  ==>"+$cout+"\n");
+					$cout++;
+					//fprint $fileId ("the next Combine index is "+$cout+"\n");
+				}
+			}
+		}
+	}
+///////debug combine///////////////////////////////
+int $isDeg = 1;
+if($debugStat){$isDeg = debugIndex($cout);}//当前combine是否是debug group
+if($debugStat&&$isDeg){fprint $fileId ("combine is F ==>"+$cout+"\n");}
+///////debug combine////////////////////////////////
+}
+///////proc for debug group index check
+
+proc int debugIndex(int $cout)
+{
+	global int $debugIndex_B[];
+	int $degId = 0;//用于数组里的temp
+//	int $isDeg = 0;//当前帧是否是debug帧
+	for($degId in $debugIndex_B)
+	{
+		if($cout == $degId)
+		{
+			//print("the degID is 1 ==> "+$cout+"\n" );
+			return 1;
+			break;
+		}
+	}
+	//print("the degID is 0 ==> "+$cout+"\n" );
+	return 0;
+}

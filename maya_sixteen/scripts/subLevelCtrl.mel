@@ -1,0 +1,969 @@
+//========================================================================================
+// 方便创建次级，不过目前还不支持 nurbs 如果你喜欢看报错，就用nurbs玩吧
+// jerry 2013-01-30
+//孤抢到票了 ^_^
+//---------------------------------------------------------------------------------------
+//  log:
+//2013-04-01 v0.2 加了 setRotateAxis 函数，让控制器局部轴能与物体表面对齐。
+//========================================================================================
+//====================================== 功能函数 =========================================
+//----------------------创建毛囊----------------------
+// mFollicleV1.5
+//created by: Michael Paixao
+//This file downloaded from Highend3d.com
+//源地址：http://www.creativecrash.com/maya/downloads/scripts-plugins/modeling/misc/c/follicle-constraint
+// 2013-01-22 Jerry 修改为以下函数 create_follicle(string $follicle_name)
+global proc string create_follicle(string $follicle_name,string $j_vtx)
+{
+	string $sel[];
+	string $buffer[];
+	int $token;
+	string $face[];
+	float $uvPos[];
+	select -r $j_vtx;
+	ConvertSelectionToUVs;
+	$sel = `ls -sl -fl`;
+	$uv = $sel[0];
+
+	// finds the source obj for the UV and its current UV map //
+	$inObj = `listRelatives -p $uv`;
+	$inObjTransform = `listRelatives -p $inObj`;
+	//创建毛囊
+	$follTop = `createNode "transform" -n $follicle_name`;
+	$foll = `createNode "follicle" -n ($follTop + "Shape") -p $follTop`;
+	//$foll = `createNode follicle`;
+	//$follTop = `listRelatives -p $foll`;
+
+	// makes the necessary connections for the follicle to follow the mesh //
+	// nurbs vs poly //
+	if ( `attributeExists "outMesh" $inObj[0]`)
+		{
+		eval("connectAttr -f "+$inObj[0]+".outMesh "+$foll+".inputMesh\;");
+		$uvPos = `polyEditUV -q $uv`;
+		}
+
+	if ( `attributeExists "local" $inObj[0]`)
+		{
+			eval("connectAttr -f "+$inObj[0]+".local "+$foll+".inputSurface\;");
+			int $nurbsInfo[] = getNurbsCvInfo($inObjTransform[0]);
+
+			string $buffer[];
+			$token = `tokenize $uv "[]" $buffer`;
+
+			float $uLoc = $buffer[$token-2];
+			float $vLoc = $buffer[$token-1];
+
+			float $uFloat = $nurbsInfo[0]; //`getAttr ($inObjTransform[0] + ".su")`;
+			float $vFloat = $nurbsInfo[1]; //`getAttr ($inObjTransform[0] + ".sv")`;
+
+			$uvPos[0] = $uLoc / $uFloat;
+			$uvPos[1] = $vLoc / $vFloat;
+		}
+
+	eval("connectAttr -f "+$inObj[0]+".worldMatrix "+$foll+".inputWorldMatrix\;");
+	eval("connectAttr -f "+$foll+".outTranslate "+$follTop+".translate\;");
+	//eval("connectAttr -f "+$foll+".outRotate "+$follTop+".rotate\;");
+
+	setAttr ($foll+".parameterU") $uvPos[0];
+	setAttr ($foll+".parameterV") $uvPos[1];
+
+	return $foll;
+}
+//----------------------软选创建簇 by Jerry----------------------
+global proc string[] createClusterWithSoftSelection(string $j_ctrl,string $selectedVertex,string $dropoffType)
+{
+	//取点世界坐标w
+	$selVtx = `pointPosition -w $selectedVertex `;
+	//获取指定点所在模型的 shapeNode
+	string $shapeNode[]  = `listRelatives -p $selectedVertex `;
+	//获取指定点所在模型的 $transformNode
+	string $transformNode[]  = `listRelatives -p $shapeNode[0]`;
+	//给选择点的模型添加一个簇点(位置默认就在此点上)
+	string $clusters[] = `cluster -n ($j_ctrl+"_cluster") -rel -en 1 $selectedVertex`;
+	//获取 簇的 clusterSet
+	string $clusterSet[] = `listConnections -type "objectSet" $clusters[0]`;
+	//把事个模型的点都加给这个簇
+	sets -add $clusterSet[0] $transformNode[0];
+	//把所有点的权重设置为 0
+	percent -v 0 $clusters[0] $transformNode[0];
+	//以点 点的世界坐标作为 dropoffPosition 软选的 衰减值为 dropoffDistance 为簇设置权重
+	percent -dp $selVtx[0] $selVtx[1] $selVtx[2] -dds (`softSelect -q -ssd`*`softSelect -q -sse`) -v 1 -dt $dropoffType $clusters[0] $transformNode[0];
+	//把所选点的权重设置为 1 没有开软选的情况
+	percent -v 1 $clusters[0] $selectedVertex;
+	return $clusters;
+}
+
+//----------------------创建控制器----------------------
+global proc string shp1_ctrl(string $ctrl_name)
+{
+	string $tempName = `curve -d 1 -p 0 1 0 -p 0 0.92388 0.382683 -p 0 0.707107 0.707107 -p 0 0.382683 0.92388 -p 0 0 1 -p 0 -0.382683 0.92388 -p 0 -0.707107 0.707107 -p 0 -0.92388 0.382683 -p 0 -1 0 -p 0 -0.92388 -0.382683 -p 0 -0.707107 -0.707107 -p 0 -0.382683 -0.92388 -p 0 0 -1 -p 0 0.382683 -0.92388 -p 0 0.707107 -0.707107 -p 0 0.92388 -0.382683 -p 0 1 0 -p 0.382683 0.92388 0 -p 0.707107 0.707107 0 -p 0.92388 0.382683 0 -p 1 0 0 -p 0.92388 -0.382683 0 -p 0.707107 -0.707107 0 -p 0.382683 -0.92388 0 -p 0 -1 0 -p -0.382683 -0.92388 0 -p -0.707107 -0.707107 0 -p -0.92388 -0.382683 0 -p -1 0 0 -p -0.92388 0.382683 0 -p -0.707107 0.707107 0 -p -0.382683 0.92388 0 -p 0 1 0 -p 0 0.92388 -0.382683 -p 0 0.707107 -0.707107 -p 0 0.382683 -0.92388 -p 0 0 -1 -p -0.382683 0 -0.92388 -p -0.707107 0 -0.707107 -p -0.92388 0 -0.382683 -p -1 0 0 -p -0.92388 0 0.382683 -p -0.707107 0 0.707107 -p -0.382683 0 0.92388 -p 0 0 1 -p 0.382683 0 0.92388 -p 0.707107 0 0.707107 -p 0.92388 0 0.382683 -p 1 0 0 -p 0.92388 0 -0.382683 -p 0.707107 0 -0.707107 -p 0.382683 0 -0.92388 -p 0 0 -1 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12 -k 13 -k 14 -k 15 -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 -k 24 -k 25 -k 26 -k 27 -k 28 -k 29 -k 30 -k 31 -k 32 -k 33 -k 34 -k 35 -k 36 -k 37 -k 38 -k 39 -k 40 -k 41 -k 42 -k 43 -k 44 -k 45 -k 46 -k 47 -k 48 -k 49 -k 50 -k 51 -k 52`;
+	rename $tempName $ctrl_name;
+	scaleCtrl(-.9);
+	return $ctrl_name;
+}
+//----------------------设置控制器的局部轴向-----------------------
+global proc string setRotateAxis(string $ctrlName)
+{
+	string $meshName,$loc[],$temp[];
+	float $r[];
+
+	$meshName = `getAttr ($ctrlName+".mesh_name")`;
+
+	$loc = `spaceLocator -n ($ctrlName + "RotateAxis_loc") `;
+	$temp = `parentConstraint $ctrlName $loc[0]`;
+	delete $temp[0];
+	$temp = `normalConstraint -weight 1 -aimVector 0 0 1 -upVector 0 1 0 -worldUpType "vector" -worldUpVector 0 1 0 $meshName $loc[0]`;
+	delete $temp[0];
+
+	$r = `getAttr ($loc[0]+".rotate")`;
+	setAttr ($ctrlName+".rotateAxis") $r[0] $r[1] $r[2];
+
+	$temp = `listRelatives -p $ctrlName`;
+	parent $loc[0] $temp[0];
+
+	return $loc[0];
+}
+//--------------获取 nurbs 点数信息 U向 V向 总数-----------------------
+global proc int[] getNurbsCvInfo(string $nurbsSurface)
+{
+	//取形节点
+	string $relatives[] = `listRelatives -shapes $nurbsSurface`;
+	string $surface = $relatives[0];
+
+	//取U
+	int $numSpansU = `getAttr ( $surface + ".spansU" )`;
+	int $degreeU   = `getAttr ( $surface + ".degreeU" )`;
+	int $formU     = `getAttr ( $surface + ".formU" )`;
+	int $numCVsU   = $numSpansU + $degreeU;
+	// Adjust for periodic hull:
+	if ( $formU == 2 ) $numCVsU -= $degreeU;
+
+	//取V
+	int $numSpansV = `getAttr ( $surface + ".spansV" )`;
+	int $degreeV   = `getAttr ( $surface + ".degreeV" )`;
+	int $formV     = `getAttr ( $surface + ".formV" )`;
+	int $numCVsV   = $numSpansV + $degreeV;
+	// Adjust for periodic hull:
+	if ( $formV == 2 ) $numCVsV -= $degreeV;
+
+	//总数 Total CVs is U count times V count.
+	int $numCVs = $numCVsU * $numCVsV;
+
+	return {$numCVsU,$numCVsV,$numCVs};
+}
+
+//----------------------缩放控制器----------------------
+global proc int scaleCtrl(float $sv)
+{
+	//获取缩放比率
+	//int $sv;
+
+	//获取所对象
+	string $selection[] = `ls -sl`;
+
+	string $objType;
+	for ($sel in $selection)
+	{
+		//检查对象类型
+		$objType = checkObjectType($sel);
+//		setAttr -lock 0 ($sel+".sx");
+//		setAttr -lock 0 ($sel+".sy");
+//		setAttr -lock 0 ($sel+".sz");
+		switch ($objType)
+		{
+			case "nurbsCurve":
+				select -r $sel;
+				selectCurveCV all;
+				scale -r (1+$sv) (1+$sv) (1+$sv);
+				select -cl;
+			break;
+			case "mesh":
+				select -r $sel;
+				ConvertSelectionToVertices;
+				scale -r (1+$sv) (1+$sv) (1+$sv);
+				select -cl;
+			break;
+			case "nurbsSurface":
+				select -r $sel;
+				nurbsSelect -gs 1;
+				scale -r (1+$sv) (1+$sv) (1+$sv);
+				select -cl;
+			break;
+			case "joint":
+				setAttr ($sel+".radius") ($sv + `getAttr ($sel+".radius")`);
+			break;
+			case "locator":
+				string $relatives[] = `listRelatives -shapes $sel`;
+				setAttr ($relatives[0]+".localScaleX") (`getAttr ($relatives[0]+".localScaleX")` + $sv);
+				setAttr ($relatives[0]+".localScaleY") (`getAttr ($relatives[0]+".localScaleY")` + $sv);
+				setAttr ($relatives[0]+".localScaleZ") (`getAttr ($relatives[0]+".localScaleZ")` + $sv);
+			break;
+			default:
+				//setAttr ($sel+".s") (`getAttr ($sel+".sx")` + $sv) (`getAttr ($sel+".sy")` + $sv) (`getAttr ($sel+".sz")` + $sv);
+				error "当前类型的控制器，缩不动 -_-||| ";
+			break;
+		}
+//		setAttr -lock 1 ($sel+".sx");
+//		setAttr -lock 1 ($sel+".sy");
+//		setAttr -lock 1 ($sel+".sz");
+	}
+	select -r $selection;
+	return 1;
+}
+//----------------------检查对象类型----------------------
+global proc string checkObjectType(string $objName)
+{
+	string $relatives[] = `listRelatives -shapes $objName`;
+	if (`size $relatives` == 0 )
+	{
+		return `objectType $objName`;
+	}
+	return `objectType $relatives[0]`;
+}
+
+//求差集 从 $array2 中排除 $array1
+global proc string[] get_difference(string $array1[],string $array2[])
+{
+	string $diff[] = stringArrayCatenate($array1, $array2);
+	$diff = stringArrayRemove(get_intersection($array1,$array2), $diff);
+	return $diff;
+}
+
+//========================================================================================
+//====================================== UI 调用 =========================================
+//-------------------------------------------------------------------------------------
+//---------------------------------------创建次级--------------------------------------
+global proc string createSubLevelCtrl()
+{
+	string $j_vtx,$j_ctrl,$j_ctrlName,$j_ctrlTemp,$j_ctrlArray[],$emitterName[],$clusterName[],$follicleName,$relatives[],$selShape[],$selMesh[];
+
+	//获取所选点
+	string $selection[] = `ls -sl`;
+
+	//只准一个点
+	if (`size $selection` != 1)
+	{
+		error "只选一个点，用于定位控制器。";
+	}
+
+	$j_vtx = $selection[0];
+	//类型检查
+	$relatives  = `listRelatives -p $j_vtx`;
+	if(size(`filterExpand -sm 28 -sm 31 $selection`) == 0 || checkObjectType($relatives[0]) == "nurbsCurve" )
+	{
+		error "请选中点，然后创建次级。支持 poly ";
+	}
+
+	//获取 mesh 名称
+	$selShape = `listRelatives -p $j_vtx`;
+	$selMesh = `listRelatives -p $selShape[0]`;
+
+	//拾取一个对象，用来作为控制器模板
+	$j_ctrlTemp = `button -q -l getCtrlTemp`;//从窗口取值
+
+	//创建控制器模板。如果未设置，或对象已经不存在，就创建一个默认的控制器模板
+	if ($j_ctrlTemp ==  "Pick ctrls" || !`objExists $j_ctrlTemp`)
+	{
+		warning "将使用默认物体作为 控制器 ";
+		if (!`objExists "jerrySubLevelCtrlsTemplat"`)
+		{
+			shp1_ctrl("jerrySubLevelCtrlsTemplat");
+		}
+		$j_ctrlTemp = "jerrySubLevelCtrlsTemplat";
+	}
+
+	//获取控制器将使用的名称
+	$j_ctrlName = `textField -q -tx ctrlName`;//从窗口取值
+	if ("" == $j_ctrlName)
+	{
+		warning "控制器将使用默认名称";
+		$j_ctrlName = "J_subLevelCtrl";
+	}
+
+	//创建控制器，并命名
+	$j_ctrlArray = `duplicate -rr -n $j_ctrlName $j_ctrlTemp`;
+	$j_ctrl = $j_ctrlArray[0];
+	setAttr ($j_ctrl +".v") 1;
+	rename $j_ctrl "fuuuuuuuuuuuuuuuuuuuuuuuuuuuck";
+	rename "fuuuuuuuuuuuuuuuuuuuuuuuuuuuck" $j_ctrl;
+
+	//如果 控制器 未设置则进行以下设置
+	if (!`attributeExists "clt_name" $j_ctrl`)
+	{
+		//不想看红色，先把属性解锁
+		setAttr -lock 0 -keyable true -channelBox 0 ($j_ctrl+".tx");
+		setAttr -lock 0 -keyable true -channelBox 0 ($j_ctrl+".ty");
+		setAttr -lock 0 -keyable true -channelBox 0 ($j_ctrl+".tz");
+		setAttr -lock 0 -keyable true -channelBox 0 ($j_ctrl+".rx");
+		setAttr -lock 0 -keyable true -channelBox 0 ($j_ctrl+".ry");
+		setAttr -lock 0 -keyable true -channelBox 0 ($j_ctrl+".rz");
+		setAttr -lock 0 -keyable true -channelBox 0 ($j_ctrl+".sx");
+		setAttr -lock 0 -keyable true -channelBox 0 ($j_ctrl+".sy");
+		setAttr -lock 0 -keyable true -channelBox 0 ($j_ctrl+".sz");
+		//移动旋转归零，缩放冻结变换
+		setAttr ($j_ctrl +".t") 0 0 0;
+		setAttr ($j_ctrl +".r") 0 0 0;
+		makeIdentity -apply true -t 1 -r 1 -s 1 -n 0 $j_ctrl;
+		//为了完全用完还是锁上好
+		setAttr -lock 0 -keyable true -channelBox false ($j_ctrl+".tx");
+		setAttr -lock 0 -keyable true -channelBox false ($j_ctrl+".ty");
+		setAttr -lock 0 -keyable true -channelBox false ($j_ctrl+".tz");
+		setAttr -lock 0 -keyable true -channelBox false ($j_ctrl+".rx");
+		setAttr -lock 0 -keyable true -channelBox false ($j_ctrl+".ry");
+		setAttr -lock 0 -keyable true -channelBox false ($j_ctrl+".rz");
+		setAttr -lock 1 -keyable true -channelBox true ($j_ctrl+".sx");
+		setAttr -lock 1 -keyable true -channelBox true ($j_ctrl+".sy");
+		setAttr -lock 1 -keyable true -channelBox true ($j_ctrl+".sz");
+		//加上两个属性，用来存放 簇 和 当前 对象 的名称
+		addAttr -ln "clt_name"  -dt "string" $j_ctrl;
+		setAttr -lock 0 -keyable 0 -channelBox 1 ($j_ctrl+".clt_name");
+		addAttr -ln "mesh_name"  -dt "string" $j_ctrl;
+		setAttr -lock 0 -keyable 0 -channelBox 1 ($j_ctrl+".mesh_name");
+		addAttr -ln "vertex_name"  -dt "string" $j_ctrl;
+		setAttr -lock 0 -keyable 0 -channelBox 1 ($j_ctrl+".mesh_name");
+	}
+
+	//为控制器打组
+	setAttr ($j_ctrl+".t") 0 0 0;
+	group -n ($j_ctrl+"_grp") $j_ctrl;
+	group -n ($j_ctrl+"_doubleOffset_grp") $j_ctrl; // _doubleOffset_grp
+	select -cl ;
+
+	//以选中的点，创建毛囊
+	//select -r $j_vtx;
+	$follicleName = ($j_ctrl+"_follicle");
+	create_follicle($follicleName,$j_vtx);
+	group -n ($follicleName + "_grp") $follicleName;
+
+	//创建簇
+	if(checkObjectType($relatives[0]) == "mesh")
+	{
+		//用 Jerry 的软选转簇函数
+		$clusterName = createClusterWithSoftSelection($j_ctrl,$j_vtx,`optionMenu -q -v dropoffTypeOptionMenu`);
+		group -n ($clusterName[1] + "_grp") $clusterName[1];
+	}
+	else if (checkObjectType($relatives[0]) == "nurbsSurface")
+	{
+		//给选择点的模型添加一个簇点，并把它定位到选择点的位置
+		$clusterName = `cluster -rel -en 1 $j_vtx`;
+		//统一下命名
+		rename $clusterName[0] ($j_ctrl + "_" + $clusterName[0]);
+		$clusterName[0] = $j_ctrl + "_" + $clusterName[0];
+		rename $clusterName[1] ($j_ctrl + "_" + $clusterName[1]);
+		$clusterName[1] = $j_ctrl + "_" + $clusterName[1];
+		group -n ($clusterName[1] + "_grp") $clusterName[1];
+	}
+
+	//往属性中存入 簇、网格 的名称 clt_name mesh_name
+	setAttr -type "string" ($j_ctrl+".clt_name") $clusterName[0];
+	setAttr -type "string" ($j_ctrl+".mesh_name") $selMesh[0];
+	setAttr -type "string" ($j_ctrl+".vertex_name") $j_vtx;
+
+	//用毛囊父子约束 控制器的组
+	//parentConstraint $follicleName ($j_ctrl+"_grp");
+	//用毛囊父子 连 控制器的组
+	connectAttr ($follicleName+".translate") ($j_ctrl+"_grp.translate");
+	connectAttr ($follicleName+".rotate") ($j_ctrl+"_grp.rotate");
+
+	//操控器的属性连接给簇的组， 是“连接”这点很重要
+	connectAttr -f ($j_ctrl+".t") ($clusterName[1]+".t");
+	connectAttr -f ($j_ctrl+".r") ($clusterName[1]+".r");
+	connectAttr -f ($j_ctrl+".s") ($clusterName[1]+".s");
+
+	//创建表达式，用控制器的 grp2 抵消二次位移
+	//expression -s ($j_ctrl + "_grp2.tx = " + $j_ctrl + ".tx * -1;\r\n" + $j_ctrl + "_grp2.ty = " + $j_ctrl + ".ty * -1;\r\n" + $j_ctrl + "_grp2.tz = " + $j_ctrl + ".tz * -1;") -o "" -n ($j_ctrl+"_exp") -ae 1 -uc all ;
+	//用 plusMinusAverage 连控制器的上级组。以抵消二次位移
+	string $node_pma = `createNode -n ($j_ctrl+"_plusMinusAverage") plusMinusAverage`;
+	setAttr ($node_pma+".operation") 2;
+	setAttr -type "double3" ($node_pma + ".input3D[0]") 0 0 0;
+	setAttr -type "double3" ($node_pma + ".input3D[1]") 0 0 0;
+	connectAttr ($j_ctrl+".translate") ($node_pma + ".input3D[1]");
+	connectAttr -f ($node_pma + ".output3D") ($j_ctrl+"_doubleOffset_grp.translate");
+
+	//最后创建个大组，把控制器和簇、毛囊放进来，设置下相关的可见属性
+	group -n ($j_ctrl+"_base_grp") ($j_ctrl+"_grp") ($clusterName[1] + "_grp") ($follicleName + "_grp");
+	setAttr ($clusterName[1] + "_grp.v") 0;
+	setAttr ($follicleName + "_grp.v") 0;
+	setAttr ($j_ctrl+".displayHandle") 1;
+
+	//把所创建的次级控制整理到一个大组里
+	if (`objExists "jerrySubLevelCtrlsTemplat"`)
+	{
+		delete "jerrySubLevelCtrlsTemplat";
+	}
+
+	if (`objExists "J_subLevelCtrl_Root_grp"`)
+	{
+		parent ($j_ctrl+"_base_grp") "J_subLevelCtrl_Root_grp";
+	}else
+	{
+		group -n "J_subLevelCtrl_Root_grp" ($j_ctrl+"_base_grp");
+	}
+
+	//调整控制器的局部轴
+	delete (setRotateAxis($j_ctrl));
+
+	//选中控制器
+	select -r $j_ctrl;
+	//如果是 nurbs 自己手调下位置吧
+	if (checkObjectType($selection[0]) == "nurbsSurface")
+	{
+		seleteFollicle();
+	}
+	return $j_ctrl;
+}
+//-------------------------------------------------------------------------------------
+//--------------------------------------移除次级---------------------------------------
+global proc int reMoveSubLevelCtrl()
+{
+	//获取所对象
+	string $selection[] = `ls -sl`;
+	if (!`attributeExists "clt_name" $selection[0]`)
+	{
+		error "请选中 次级控制器，执行此操作";
+	}
+
+	if (`confirmDialog -title "Remove SubLevel" -message "你确定要移除选中的次级？" -button "Yes" -button "No" -defaultButton "No"  -cancelButton "No" -dismissString "No"` == "No")
+	{
+		return 0;
+	}
+
+	for ($sel in $selection)
+	{
+		delete ($sel+"_base_grp");
+	}
+	if (size(`listRelatives -c "J_subLevelCtrl_Root_grp"`) == 0)
+	{
+		delete ("J_subLevelCtrl_Root_grp");
+	}
+
+	return 1;
+}
+//-------------------------------------------------------------------------------------
+//------------------------------------编辑成员------------------------------------
+global proc int membership()
+{
+	int $numVtx[],$numCount;
+
+	//获取所对象
+	string $selection[] = `ls -sl`;
+	if (!`attributeExists "clt_name" $selection[0]`)
+	{
+		error "请选中 次级控制器，执行此操作";
+	}
+
+	//从控制器属性中读取 簇 名称
+	string $cltName = `getAttr ($selection[0]+".clt_name")`;
+	//通过 簇 找到 $clusterSet 成员set
+	string $clusterSet[] = `listConnections -s 0 -t "objectSet" $cltName`;
+	warning "管不了许多了，给你打开绘制成员编辑工具。 就自己手动调下吧";
+	select -r `getAttr ($selection[0]+".mesh_name")`;
+	PaintSetMembershipToolOptions;
+	artSetPaintCtx -e -settomodify $clusterSet[0] artSetPaintContext;
+	return 1;
+}
+//-------------------------------------------------------------------------------------
+//--------------------------------------- 刷权重 --------------------------------------
+global proc int paint_weights()
+{
+	//获取所对象
+	string $selection[] = `ls -sl`;
+	if (!`attributeExists "clt_name" $selection[0]`)
+	{
+		error "请选中 次级控制器，执行此操作";
+	}
+
+	//从控制器属性中读取 簇 名称
+	string $cltName = `getAttr ($selection[0]+".clt_name")`;
+	//通过 簇 找到 $clusterSet 成员set
+	string $clusterSet[] = `listConnections -s 0 -t "objectSet" $cltName`;
+	//从控制器属性中读取 网格 名称
+	string $selMesh = `getAttr ($selection[0]+".mesh_name")`;
+ 	string $selMeshShape[] = `listRelatives -shapes $selMesh`;
+	 $selMesh = $selMeshShape[0];
+
+	 //从控制器属性中读取 网格 名称
+	string $selVtx = `getAttr ($selection[0]+".vertex_name")`;
+
+	//刷权重 Poly 好办
+	if (checkObjectType($selMesh) == "mesh")
+	{
+		//打开 簇权重绘制
+		select -r $selMesh;
+		artSetToolAndSelectAttr( "artAttrCtx", "cluster."+$cltName+".weights" );
+	}
+	//刷权重 nurbs 的
+	if (checkObjectType($selMesh) == "nurbsSurface")
+	{
+		//打开 簇权重绘制
+		select -r $selMesh;
+		artSetToolAndSelectAttr( "artAttrCtx", "cluster."+$cltName+".weights" );
+	}
+	return 1;
+}
+//-------------------------------------------------------------------------------------
+//-------------------------------- 控制器放缩小大 -------------------------------------
+global proc ctrlScaleAdd(float $sizeValue)
+{
+	scaleCtrl($sizeValue * (float)`textField -q -tx ctrl_size_textField`);
+}
+global proc ctrlScaleSubtract(float $sizeValue)
+{
+	scaleCtrl(-1*$sizeValue * (float)`textField -q -tx ctrl_size_textField`);
+}
+
+//-------------------------------------------------------------------------------------
+//------------------------------ 获取选中对象的名字 -----------------------------------
+global proc getCtrlName()
+{
+	//获取所对象
+	string $selection[] = `ls -sl`;
+	textField -e -tx $selection[0] ctrlName;
+}
+//-------------------------------------------------------------------------------------
+//-------------------------------- 拾取 控制器模板- -----------------------------------
+global proc getCtrlTemp()
+{
+	//获取所对象
+	string $s[] = `ls -sl`;
+	if (checkObjectType($s[0])!="nurbsCurve" &&
+	checkObjectType($s[0])!="nurbsSurface" &&
+	checkObjectType($s[0])!="mesh" &&
+	checkObjectType($s[0])!="joint" &&
+	checkObjectType($s[0])!="locator")
+	{
+		error "支持： 曲线、曲面、多边形、骨头、定位器。";
+	}
+	button -e -l $s[0] getCtrlTemp;
+}
+//-------------------------------------------------------------------------------------
+//----------------------------------  选择 毛囊 ---------------------------------------
+global proc seleteFollicle()
+{
+	//获取所对象
+	string $selection[] = `ls -sl`;
+	if (!`attributeExists "clt_name" $selection[0]`)
+	{
+		error "请选中 次级控制器，执行此操作";
+	}
+
+	if (`objExists ($selection[0]+"_follicle")`)
+	{
+		select -r `listRelatives -shapes ($selection[0]+"_follicle")`;
+	}
+}
+
+//-------------------------------------------------------------------------------------
+//-----------------------------------  选择 簇 ----------------------------------------
+global proc seleteClustere()
+{
+	//获取所对象
+	string $selection[] = `ls -sl`;
+	if (!`attributeExists "clt_name" $selection[0]`)
+	{
+		error "请选中 次级控制器，执行此操作";
+	}
+	select -r (`getAttr ($selection[0]+".clt_name")` + "Handle");
+}
+//-------------------------------------------------------------------------------------
+//-----------------------------------  鸣谢 ----------------------------------------
+global proc thanksTo()
+{
+	confirmDialog -title "Express one's thanks to" -message "感谢  Michael Paixao 创建毛囊的代码。" -button "OK" -defaultButton "OK";
+}
+//-------------------------------------------------------------------------------------
+//-----------------------------------  关于 我 ----------------------------------------
+global proc aboutme()
+{
+	confirmDialog -title "我是笨笨 叫 Jerry 也行" -message "大家好，我是笨笨，笨笨的笨，笨笨的笨，谢谢。\n2013-01-30" -button "OK" -defaultButton "OK";;
+}
+//-------------------------------------------------------------------------------------
+//-----------------------------------  MarkMenu East  ----------------------------------------
+global proc markMenuFnEast()
+{
+
+}
+//-------------------------------------------------------------------------------------
+//-----------------------------------  MarkMenu South  ----------------------------------------
+global proc markMenuFnSouth()
+{
+
+}
+//-------------------------------------------------------------------------------------
+//-----------------------------------  MarkMenu Western  ----------------------------------------
+global proc markMenuFnWestern()
+{
+	global string $gSelect;
+	setToolTo $gSelect;
+	select -cl  ;
+}
+//-------------------------------------------------------------------------------------
+//-----------------------------------  MarkMenu North  ----------------------------------------
+global proc markMenuFnNorth()
+{
+
+}
+//-------------------------------------------------------------------------------------
+//-----------------------------------  MarkMenu EastNorth  ----------------------------------------
+global proc markMenuFnEastNorth()
+{
+
+}
+//-------------------------------------------------------------------------------------
+//-----------------------------------  MarkMenu EastSouth  ----------------------------------------
+global proc markMenuFnEastSouth()
+{
+	string $current_ctx = `currentCtx`;
+	string $paintMode = `artAttrCtx -q -sao $current_ctx`;
+	artAttrCtx -e -mxv 1.1 `currentCtx`;
+	artAttrCtx -e -value 1.1 `currentCtx`;
+	artAttrPaintOperation artAttrCtx Smooth;
+	artAttrCtx -e -clear `currentCtx`;
+	artAttrPaintOperation artAttrCtx Scale;
+	artAttrCtx -e -clear `currentCtx`;
+	artAttrCtx -e -clear `currentCtx`;
+	artAttrCtx -e -clear `currentCtx`;
+	artAttrCtx -e -sao $paintMode `currentCtx`;
+}
+//-------------------------------------------------------------------------------------
+//-----------------------------------  MarkMenu WesternNorth  ----------------------------------------
+global proc markMenuFnEastWesternNorth()
+{
+
+}
+//-------------------------------------------------------------------------------------
+//-----------------------------------  MarkMenu WesternSouth  ----------------------------------------
+global proc markMenuFnEastWesternSouth()
+{
+	string $current_ctx = `currentCtx`;
+	string $paintMode = `artAttrCtx -q -sao $current_ctx`;
+	artAttrCtx -e -mxv .9 `currentCtx`;
+	artAttrCtx -e -value .9 `currentCtx`;
+	artAttrPaintOperation artAttrCtx Smooth;
+	artAttrCtx -e -clear `currentCtx`;
+	artAttrPaintOperation artAttrCtx Scale;
+	artAttrCtx -e -clear `currentCtx`;
+	artAttrCtx -e -sao $paintMode `currentCtx`;
+}
+//========================================================================================
+//====================================== UI 创建 =========================================
+global proc int subLevelCtrl()
+{
+float $but_ap = 10,$ap_step = 10;
+
+if (`window -ex subLevelCtrl_win` == true)
+{
+	deleteUI -window subLevelCtrl_win;
+}
+
+window -t "subLevelCtrl_win by Jerry" -wh 300 300 subLevelCtrl_win;
+string $formLayout_01 = `formLayout subLevelCtrl_win_formLayout01`;
+	string $getCtrlTemp = `button -l "Pick ctrls" -c "getCtrlTemp()" getCtrlTemp`;
+	string $ctrlName = `textField -tx "J_subLevelCtrl" ctrlName`;
+	string $getCtrlName = `button -l "getCtrlName" -c "getCtrlName()" getCtrlName`;
+	string $sizeText = `iconTextButton -style textOnly -fn "boldLabelFont" -label "- - -       set ctrl size        +++" -h 15 sizeText`;
+	string $sizeBtnFormLayout = `formLayout -bgc 0 .7 0 sizeBtnFormLayout` ;
+			string $btn01 = `button -l ".5" -c "ctrlScaleSubtract(.5)" btn01`;
+			string $btn02 = `button -l ".3" -c "ctrlScaleSubtract(.3)" btn02`;
+			string $btn03 = `button -l ".2" -c "ctrlScaleSubtract(.2)" btn03`;
+			string $btn04 = `button -l ".1" -c "ctrlScaleSubtract(.1)" btn04`;
+			string $ctrl_size_textField = `textField -tx 1 ctrl_size_textField`;
+			string $btn05 = `button -l ".1" -c "ctrlScaleAdd(.1)" btn05`;
+			string $btn06 = `button -l ".2" -c "ctrlScaleAdd(.2)" btn06`;
+			string $btn07 = `button -l ".3" -c "ctrlScaleAdd(.3)" btn07`;
+			string $btn08 = `button -l ".5" -c "ctrlScaleAdd(.5)" btn08`;
+
+			formLayout -edit
+				-af btn01 "left" 0
+				-ap btn01 "right" 0 $but_ap
+				-ac btn02 "left" 0 btn01
+				-ap btn02 "right" 0 ($but_ap+=$ap_step)
+				-ac btn03 "left" 0 btn02
+				-ap btn03 "right" 0 ($but_ap+=$ap_step)
+				-ac btn04 "left" 0 btn03
+				-ap btn04 "right" 0 ($but_ap+=$ap_step)
+
+				-ac ctrl_size_textField "left" 0 btn04
+				-ap ctrl_size_textField "right" 0 ($but_ap+=20)
+
+				-ac btn05 "left" 0 ctrl_size_textField
+				-ap btn05 "right" 0 ($but_ap+=$ap_step)
+				-ac btn06 "left" 0 btn05
+				-ap btn06 "right" 0 ($but_ap+=$ap_step)
+				-ac btn07 "left" 0 btn06
+				-ap btn07 "right" 0 ($but_ap+=$ap_step)
+				-ac btn08 "left" 0 btn07
+				-ap btn08 "right" 0 ($but_ap+=$ap_step)
+			sizeBtnFormLayout;
+		setParent ..;
+
+	string $dropoffTypeOptionMenu = `optionMenu -label "Dropoff Type : " dropoffTypeOptionMenu`;
+	menuItem -label "linearSquared";
+	menuItem -label "linear";
+	menuItem -label "exponential";
+	menuItem -label "sine";
+	menuItem -label "none";
+	string $create_btn = `iconTextButton -style textOnly -label "Create SubLevel" -c "createSubLevelCtrl()" -bgc .5 .7 .5 create_btn` ;
+		popupMenu;
+				menuItem
+				-label "Select Something"
+				-divider 0
+				-subMenu 1
+				-tearOff 0
+				-enable 1
+				-data 0
+				-radialPosition "N"
+				-allowOptionBoxes 1
+				-postMenuCommandOnce 0
+				-italicized 0
+				-boldFont 0
+				menuEditorMenuItem5;
+
+				menuItem
+					-label "Selete Follicle"
+					-divider 0
+					-subMenu 0
+					-command "seleteFollicle"
+					-altModifier 0
+					-optionModifier 0
+					-commandModifier 0
+					-ctrlModifier 0
+					-shiftModifier 0
+					-optionBox 0
+					-enable 1
+					-data 0
+					-radialPosition "NE"
+					-enableCommandRepeat 1
+					-image "Selete Follicle"
+					-echoCommand 0
+					-italicized 0
+					-boldFont 0
+					menuEditorMenuItem6;
+
+				menuItem
+					-label "Selete Clustere"
+					-divider 0
+					-subMenu 0
+					-command "seleteClustere"
+					-altModifier 0
+					-optionModifier 0
+					-commandModifier 0
+					-ctrlModifier 0
+					-shiftModifier 0
+					-optionBox 0
+					-enable 1
+					-data 0
+					-radialPosition "NW"
+					-enableCommandRepeat 1
+					-image "Selete Clustere"
+					-echoCommand 0
+					-italicized 0
+					-boldFont 0
+					menuEditorMenuItem7;
+
+			setParent -m ..;
+
+			menuItem
+				-label "About Me"
+				-divider 0
+				-subMenu 1
+				-tearOff 0
+				-enable 1
+				-data 0
+				-radialPosition "E"
+				-allowOptionBoxes 1
+				-postMenuCommandOnce 0
+				-italicized 0
+				-boldFont 0
+				menuEditorMenuItem10;
+
+				menuItem
+					-label "1"
+					-divider 0
+					-subMenu 1
+					-tearOff 0
+					-enable 1
+					-data 0
+					-radialPosition "SW"
+					-allowOptionBoxes 1
+					-postMenuCommandOnce 0
+					-italicized 0
+					-boldFont 0
+					menuEditorMenuItem11;
+
+					menuItem
+						-label "2"
+						-divider 0
+						-subMenu 1
+						-tearOff 0
+						-enable 1
+						-data 0
+						-radialPosition "N"
+						-allowOptionBoxes 1
+						-postMenuCommandOnce 0
+						-italicized 0
+						-boldFont 0
+						menuEditorMenuItem12;
+
+						menuItem
+							-label "3"
+							-divider 0
+							-subMenu 1
+							-tearOff 0
+							-enable 1
+							-data 0
+							-radialPosition "SE"
+							-allowOptionBoxes 1
+							-postMenuCommandOnce 0
+							-italicized 0
+							-boldFont 0
+							menuEditorMenuItem13;
+
+							menuItem
+								-label "aboutme"
+								-divider 0
+								-subMenu 0
+								-command "aboutme"
+								-altModifier 0
+								-optionModifier 0
+								-commandModifier 0
+								-ctrlModifier 0
+								-shiftModifier 0
+								-optionBox 0
+								-enable 1
+								-data 0
+								-radialPosition "NW"
+								-enableCommandRepeat 1
+								-image "aboutme"
+								-echoCommand 0
+								-italicized 0
+								-boldFont 0
+								menuEditorMenuItem14;
+
+						setParent -m ..;
+
+					setParent -m ..;
+
+				setParent -m ..;
+
+			setParent -m ..;
+
+			menuItem
+				-label "Deselete"
+				-divider 0
+				-subMenu 0
+				-command "markMenuFnWestern"
+				-altModifier 0
+				-optionModifier 0
+				-commandModifier 0
+				-ctrlModifier 0
+				-shiftModifier 0
+				-optionBox 0
+				-enable 1
+				-data 0
+				-radialPosition "W"
+				-enableCommandRepeat 1
+				-image "Deselete"
+				-echoCommand 0
+				-italicized 0
+				-boldFont 0
+				menuEditorMenuItem15;
+
+			menuItem
+				-label "+ + +"
+				-divider 0
+				-subMenu 0
+				-command "markMenuFnEastSouth"
+				-altModifier 0
+				-optionModifier 0
+				-commandModifier 0
+				-ctrlModifier 0
+				-shiftModifier 0
+				-optionBox 0
+				-enable 1
+				-data 0
+				-radialPosition "SE"
+				-enableCommandRepeat 1
+				-image "+ + +"
+				-echoCommand 0
+				-italicized 0
+				-boldFont 0
+				menuEditorMenuItem8;
+
+			menuItem
+				-label "- - -"
+				-divider 0
+				-subMenu 0
+				-command "markMenuFnEastWesternSouth"
+				-altModifier 0
+				-optionModifier 0
+				-commandModifier 0
+				-ctrlModifier 0
+				-shiftModifier 0
+				-optionBox 0
+				-enable 1
+				-data 0
+				-radialPosition "SW"
+				-enableCommandRepeat 1
+				-image "- - -"
+				-echoCommand 0
+				-italicized 0
+				-boldFont 0
+				menuEditorMenuItem9;
+
+		setParent -m ..;
+	string $membership_btn = `iconTextButton -w 85 -style textOnly -label "Membership" -c "membership()" membership_btn`;
+	string $delete_btn = `iconTextButton -style textOnly -label "Delete SubLevel" -c "reMoveSubLevelCtrl()" delete_btn` ;
+	string $paint_weights_btn = `iconTextButton -w 85 -style textOnly -label "Paint Weight" -c "paint_weights()" paint_weights_btn`;
+
+	formLayout -edit
+		-af $getCtrlTemp top 5
+		-af $getCtrlTemp left 5
+		-af $getCtrlTemp right 5
+		-ac $getCtrlTemp bottom 1 $ctrlName
+
+		-af $ctrlName top 35
+		-af $ctrlName left 5
+		-af $ctrlName right 80
+
+		-af $getCtrlName top 35
+		-ac $getCtrlName left 5 $ctrlName
+
+		-ac $sizeText top 1 $ctrlName
+		-af $sizeText left 5
+		-af $sizeText right 5
+
+		-ac $sizeBtnFormLayout  top 1 $sizeText
+		-af $sizeBtnFormLayout  left 5
+		-af $sizeBtnFormLayout  right 5
+
+		-ac $dropoffTypeOptionMenu  top 1 $sizeBtnFormLayout
+		-af $dropoffTypeOptionMenu  left 40
+		-af $dropoffTypeOptionMenu  right 5
+
+		-ac $create_btn top 1 $dropoffTypeOptionMenu
+		-af $create_btn left 0
+		-af $create_btn right 0
+		-af $create_btn bottom 50
+
+		-ac $membership_btn top 1 $create_btn
+		-af $membership_btn left 5
+		-af $membership_btn bottom 5
+
+		-ac $delete_btn top 1 $create_btn
+		-ac $delete_btn left 5 $membership_btn
+		-af $delete_btn right 95
+		-af $delete_btn bottom 5
+
+		-ac $paint_weights_btn top 1 $create_btn
+		-af $paint_weights_btn right 5
+		-af $paint_weights_btn bottom 5
+		$formLayout_01;
+	setParent ..;
+
+	showWindow subLevelCtrl_win;
+	window -e -wh 300 300 subLevelCtrl_win;
+
+	return 1;
+}
+//subLevelCtrl();

@@ -1,0 +1,669 @@
+ //主程序:HXRockGen
+ //版本:1.0
+ //改版日期:2010 01 12
+ //作者:韩兴(沈阳) 网名:QQ不要壳的蜗牛:31537785 QQ砸牛顿的苹果:120856083
+ //在使用中有任何设想和发现请联系我,EMiL:HANBIN933@YAHOO.COM.CN
+ //新增功能:原来的脚本第三个功能 布尔运算造成成功率很低 我稍稍改动了一下 现在还是有一点问题 是布尔运算本身的严格要求 不过在大量的高密度的创建中失败率降到 3%以内 还不错
+ //描述:可以制作石块 石晶 石笋 并控制大小 范围 随机度 拉伸等形态参数
+ //脚本功能:可以制作石块 石晶 石笋
+ //声明:该脚本只在 特里 斯托里格 的脚本上稍作改进.
+
+//HXRockGen1.0安装方法(针对新手写得较罗唆):
+//1.找到HXRockGen.MEL脚本,用写字板方式打开,将里面所有的内容复制(可以CTRL+A全选,CTRL+C复制),然后打开MAYA(任意版本),打开脚本编辑器,粘贴到书写栏(CTRL+V粘贴),然后在书写栏再全选(CTRL+A),按住左键拖拽到工具架上放开.完成.
+//2.找到RockGenIcon.BMP图标,复制到C:\Documents and Settings\hanxing\My Documents\maya\2008\prefs\icons,在工具编辑里找到图标就OK了.(只要完成1就行了,不用图标一样用).
+//3.完成了点下图标就能用了.
+//HXRockGen使用方法(针对新手写得较罗唆):
+//1.点击图标打开HXRockGen使用面版
+//2.选择石块类型
+//3.选择参数修改
+//4执行
+
+
+proc string rockRelatives ()
+{
+    string $results[] = `listRelatives -p`;
+    string $results2[];
+    if (`nodeType ($results[0])` != "transform")
+	{
+        $results2 = `listRelatives -p $results[0]`;
+    	}
+	else
+	{
+	$results2[0] = $results[0];
+	}
+    return $results2[0];
+}
+
+
+
+
+proc bolderGen()
+{
+waitCursor -state on;
+
+
+int $bolderIndex;
+
+
+int $bolderNumber = `intSliderGrp -q -value rockNum`;
+
+
+string $bolderGroup = `createNode transform -n bolderGroup1`;
+
+
+
+for($bolderIndex = 0; $bolderIndex < $bolderNumber; $bolderIndex++)
+	{
+
+
+	int $bolderSect = rand (4,10);
+	float $bolderRadi =  rand (1.5,3);
+		string $bolderBaseCurve[] = `circle -c 0 0 0 -sweep -360 -r $bolderRadi -nr 0 1 0 -d 1 -ut 0 -s $bolderSect -ch 0`;
+		string $bolderBasePoly[] = `planarSrf -ch 1 -d 3 -ko 0 -tol 0.01 -rn 0 -po 1 $bolderBaseCurve[0]`;
+		string $tesser[] = `listHistory $bolderBasePoly[0]`;
+			setAttr ($tesser[1] + ".polygonType") 1;
+			setAttr ($tesser[1] + ".format") 0;
+			setAttr ($tesser[1] + ".polygonCount") 1;
+		DeleteHistory $bolderBasePoly[0];
+		delete $bolderBaseCurve[0];
+
+
+
+	string $bolderPoly[] = `listRelatives -s $bolderBasePoly[0]`;
+	select -r $bolderPoly.f["*"];
+	string $bolderPolyF[] = `filterExpand -sm 34`;
+
+
+
+	int $bolderExtrudeY = `intSliderGrp -q -value rockHeight`;
+	int $bolderDivisionsY = `intSliderGrp -q -value rockHeight`;
+	float $divHeight = ($bolderDivisionsY /2);
+	polyExtrudeFacet -ch 0 -kft 1 -ty $bolderExtrudeY -ran .25 -divisions $divHeight -off 0 $bolderPolyF[0];
+
+
+	select -r $bolderPolyF[0];
+	PolySelectConvert 4;
+	polyEditUV -pu 0.5 -pv 0.5 -su .6 -sv .6 ;
+
+
+
+		select -r $bolderPoly[0];
+
+		float $bolderNoise = `floatSliderGrp -q -value rockNoise`;
+		select -r $bolderPoly[0];
+		polyTriangulate -ch 1 $bolderPoly[0];
+		DeleteHistory $bolderPoly[0];
+		string $bolderSoftBody[] =`soft -c $bolderPoly[0]`;
+
+		string $bolderEX = "position = position + sphrand(<<" + $bolderNoise + "," + $bolderNoise + ", " + $bolderNoise +">>);";
+
+			dynExpression -s $bolderEX -c $bolderSoftBody[0];
+			dynExpression -s $bolderEX -rbd $bolderSoftBody[0];
+			delete -ch $bolderPoly[0];
+			delete $bolderSoftBody[0];
+
+
+
+		int $rockRez = `radioButtonGrp -q -sl rezFlag`;
+
+		if($rockRez == 2)
+		{
+
+			polySmooth  -dv 2 -c 0.8 -ch 1 $bolderPoly[0];
+			delete -ch $bolderPoly[0];
+
+
+			select -r $bolderPoly[0];
+			string $bolderSoftBody[] =`soft -c $bolderPoly[0]`;
+
+			string $bolderEX = "position = position + sphrand(<<.1,.1,.1>>);";
+
+				dynExpression -s $bolderEX -c $bolderSoftBody[0];
+				dynExpression -s $bolderEX -rbd $bolderSoftBody[0];
+				delete -ch $bolderPoly[0];
+				delete $bolderSoftBody[0];
+
+
+			polySmooth  -dv 1 -c 0.5 -ch 1 $bolderPoly[0];
+
+		}
+		else
+		{
+
+			polySmooth  -dv 1 -c 1 -ch 1 $bolderPoly[0];
+			delete -ch $bolderPoly[0];
+		}
+
+
+
+	string $moveBolder = `rockRelatives`;
+
+
+		float $newBolderSmin = `floatSliderGrp -q -value rockScaleMin`;
+		float $newBolderSmax = `floatSliderGrp -q -value rockScaleMax`;
+		float $newBolderSheer = `floatSliderGrp -q -value rockSheer`;
+		float $newBolderSRand = rand($newBolderSmin,$newBolderSmax);
+
+			scale $newBolderSRand $newBolderSRand $newBolderSRand;
+			string $bolderShearXY =  $moveBolder + ".shearXY";
+			setAttr $bolderShearXY $newBolderSheer;
+
+
+		float $bolderDradius = `floatSliderGrp -q -value distRadius`;
+		float $bolderDradiusN = -$bolderDradius;
+		float $distX = rand ($bolderDradiusN,$bolderDradius);
+		float $distZ = rand ($bolderDradiusN,$bolderDradius);
+
+		string $distBolder[] = {(($moveBolder) + ".translateX"), ($moveBolder + ".ty"), ($moveBolder + ".tz")};
+			setAttr $distBolder[0] $distX;
+
+			setAttr $distBolder[2] $distZ;
+
+		float $randRotY = rand (0,360);
+			string $rotBolder = $moveBolder + ".ry";
+			setAttr $rotBolder $randRotY;
+
+
+
+	parent $moveBolder $bolderGroup;
+	rename $moveBolder "bolder1";
+ 	}
+
+
+
+	float $bolderGRPscale = `floatSliderGrp -q -value globalRockScale`;
+	select $bolderGroup;
+	scale $bolderGRPscale $bolderGRPscale $bolderGRPscale;
+	makeIdentity -apply true;
+
+waitCursor -state off;
+
+}
+
+
+proc crystalGen()
+{
+waitCursor -state on;
+
+
+int $crystalIndex;
+
+
+int $crystalNumber = `intSliderGrp -q -value rockNum`;
+
+
+string $crystalGroup = `createNode transform -n quartzGroup1`;
+
+
+
+for($crystalIndex = 0; $crystalIndex < $crystalNumber; $crystalIndex++)
+	{
+
+	float $crystalRadi =  rand (.4,1.2);
+		string $crystalCurve[] = `circle -c 0 0 0 -sweep -360 -r $crystalRadi -nr 0 1 0 -d 1 -ut 0 -s 6 -ch 0`;
+		string $crystalPoly[] = `planarSrf -ch 1 -d 3 -ko 0 -tol 0.01 -rn 0 -po 1 $crystalCurve[0]`;
+		string $tesser[] = `listHistory $crystalPoly[0]`;
+			setAttr ($tesser[1] + ".polygonType") 1;
+			setAttr ($tesser[1] + ".format") 0;
+			setAttr ($tesser[1] + ".polygonCount") 1;
+		DeleteHistory $crystalPoly[0];
+		delete $crystalCurve[0];
+
+
+	string $vert[] = `polyListComponentConversion -tv $crystalPoly[0]`;
+	string $vertsExband[] = `filterExpand -sm 31 $vert`;
+
+		int $i;
+		int $vertNum = 5;
+		for($i = 0; $i < $vertNum; $i++)
+		{
+			select -r $vertsExband[$i];
+			float $vertAround = rand(-.4,.2);
+			move -r -moveXZ $vertAround;
+		}
+
+
+	string $crystalPolyF[] = `listRelatives -s $crystalPoly[0]`;
+
+	float $extrudeYmin = `floatSliderGrp -q -value rockScaleMin`;
+	float $extrudeYmax = `floatSliderGrp -q -value rockScaleMax` * 8;
+	float $extrudeY = rand ($extrudeYmin,$extrudeYmax);
+		polyExtrudeFacet -ch 0 -kft 1 -ty $extrudeY -off 0 $crystalPolyF[0];
+
+
+	string $crystalPolySF[] = `ls -sl`;
+
+	float $extrudeY2 = rand (.4,.8);
+		polyExtrudeFacet -ch 0 -kft 1 -ty $extrudeY2 -sx .01 -sz .01 -off 0 $crystalPolySF[0];
+
+
+	string $crystal[] = `listRelatives -p`;
+	string $crystVerts[] = `polyListComponentConversion -tv $crystal[0]`;
+	string $crystExband[] = `filterExpand -sm 31 $crystVerts`;
+
+		for ($i = 6; $i < 12; $i++)
+		{
+			select -r $crystExband[$i];
+			float $vertUp = rand(-.3,.3);
+			move -r -moveY $vertUp;
+		}
+
+
+	string $oldCrystal[] = `listRelatives -p`;
+	select -r $oldCrystal[0];
+	string $newCrystal[] = `listRelatives -p`;
+	float $anglX = rand (-85,85);
+	float $anglZ = rand (-85,85);
+	string $RotateCrystal[] = {($newCrystal[0] + ".rx"), ($newCrystal[0] + ".rz")};
+		setAttr $RotateCrystal[0] $anglX;
+		setAttr $RotateCrystal[1] $anglZ;
+
+
+	parent $newCrystal[0] $crystalGroup;
+	rename $newCrystal[0] "quartz1";
+	}
+
+
+float $crystGRPscale = `floatSliderGrp -q -value globalRockScale`;
+select $crystalGroup;
+scale $crystGRPscale $crystGRPscale $crystGRPscale;
+makeIdentity -apply true;
+
+waitCursor -state off;
+}
+
+
+proc stalagGen()
+{
+
+waitCursor -state on;
+
+
+
+int $slagIndex;
+
+int $slagNumber = `intSliderGrp -q -value rockNum`;
+
+string $tmpGroup = `createNode transform`;
+string $fatherGroup = `createNode transform`;
+	parent $fatherGroup $tmpGroup;
+string $juniorGroup = `createNode transform`;
+	parent $juniorGroup $tmpGroup;
+
+for($slagIndex = 0; $slagIndex < $slagNumber; $slagIndex++)
+
+	{
+
+
+	int $slagSect = rand(8,12);
+
+	float $slagRadi =  rand(1,2);
+
+		string $slagBaseCurve[] = `circle -c 0 0 0 -sweep -360 -r $slagRadi -nr 0 1 0 -d 1 -ut 0 -s $slagSect -ch 0`;
+
+		string $slagBasePoly[] = `planarSrf -ch 1 -d 3 -ko 0 -tol 0.01 -rn 0 -po 1 $slagBaseCurve[0]`;
+
+		string $tesser[] = `listHistory $slagBasePoly[0]`;
+
+			setAttr ($tesser[1] + ".polygonType") 1;
+
+			setAttr ($tesser[1] + ".format") 0;
+
+			setAttr ($tesser[1] + ".polygonCount") 1;
+
+		DeleteHistory $slagBasePoly[0];
+
+		delete $slagBaseCurve[0];
+
+
+	string $slagPolyF[] = `listRelatives -s $slagBasePoly[0]`;
+
+	float $slagExtrudeY = rand (1,3);
+
+	float $DuplicateMin = $slagExtrudeY + 0.01 ;
+
+	float $DuplicateMax = $slagExtrudeY + 0.02 ;
+
+	float $DuplicateY = rand ($DuplicateMin,$DuplicateMax);
+
+	float $forScaleXZ = rand ( 0.6,0.7);
+
+	polyExtrudeFacet -ch 0 -kft 1 -ty $slagExtrudeY -s 0.7 1 0.7 -off 0 $slagPolyF[0];
+
+	string $slagHigh[] = `ls -sl`;
+
+string $slagUpGroup = `group $slagHigh[0]`;
+
+select -r $slagHigh[0];
+
+		int $slagUp;
+
+		for($slagUp = 0; $slagUp < 3; $slagUp++)
+			{
+			      $slagHigh = `ls -sl`;
+
+               	       duplicate -rr $slagHigh;
+
+                 	       move -r 0 $DuplicateY 0 ;
+
+                 	       scale -r $forScaleXZ 1 $forScaleXZ ;
+
+
+
+			 }
+
+       select -r $slagUpGroup;
+
+       polyUnite -ch 0;
+
+	string $oldSlag[] = `ls -sl`;
+
+	select -r $oldSlag[0];
+
+	string $moveSlag[] = `ls -sl`;
+
+
+	float $slagHeight = rand (1,3);
+
+	scale 1 $slagHeight 1;
+
+		float $slagDradius = `floatSliderGrp -q -value distRadius` / 6;
+
+		float $slagDradiusN = -$slagDradius;
+
+		float $distX = rand ($slagDradiusN,$slagDradius);
+
+		float $distZ = rand ($slagDradiusN,$slagDradius);
+
+	string $distSlag[] = {($moveSlag[0] + ".tx"), ($moveSlag[0] + ".ty"), ($moveSlag[0] + ".tz")};
+
+	setAttr $distSlag[0] $distX;
+
+	setAttr $distSlag[1] -1;
+
+	setAttr $distSlag[2] $distZ;
+
+
+	parent $moveSlag[0] $fatherGroup;
+
+
+ duplicate -rr ;
+
+	float $duplicateScaleXZ = rand ( 0.4,0.6);
+
+       float $duplicateScaleMoveY = rand ( 1,1.5);
+
+
+                 	        move -r 0 $DuplicateY 0 ;
+
+                	        scale -r $duplicateScaleXZ  1  $duplicateScaleXZ  ;
+
+
+parent $moveSlag[0] $juniorGroup;
+
+delete -all -constructionHistory;
+select -r $juniorGroup;
+	}
+
+
+string $bolSlagGrp1[] = `ls -sl`;
+
+string $boleSlag[] = `listRelatives -c $bolSlagGrp1`;
+
+select -cl ;
+select -r $fatherGroup;
+string $bolSlagGrpmmm[] = `ls -sl`;
+
+string $boleSlagmmm[] = `listRelatives -c $bolSlagGrpmmm`;
+
+select -cl ;
+	int $in;
+	for ($in=0; $in < size($boleSlag); $in++)
+    		{
+                 if (`nodeType ( $boleSlag[$in] )` == "transform")
+                  {
+                            select -add $boleSlag[$in];
+	             }
+              }
+
+string $boleSlag1[] = ` ls -sl `;
+	int $i;
+	for ($i=1; $i < size($boleSlag1); $i++)
+    		{
+
+
+
+		string $firstBol[] = `ls -sl`;
+		if ( catch (`polyBoolOp -op 1 -ch 0 -n tmpSlag $firstBol[0] $boleSlag[$i]` ))
+        		{
+				delete $firstBol;
+				delete $tmpGroup;
+				stalagGen;
+        		}
+		string $firstBol[] = `ls -sl`;
+
+         	parent $firstBol $tmpGroup;
+    		}
+
+string $bolderPoly[] = `ls -sl`;
+		if ( `size $bolderPoly` == 0)
+        		{
+				delete $tmpGroup;
+				stalagGen;
+        		}
+		if ( catch (`select -r $bolderPoly.vtx["*"]` ))
+        		{
+
+				delete $tmpGroup;
+				stalagGen;
+        		}
+
+polyUnite $tmpGroup;
+delete -all -constructionHistory;
+
+string $slagPoly[] = `ls -sl`;
+
+	string $slagSoftBody[] =`soft -c $slagPoly[0]`;
+
+	string $slagEX = "position = position + sphrand(<<.2,.1,.2>>);";
+
+		dynExpression -s $slagEX -c $slagSoftBody[0];
+
+		dynExpression -s $slagEX -rbd $slagSoftBody[0];
+
+		delete -ch $slagPoly[0];
+
+		delete $slagSoftBody[0];
+
+
+	string $slagFaces[] = `listRelatives -s $slagPoly`;
+
+	polySmooth  -dv 1 -c 1 -ch 1 $slagFaces[0];
+
+	delete -ch $slagPoly[0];
+
+	string $slagDone[] = `listRelatives -p `;
+
+	float $newSlagSmin = `floatSliderGrp -q -value rockScaleMin`;
+	float $newslagSmax = `floatSliderGrp -q -value rockScaleMax`;
+
+	scale $newslagSmax $newSlagSmin $newslagSmax;
+
+makeIdentity -apply true;
+
+float $newSlagS = `floatSliderGrp -q -value globalRockScale`;
+
+scale $newSlagS $newSlagS $newSlagS;
+
+makeIdentity -apply true;
+
+rename $slagDone[0] "stalagmite1";
+select -r $slagPoly[0];
+waitCursor -state off;
+
+}
+
+
+global proc genRock()
+{
+	string $optionVal = `optionMenu -q -v rockType`;
+    	switch ($optionVal)
+    	{
+        	case "Boulder":
+                	bolderGen();
+			textField -edit -text "大块石制造完毕" StatusLine;
+                	break;
+		case "Quartz":
+                	crystalGen();
+			textField -edit -text "石晶制造完毕" StatusLine;
+                	break;
+		case "Stalagmite":
+       		        stalagGen();
+			textField -edit -text "熔岩石笋制造完毕" StatusLine;
+        	        break;
+    	} // end switch
+}
+
+
+
+global proc changRockUI()
+{
+	string $getV = `optionMenu -q -v rockType`;
+	switch($getV)
+	{
+        	case "Boulder":
+                	intSliderGrp -edit -value 5 -minValue 1 rockNum;
+			floatSliderGrp -edit -en true -value 10 distRadius;
+			intSliderGrp -edit -en true -value 2 rockHeight;
+			floatSliderGrp -edit -en true -value 0 rockSheer;
+			floatSliderGrp -edit -en true -value .5 rockNoise;
+			floatSliderGrp -edit -value 1.0 globalRockScale;
+			floatSliderGrp -edit -value .5 rockScaleMin;
+			floatSliderGrp -edit -value 1.0 rockScaleMax;
+			radioButtonGrp -edit -en true rezFlag;
+			textField -edit -text "大块石" StatusLine;
+                	break;
+         	case "Quartz":
+                 	intSliderGrp -edit -value 20 -minValue 1 rockNum;
+ 			floatSliderGrp -edit -en false distRadius;
+ 			intSliderGrp -edit -en false -value 2 rockHeight;
+			floatSliderGrp -edit -en false -value 0 rockSheer;
+			floatSliderGrp -edit -en false -value .5 rockNoise;
+ 			floatSliderGrp -edit -value 1.0 globalRockScale;
+			floatSliderGrp -edit -value .5 rockScaleMin;
+			floatSliderGrp -edit -value 1.0 rockScaleMax;
+			radioButtonGrp -edit -en false rezFlag;
+			textField -edit -text "石晶" StatusLine;
+	               	break;
+		case "Stalagmite":
+	       		intSliderGrp -edit -value 7 -minValue 2 rockNum;
+			floatSliderGrp -edit -en true -value 6 distRadius;
+			intSliderGrp -edit -en false -value 2 rockHeight;
+			floatSliderGrp -edit -en false -value 0 rockSheer;
+			floatSliderGrp -edit -en false -value .5 rockNoise;
+			floatSliderGrp -edit -value 1.0 globalRockScale;
+			floatSliderGrp -edit -value 1.0 rockScaleMin;
+			floatSliderGrp -edit -value 1.0 rockScaleMax;
+			radioButtonGrp -edit -en false rezFlag;
+			textField -edit -text "熔岩石笋" StatusLine;
+        	        break;
+	}
+}
+
+
+
+global proc HXRockGenChinese()
+{
+string $win = "RockGenerator";
+if (`window -exists $win`) deleteUI -window $win;
+	window -title "石块创建工具"
+	-minimizeButton true -maximizeButton false -rtf true
+	-wh 300 300 $win;
+
+		columnLayout -adjustableColumn true -cal "left" ColumnLayout;
+		frameLayout -labelVisible false -marginWidth 0 -marginHeight 0 rockFrame;
+		columnLayout;
+                     text -label "石块类型包括 1 Boulder:大块石 2 Quartz:石晶 3 Stalagmite:熔岩石笋 ";
+			optionMenu -label "       石块类型      " rockType;
+				menuItem -label "Boulder";
+				menuItem -label "Quartz";
+				menuItem -label "Stalagmite";
+
+			separator -height 20 -st none;
+
+			intSliderGrp
+				-label "石块数量" -field true
+				-value 5 -minValue 1 -maxValue 30 -sliderStep 1
+				rockNum;
+			floatSliderGrp
+				-label "分布半径" -field true -precision 2
+                                -value 10 -minValue 0 -maxValue 100 -step .1
+				distRadius;
+
+			separator -height 20 -st none;
+
+			intSliderGrp
+				-label "高度" -field true
+                               -value 2 -minValue 0 -maxValue 10 -step 1
+				rockHeight;
+			floatSliderGrp
+				-label "拉伸" -field true -precision 2
+                               -value 0 -minValue 0 -maxValue 5 -step .01
+				rockSheer;
+			floatSliderGrp
+				-label "三维扰乱" -field true -precision 2
+                               -value .5 -minValue 0 -maxValue 3 -step .01
+				rockNoise;
+
+			separator -height 20 -st none;
+
+			floatSliderGrp
+				-label "全局缩放" -field true -precision 2
+                                -value 1 -minValue .1 -maxValue 10 -step .1
+				globalRockScale;
+			floatSliderGrp
+				-label "石块缩放最小值" -field true -precision 2
+                                -value .5 -minValue .01 -maxValue 2 -step .01
+				rockScaleMin;
+			floatSliderGrp
+				-label "石块缩放最大值" -field true -precision 2
+                                -value 1 -minValue .01 -maxValue 2 -step .01
+				rockScaleMax;
+
+			separator -height 10 -st none;
+
+			radioButtonGrp
+            		-numberOfRadioButtons 2
+            		-label "石块精度"
+            		-labelArray2 "低模" "高模"
+			-sl 1 rezFlag;
+
+			separator -height 10 -st none;
+
+		setParent RockGenerator|ColumnLayout;
+			textField -text "石块制造器" -editable false StatusLine;
+
+		rowColumnLayout -numberOfRows 1 -rowHeight 1 30;
+
+			button -label "创建" -w 129 -c "genRock()";
+ 			button -label "废弃" -w 130 -c delete;
+			button -label "关闭" -w 129 -c ("window -e -vis 0 "+$win) closeBtn;
+			setParent RockGenerator;
+
+
+	optionMenu -edit -cc "changRockUI()" rockType;
+
+	intSliderGrp -edit -changeCommand "textField -edit -text \"数量大于5可能需要多一些时间\"StatusLine" rockNum;
+	floatSliderGrp -edit -changeCommand "textField -edit -text \"从原点开始的范围\"StatusLine" distRadius;
+	intSliderGrp -edit -changeCommand "textField -edit -text \"设置一个随机高度值\"StatusLine" rockHeight;
+	floatSliderGrp -edit -changeCommand "textField -edit -text \"设置一些拉长用来增加随机形态\"StatusLine" rockSheer;
+	floatSliderGrp -edit -changeCommand "textField -edit -text \"设置混乱程度\"StatusLine" rockNoise;
+	floatSliderGrp -edit -changeCommand "textField -edit -text \"设置石块组整体的大小\"StatusLine" globalRockScale;
+	floatSliderGrp -edit -changeCommand "textField -edit -text \"设置组里石块的最小值\"StatusLine" rockScaleMin;
+	floatSliderGrp -edit -changeCommand "textField -edit -text \"设置组里石块的最大值\"StatusLine" rockScaleMax;
+
+
+showWindow $win;
+}
+
+

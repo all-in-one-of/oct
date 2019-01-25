@@ -1,0 +1,18 @@
+global proc OnSimulationBegin(string $node, float $t, float $dt) {
+}
+
+global proc OnSimulationStep(string $node, float $t, float $dt) {
+	phxfdSystem "core";
+	int $r = 3;
+	float $cx = `getAttr ($node + ".xSize")`/2 + 0.5;
+	float $cy = `getAttr ($node + ".ySize")`/2 + 0.5;
+	int $x, $y, $z;
+	for ($x=-$r; $x<$r; $x++)
+		for ($y=-$r; $y<$r; $y++)
+			for ($z=7; $z<15; $z++)
+				if ($x*$x+$y*$y < $r*$r)
+					phxfdInject -pos ($x+$cx) ($y+$cy) $z -d 8 -t 1800;
+};
+
+global proc OnSimulationEnd(string $node, float $t, float $dt) {
+}

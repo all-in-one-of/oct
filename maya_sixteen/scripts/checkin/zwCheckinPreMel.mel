@@ -1,0 +1,260 @@
+// rigging要有CACHE_OBJS的set，警告
+proc int PreCheckinCheckCacheSet()
+{
+	int $rs = true;
+
+	string $setobjs[] = `ls -type objectSet "CACHE_OBJS"`;
+	if (!size($setobjs))
+		error "请先建立正确的名为CACHE_OBJS的SET";
+
+	string $buf[] = `sets -q CACHE_OBJS`;
+	if (!size($buf))
+	{
+		string $message = "场景中没有建立名为CACHE_OBJS的SET，是否继续？\n\n点 Cancel 返回检查处理，点 Ignore 忽略继续\n";
+		string $result = `confirmDialog -message $message -button "Cancel" -button "Ignore" -defaultButton "Cancel" -cancelButton "Cancel" -dismissString "Cancel"`;
+		if ($result == "Cancel")
+		{
+			$rs = false;
+		}
+	}
+
+	return $rs;
+}
+
+// 有renderlayer，警告
+proc int PreCheckinCheckRenderlayer()
+{
+	int $rs = true;
+
+	//delete all render layers
+	$buf = `listConnections "renderLayerManager.renderLayerId"`;
+	if (size($buf) > 1)
+	{
+		string $message = "场景中包含renderLayer，是否继续？\n\n点 Cancel 返回检查处理，点 Ignore 忽略继续\n";
+		string $result = `confirmDialog -message $message -button "Cancel" -button "Ignore" -defaultButton "Cancel" -cancelButton "Cancel" -dismissString "Cancel"`;
+		if ($result == "Cancel")
+		{
+			$rs = false;
+		}
+	}
+	return $rs;
+}
+// Checkin之前出各种各样的confirmDialog
+global proc int zwCheckinPreMel( string $project, string $asset_type, string $mode)
+{
+	print "\nStart CheckinPreMel...\n";
+
+	int $rs = true;
+
+// Asset
+	if ($mode == "texture")
+	{
+		$rs = $rs && zwPreCheckinCheckTx();
+		if (!$rs)
+		{
+			return $rs;
+		}
+	}
+
+	// 有place3dTexture节点，警告
+	if ($mode == "texture")
+	{
+		$rs = $rs && zwPreCheckinCheckPlace3dTexture();
+		if (!$rs)
+		{
+			return $rs;
+		}
+	}
+
+	// rigging、master文件有keyframe，警告
+	if ($mode == "rigging" || $mode == "master")
+	{
+		$rs = $rs && zwPreCheckinCheckAnimCurve();
+		if (!$rs)
+		{
+			return $rs;
+		}
+	}
+
+	// rigging文件必须含有Cache_obj的set，警告
+	if ($mode == "rigging" )
+	{
+		$rs = $rs && PreCheckinCheckCacheSet();
+		if (!$rs)
+		{
+			return $rs;
+		}
+	}
+	
+	if ($mode == "texture" || $mode == "master")
+	{
+		$rs = $rs && PreCheckinCheckRenderlayer();
+		if (!$rs)
+		{
+			return $rs;
+		}
+	}
+
+// Animation
+	// 动画使用了导入，警告
+	if ($mode == "anim" || $mode == "layout")
+	{
+		$rs = $rs && zwPreCheckinCheckImport();
+		if (!$rs)
+		{
+			return $rs;
+		}
+	}
+
+	//  anim, layout：不能有二次参考；没有参考出警告
+	if ($mode == "anim" || $mode == "layout")
+	{
+		$rs = $rs && zwPreCheckinCheckReference();
+		if (!$rs)
+		{
+			return $rs;
+		}
+	}
+	
+
+	print "\nCheckinPreMel...Done\n\n";
+	return $rs;
+}
+
+global proc int zwPreCheckinCheckTx()
+{
+	int $rs = true;
+
+	string $message = "不带设置的tx(场景道具)上传可能会覆盖带有设置的master文件，请谨慎确定后上传\n\n点 Continue 继续，点 Cancel 取消Checkin\n";
+	string $result = `confirmDialog -message $message -button "Continue" -button "Cancel" -defaultButton "Cancel" -cancelButton "Cancel" -dismissString "Cancel"`;
+	if ($result == "Cancel")
+	{
+		$rs = false;
+	}
+
+	return $rs;
+}
+
+// 有place3dTexture节点，警告
+global proc int zwPreCheckinCheckPlace3dTexture()
+{
+	int $rs = true;
+
+	string $buf[] = `ls -type "place3dTexture"`;
+	if (size($buf))
+	{
+		string $message = "场景中有place3dTexture节点，是否继续？\n\n点 Cancel 返回检查处理，点 Ignore 忽略继续\n";
+		string $result = `confirmDialog -message $message -button "Cancel" -button "Ignore" -defaultButton "Cancel" -cancelButton "Cancel" -dismissString "Cancel"`;
+		if ($result == "Cancel")
+		{
+			$rs = false;
+		}
+	}
+
+	return $rs;
+}
+
+// rigging、master文件有keyframe，警告
+global proc int zwPreCheckinCheckAnimCurve()
+{
+	int $rs = true;
+
+	int $find = false;
+	string $animCurves[] = `ls -type "animCurve"`;
+	for ($animCurve in $animCurves)
+	{
+		string $connections[] = `listConnections -source true -destination false $animCurve`;
+		if (!size($connections))	// 排除set driven key
+		{
+			int $keyframeCount = `keyframe -query -keyframeCount $animCurve`;
+			if ($keyframeCount)
+			{
+				$find = true;
+				string $attrs[] = `listConnections -source false -destination true -plugs true $animCurve`;
+				for ($attr in $attrs)
+				{
+					warning ("有keyframe：" + $attr);
+				}
+			}
+		}
+	}
+	if ($find)
+	{
+		string $message = "前期文件通常不应该有keyframe，有keyframe的属性已经列在Script Editor\n\n点 Cancel 返回检查处理，点 Ignore 忽略继续\n";
+		string $result = `confirmDialog -message $message -button "Cancel" -button "Ignore" -defaultButton "Cancel" -cancelButton "Cancel" -dismissString "Cancel"`;
+		if ($result == "Cancel")
+		{
+			$rs = false;
+		}
+	}
+
+	return $rs;
+}
+
+// 摄像机离原点过远，警告
+global proc int zwPreCheckinCheckCameraPosition()
+{
+	eval "source zwCameraImportExport.mel";
+
+	int $rs = true;
+
+	string $camera = zwCheckCameraPositionEx("");
+	if ($camera != "")
+	{
+		string $message = "摄像机 " + $camera + " 离原点过远，这可能会导致渲染问题，建议往原点靠拢\n\n点 Cancel 返回检查处理，点 Ignore 忽略继续\n";
+		string $result = `confirmDialog -message $message -button "Cancel" -button "Ignore" -defaultButton "Cancel" -cancelButton "Cancel" -dismissString "Cancel"`;
+		if ($result == "Cancel")
+		{
+			$rs = false;
+		}
+	}
+
+	return $rs;
+}
+
+// 动画在上传文件时有些东西应该是参考的，但在制作中因为某些原因将其导入，最后切文件时又忘记了，流到后面环节会对他们造成不良影响。动画希望在切文件的过程中会有一个提示，如×××是导入，请问是否忽略的字样。
+global proc int zwPreCheckinCheckImport()
+{
+	int $rs = true;
+
+	string $buf[] = `ls "*_GEO.version" "*:*_GEO.version" "*_geo.version" "*:*_geo.version" "*_MASTER.version" "*:*_MASTER.version"`;
+	for ($node in $buf)
+	{
+		if (!`reference -query -isNodeReferenced $node`)
+		{
+			string $message = "场景中有导入的物体，点 Cancel 返回检查处理，点 Ignore 忽略继续\n\n" + `substitute "[.]version$" $node ""` + "\n";
+			string $result = `confirmDialog -message $message -button "Cancel" -button "Ignore" -button "Ignore All" -defaultButton "Cancel" -cancelButton "Cancel" -dismissString "Cancel"`;
+			if ($result == "Cancel")
+			{
+				$rs = false;
+				break;
+			}
+			else if ($result == "Ignore All")
+			{
+				$rs = true;
+				break;
+			}
+		}
+	}
+
+	return $rs;
+}
+
+// anim, layout：不能有二次参考；没有参考出警告
+global proc int zwPreCheckinCheckReference()
+{
+	int $rs = true;
+
+	zwCheckTopReference;
+	if (size(`file -query -reference`) == 0)
+	{
+		string $message = "没有使用参考，是否继续？\n\n点 Cancel 返回检查处理，点 Ignore 忽略继续\n";
+		string $result = `confirmDialog -message $message -button "Cancel" -button "Ignore" -defaultButton "Cancel" -cancelButton "Cancel" -dismissString "Cancel"`;
+		if ($result == "Cancel")
+		{
+			$rs = false;
+		}
+	}
+
+	return $rs;
+}

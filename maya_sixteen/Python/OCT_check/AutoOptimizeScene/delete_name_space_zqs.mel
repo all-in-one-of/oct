@@ -1,0 +1,21 @@
+global proc delete_name_space_zqs()
+{
+    string $trName[] = `ls -tr`;
+    string $trNameT;
+    int $cout = 0;
+    for($trNameT in $trName)
+    {
+        if(`gmatch $trNameT "*:*"`)
+        {
+            string $token[];
+            tokenize $trNameT ":" $token;
+            if(!catch(`rename $trNameT ($token[size($token)-1])`))
+           {
+                print("renamSpace ==> "+$token[size($token)-1]+"\n");
+                $cout++;
+            }
+        }
+    }
+    print(" renameSpace number is ==> " + $cout + "\n");
+}
+delete_name_space_zqs();

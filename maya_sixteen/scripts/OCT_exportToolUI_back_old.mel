@@ -1,0 +1,264 @@
+///////////strong export tool developed by zqs
+global proc OCT_exportToolUI()
+{
+	global string $isCheckedSG[];
+	$isCheckedSG = {};
+	global int $isCheckID ;
+	$isCheckID = 0;
+	if(`window -q -ex "OCT_exportWindow"`){deleteUI "OCT_exportWindow";}
+	window -title "OCT_export_tool" -s 0 -w 300 -h 280 "OCT_exportWindow";
+		columnLayout -w 300 -h 280 "exportColumn";
+			text -w 300 -h 50 -l "please select formats for export\nthe format is ==>  mb/ma/ass/ass.gz/vrmesh" "exprotText";
+			rowLayout -nc 6 -cw6 50 50 50 50 50 50 "exportRow";
+				checkBox -v 1 -w 50 -h 50  -ann "export mb format" -l "MB" "exportMB";
+				checkBox -v 0 -w 50 -h 50  -ann "export ma format" -l "MA" "exportMA";
+				checkBox -v 1 -w 50 -h 50  -ann "export arnold ass format" -l "ASS" "exportARNOLD_ASS";
+				checkBox -v 0 -w 50 -h 50  -ann "export arnold ass.gz format" -l "ASS.gz" "exportARNOLD_GZ";
+				checkBox -en 0 -v 0 -w 50 -h 50  -ann "export vray format" -l "VRAY" "exportVRAY";
+				checkBox -v 1 -w 50 -h 50  -ann "export texture checking " -l "TEX" "exportTex";
+				setParent..;
+			rowLayout -nc 2 -cw2 150 150 "exportButtonRow";
+				button -l "ECO export" -w 200 -h 50 -bgc 0.1 0.3 0 -ann "export to the selected formats"
+					-c "OCT_exportSeedTool" "exportButton";
+				button -l "close window"  -w 105 -h 50 -bgc 0.3 0.1 0  -ann "close the export window"
+					-c "deleteUI OCT_exportWindow"  "closeExportButton";
+				setParent..;
+	showWindow "OCT_exportWindow";
+}
+
+global proc OCT_exportSeedTool()
+{
+    //string $render = `getAttr defaultRenderGlobals.currentRenderer`;
+	global string $isCheckedSG[];
+	global int $isCheckID ;
+	global string $nodeTypeGain[]; //string array contains whole file node for every SG
+    global int $nodeId; //the string array of SG
+    string $filePath = `workspace -fn`+"/scenes/OCT_seed_lib/";
+    string $projPath = `workspace -fn`+"/";
+	string $ecoTexPath = "sourceimages/arnoldTex/";
+    if(chdir($filePath) == -1){sysFile -md $filePath;}
+    string $sl[] = `ls -sl`;
+    string $T;
+
+    for($T in $sl)
+    {
+        string $tokenS[];
+		tokenize $T "|" $tokenS;
+		string $dirSelName = $tokenS[size($tokenS)-1];
+		if(`checkBox -q -v "exportTex"`)
+		{
+			string $shape[] = `listRelatives -f -ad -c -ni -type "mesh" -type "nurbsSurface" $T`;
+			string $shapeT;
+			for($shapeT in $shape)
+			{
+				string $SG[]  = `listConnections -s 0 -type "shadingEngine" $shapeT`;
+				string $SGT;
+				int $SGCout = 0;
+				for($SGT in $SG)
+				{
+					string $prefixSG = startString($SGT,8); 
+					string $nameWithDateSG = "ass_"+$prefixSG+"_"+`date -f YYYYYYMMDDhhmmss`+$SGCout;					
+					if($SGT != "initialShadingGroup" && $SGT != "initialParticleSE")
+					{
+						string $sgNameTemp = "";
+						if(!catch($sgNameTemp = `rename $SGT $nameWithDateSG`))
+						{
+							$SGT = $sgNameTemp;
+							$SGCout++;
+						} 	
+					}
+					else{error("you can not use the default mat lambert1 and shading engine initialShadingGroup \n");}
+					
+					$nodeTypeGain = {};
+					$nodeId = 0;
+					 if(!stringArrayContains($SGT,$isCheckedSG))//if this sg has not been calculated
+					 {
+						OCT_getInputMatNodeArray("file",$SGT);//this function will get all file node to $nodeTypeGain string array
+						$isCheckedSG[$isCheckID] = $SGT;
+						$isCheckID++;
+					 }
+					//will get the all file node in global string array $nodeTypeGain[]
+					if(size($nodeTypeGain))
+					{
+						 string $texFileNodeT;
+						for($texFileNodeT in $nodeTypeGain)
+						{
+							string $sourceTex = "";
+							string $tex = `getAttr ($texFileNodeT+".fileTextureName")`;
+							string $token[]={};
+							//get absolutly path
+							tokenize $tex ":" $token;
+							if(size($token)>1){$sourceTex = $tex;}
+							else{$sourceTex = $filePath+$tex;}
+							//create target tex path and copy tex
+							string $tokenTex[] = {};
+							tokenize $tex "/\\" $tokenTex;
+							string $texName = $tokenTex[size($tokenTex)-1];
+							string $tartgetTexPath = $projPath+$ecoTexPath+$dirSelName+"/";
+							if(chdir($tartgetTexPath) == -1){sysFile -md $tartgetTexPath;}
+							if(`file -q -ex $sourceTex`)
+							{
+								if(!`file -q -ex ($tartgetTexPath+$texName)`){sysFile -copy ($tartgetTexPath+$texName) $sourceTex;}
+							}
+							else
+							{
+								confirmDialog -t "HKECO error" -message ("this texture is not find, node name ==> " + $texFileNodeT+" texutre path ==> "+$sourceTex+"\nseed name is ==> "+$T+"\n") -icon "critical";
+								error ("this texture is not find, node name ==> " + $texFileNodeT+" texutre path ==> "+$sourceTex+"\nseed name is ==> "+$T+"\n");
+							}
+							setAttr -type "string" ($texFileNodeT+".fileTextureName")  ($ecoTexPath+$dirSelName+"/"+$texName);
+						}
+					}
+				}
+			}
+		}
+        //export scenes model file
+        select -r $T;
+		//export to mb format file
+		if(`checkBox -q -v exportMB`)
+		{
+			string $fileName_format = $filePath+$dirSelName+".mb";
+			if(!catch(`file -force -options "v=0;" -typ "mayaBinary" -pr -es $fileName_format`))
+			{print("the exported object is ==> "+$fileName_format+"\n");}
+		}
+		//export to ma format file
+		if(`checkBox -q -v exportMA`)
+		{
+			string $fileName_format = $filePath+$T+".ma";
+			if(!catch(`file -force -options "v=0;" -typ "mayaAscii" -pr -es $fileName_format`))
+			{print("the exported object is ==> "+$fileName_format+"\n");}
+		}
+		//export to ass format file
+		if(`checkBox -q -v exportARNOLD_ASS`)
+		{
+			string $fileName_format = $filePath+$T+".ass";
+			if(catch(`setAttr "defaultArnoldRenderOptions.absoluteTexturePaths" 0`)){warning("HKECO warning : please check the arnold render is loaded and using now!");}
+			if(!catch(`file -force -options "-mask 25;-lightLinks 0;-shadowLinks 0" -typ "ASS Export" -pr -es $fileName_format`))
+			{print("the exported object is ==> "+$fileName_format+"\n");}
+		}
+		//export to ass.gz format file
+		if(`checkBox -q -v exportARNOLD_GZ`)
+		{
+			string $fileName_format = $filePath+$T+".ass";
+			if(catch(`setAttr "defaultArnoldRenderOptions.absoluteTexturePaths" 0`)){warning("HKECO warning : please check the arnold render is loaded and using now!");}
+			if(!catch(`arnoldExportAss -f $fileName_format -s -mask 25 -lightLinks 0 -compressed -shadowLinks 0-cam perspShape`))
+			{print("the exported object is ==> "+$fileName_format+"\n");}
+		}
+		//export to vrmesh format file
+		if(`checkBox -q -v exportVRAY`)
+		{
+			string $fileName_vrmesh = $T+".vrmesh";
+			string $filePath_vrmesh = $filePath;
+			if(catch(`vrayCreateProxy -dir $filePath_vrmesh -fname $fileName_vrmesh`)){warning("HKECO warning : please checking the vray plugin is loading now!");}
+			{print("the exported object is ==> "+($filePath_vrmesh+$fileName_vrmesh)+"\n");}
+		}
+
+    }
+
+}
+//will get the mat list from list and checking the image file node array
+global proc OCT_getInputMatNodeArray(string $nodeType,string $checkNode_SG)//get mat node by sg ndoe
+{
+		//get maya mat
+    string $connect[] = `listConnections -scn 1 -d 0 -type "shadingDependNode" $checkNode_SG`;//maya mat type
+		//get arnold and vray mat, THdependNode is the third render mat node type
+	string $tempCon[] = `listConnections -scn 1 -d 0 -type "THdependNode" $checkNode_SG`;//arnold type mat
+	if(size($tempCon)){appendStringArray($connect,$tempCon,size($tempCon));}
+		//get displacement mat
+		$tempCon = {};
+		$tempCon = `listConnections -scn 1 -d 0 -type "displacementShader" $checkNode_SG`;//arnold type mat
+	if(size($tempCon)){appendStringArray($connect,$tempCon,size($tempCon));}
+	string $T;
+	for($T in $connect)
+	{
+		OCT_getInputNodeByType($nodeType,$T);
+	}
+}
+
+global proc OCT_getInputNodeByType(string $nodeType,string $checkNode)
+{
+    global string $nodeTypeGain[];
+	global int $nodeId;
+		//get maya mat
+    string $connect[] = {};
+	if(catch($connect = `listConnections -d 0 -scn 1 $checkNode`)){error ("the error checking node is ==> "+$checkNode);}
+    string $con;
+    for($con in $connect)
+    {
+        if(nodeType($con) != "samplerInfo")
+		{
+			if($con == $checkNode){error("the self econnection obj is ==> "+$con+"\n");breack;}
+			else
+			{
+				print ("the current checking node is ==> "+$con+"\n");
+				if(nodeType($con) == $nodeType){$nodeTypeGain[$nodeId] = $con;$nodeId++;}
+				else if($con == $checkNode){error("this node has output the value the input value ==> "+$con);}
+				else {OCT_getInputNodeByType($nodeType,$con);}
+			}
+		}
+    }
+}
+OCT_exportToolUI;
+
+/*
+
+
+///////////////copy vmesh //////////////////////////////////////////////////////////////////////
+global proc copyVmesh(string $slGrp)
+{
+	global string $nodeTypeGain[];$nodeTypeGain = {};
+	global int $nodeId; $nodeId = 0;
+	//string $sl[] = `ls -sl`;
+	string $workSpace = `workspace -q -fn`+"/";
+	string $scenFilePath = "scenes/OCT_seed_lib/";
+	//if(chdir($workSpace+$scenFilePath) == -1){sysFile -md ($workSpace+$scenFilePath);}
+	if(chdir($workSpace+$scenFilePath+$slGrp) == -1){sysFile -md ($workSpace+$scenFilePath+$slGrp);}
+	string $vMesh[] = `listRelatives -c -type "mesh" -ad $slGrp`;
+	string $T;
+	for($T in $vMesh)
+	{
+		OCT_getInputNodeByType("VRayMesh",$T);
+		string $V;
+		for($V in $nodeTypeGain)
+		{
+			string $pathTemp = getAttr ($V+".fileName");
+			string $token[];
+			tokenize $pathTemp "\\/" $token;
+			string $fileName = $token[size($token)-1];
+			string $sourceVname = $workSpace+"sourceimages/"+$fileName;
+			string $targetVname = $workSpace+$scenFilePath+$slGrp+"/"+$fileName;
+
+			if(!`file -ex -q $targetVname`)
+			{
+				//print ($sourceVname+"\n");
+				if(`file -ex -q $sourceVname`)
+				{
+					if(!catch(`sysFile -copy $targetVname $sourceVname`))
+					{
+						print ($targetVname+"\n");
+						print "copyOK\n";
+					}
+				}
+			}
+			if(`file -ex -q $targetVname`){setAttr -type "string" ($V+".fileName") ($scenFilePath+$slGrp+"/"+$fileName);}
+		}
+	}
+}
+
+global proc OCT_getInputNodeByType(string $nodeType,string $checkNode)
+{
+    global string $nodeTypeGain[];
+	global int $nodeId;
+		//get maya mat
+    string $connect[] = {};
+	if(catch($connect = `listConnections -d 0 -scn 1 $checkNode`)){error ("the error checking node is ==> "+$checkNode);}
+    string $con;
+    for($con in $connect)
+    {
+        //print ("the current checking node is ==> "+$con+"\n");
+		if(nodeType($con) == $nodeType){$nodeTypeGain[$nodeId] = $con;$nodeId++;}
+        else{OCT_getInputNodeByType($nodeType,$con);}
+    }
+}
+
+
+*/

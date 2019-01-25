@@ -1,0 +1,15 @@
+global proc OnSimulationBegin(string $node, float $t, float $dt) {
+	int $sizex = getAttr ($node + ".xSize");
+	int $sizey = getAttr ($node + ".ySize");
+	int $sizez = getAttr ($node + ".zSize");
+	int $x, $y, $z;
+	for ($x=0; $x<$sizex; $x++)
+		for ($y=0; $y<$sizey; $y++)
+			for ($z=0; $z<$sizez; $z++) {
+				int $dx = $x - $sizex/2;
+				int $dz = $z - $sizez/2;
+				if ($dx*$dx + $dz*$dz < 10)
+					phxfdSet -pos $x $y $z -fl 0.5;
+			}
+				
+}

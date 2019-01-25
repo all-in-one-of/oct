@@ -1,0 +1,32 @@
+global proc ChangeVRayMeshPost(){
+	string $allVRayMeshs[] = `ls -type "VRayMesh"`;
+	string $allCam[] = `listCameras -p`;
+	string $cam = "";
+	for($eachCam in $allCam){
+		if($eachCam != "persp"){
+			$cam = $eachCam;
+			break;
+		}
+	}
+	float $tranCam[] = `xform -q -worldSpace -rotatePivot $cam`;
+	for($VrayMesh in $allVRayMeshs){
+	    string $output = $VrayMesh+".output";
+		string $Meshs[] =`listConnections -s false -d true $output`;
+		if(objectType($Meshs[0]) == "mesh" || objectType($Meshs[0]) == "transform"){
+			float $tranMesh[] = `xform -q -worldSpace -rotatePivot $Meshs[0]`;
+			float $distance = ($tranMesh[0] - $tranCam[0])*($tranMesh[0] - $tranCam[0])+ ($tranMesh[1] - $tranCam[1])*($tranMesh[1] - $tranCam[1]) + ($tranMesh[2] - $tranCam[2])*($tranMesh[2] - $tranCam[2]);
+			float $distance = sqrt($distance);
+  			if($distance > 400){
+  				string $VRayMeshPath = `getAttr($VrayMesh+".fileName2")`;
+  				string $baseName = basename($VRayMeshPath, "");
+  				string $dirname = dirname( $VRayMeshPath );
+  				$dirname = dirname( $dirname );
+                 
+  				string $newPath = $dirname+ "/" + $baseName;
+  				setAttr -type "string" ($VrayMesh+".fileName2") $newPath;
+  			}
+		}
+	}
+}
+
+ //setAttr  "defaultRenderGlobals.preRenderMel" -type "string" "ChangeVRayMesh()";

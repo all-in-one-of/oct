@@ -1,0 +1,69 @@
+global proc FK_loc(){
+	//arm loc
+	CreateLocator;CreateLocator;
+	rename "locator1" "L_FK_loc";
+	rename "locator2" "R_FK_loc";
+	select -r L_FK_loc ;
+	doGroup 0 1 1;
+	select -r R_FK_loc ;
+	doGroup 0 1 1;
+	rename "group1" "L_FK_loc_grp";
+	rename "group2" "R_FK_loc_grp";
+
+	select -r L_FK_loc_grp ;
+	select -tgl PoleArm_L ;
+	parent;
+	setAttr "L_FK_loc_grp.translateZ" 0;
+	setAttr "L_FK_loc_grp.translateX" 0;
+	setAttr "L_FK_loc_grp.translateY" 0;
+	parent -w;
+	select -tgl FKShoulder_L ;
+	parent;
+
+	select -r R_FK_loc_grp ;
+	select -tgl PoleArm_R ;
+	parent;
+	setAttr "R_FK_loc_grp.translateZ" 0;
+	setAttr "R_FK_loc_grp.translateX" 0;
+	setAttr "R_FK_loc_grp.translateY" 0;
+	parent -w;
+	select -tgl FKShoulder_R ;
+	parent;
+
+	setAttr "R_FK_loc_grp.visibility" 0;
+	setAttr "L_FK_loc_grp.visibility" 0;
+
+	//leg loc
+	CreateLocator;CreateLocator;
+	rename "locator1" "L_FK_leg_loc";
+	rename "locator2" "R_FK_leg_loc";
+	select -r L_FK_leg_loc ;
+	doGroup 0 1 1;
+	select -r R_FK_leg_loc ;
+	doGroup 0 1 1;
+	rename "group1" "L_FK_leg_loc_grp";
+	rename "group2" "R_FK_leg_loc_grp";
+
+	select -r L_FK_leg_loc_grp ;
+	select -tgl PoleLeg_L ;
+	parent;
+	setAttr "L_FK_leg_loc_grp.translateZ" 0;
+	setAttr "L_FK_leg_loc_grp.translateX" 0;
+	setAttr "L_FK_leg_loc_grp.translateY" 0;
+	parent -w;
+	select -tgl FKHip_L ;
+	parent;
+
+	select -r R_FK_leg_loc_grp ;
+	select -tgl PoleLeg_R ;
+	parent;
+	setAttr "R_FK_leg_loc_grp.translateZ" 0;
+	setAttr "R_FK_leg_loc_grp.translateX" 0;
+	setAttr "R_FK_leg_loc_grp.translateY" 0;
+	parent -w;
+	select -tgl FKHip_R ;
+	parent;
+
+	setAttr "R_FK_leg_loc_grp.visibility" 0;
+	setAttr "L_FK_leg_loc_grp.visibility" 0;
+}

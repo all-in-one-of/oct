@@ -1,0 +1,408 @@
+OCT_exportToolUI;
+global proc OCT_exportToolUI()
+{
+	if(`window -q -ex "OCT_exportWindow"`){deleteUI "OCT_exportWindow";}
+	window -title "OCT_export_tool" -s 0 -w 540 -h 300 "OCT_exportWindow";
+		columnLayout -w 540 -h 300 "exportColumn";
+			text -w 540 -h 30 -l "please select formats and texture for export the format is ==>  mb/ma/ass/ass.gz/vrmesh" "exprotText";
+			rowLayout -nc 6 -cw6 90 90 90 90 90 90 "exportRow";
+				checkBox -v 1 -w 90 -h 50  -ann "export mb format" -l "MB" "exportMB";
+				checkBox -v 0 -w 90 -h 50  -ann "export ma format" -l "MA" "exportMA";
+				checkBox -v 1 -w 90 -h 50  -ann "export arnold ass format" -l "ASS" "exportARNOLD_ASS";
+				checkBox -v 0 -w 90 -h 50  -ann "export arnold ass.gz format" -l "GZ" "exportARNOLD_GZ";
+				checkBox -v 0 -w 90 -h 50  -ann "export vray cache vrmesh format" -l "vray" "exportVRAY";
+				checkBox -v 1 -w 90 -h 50  -ann "export texture checking " -l "TEX" "exportTex";
+				setParent..;
+			rowLayout -nc 2 -cw2 400 140 "exportButtonRow";    
+				button -l "ECO export" -w 400 -h 80 -bgc 0.1 0.3 0 -ann "export to the selected formats"
+					-c "OCT_exportSeedTool" "exportButton";
+				button -l "close window"  -w 150 -h 80 -bgc 0.3 0.1 0  -ann "close the export window"
+					-c "deleteUI OCT_exportWindow"  "closeExportButton";
+				setParent..;
+	showWindow "OCT_exportWindow";
+}
+global proc OCT_exportSeedTool()
+{
+    global string $isCheckedSG[];$isCheckedSG = {};
+	
+	global int $isCheckID;$isCheckID = 0;
+
+	string $render = `getAttr defaultRenderGlobals.currentRenderer`;
+	global string $isCheckedSG[];
+	global int $isCheckID ;
+	global string $nodeTypeGain[]; //string array contains whole file node for every SG
+    global int $nodeId; //the string array of SG
+    string $filePath = `workspace -fn`+"/scenes/OCT_seed_lib/";
+    string $projPath = `workspace -fn`+"/";
+	string $ecoTexPath = "sourceimages/arnoldTex/";
+    if(chdir($filePath) == -1){sysFile -md $filePath;}
+	//checking if it has the arnold export for rename the shading engine node as date time
+	int $arnoldState = 0;
+	if(`checkBox -q -v exportARNOLD_ASS`||`checkBox -q -v exportARNOLD_GZ`){$arnoldState = 1;}
+	
+    string $sl[] = `ls -sl`;
+    string $T;
+    for($T in $sl)
+    {
+        string $arnoldSG_tempName[] = {};//for arnold shading engine name temp
+		int $arnoldSG_tempIndex = 0;
+
+		if(`checkBox -q -v "exportTex"`)
+		{
+			string $shape[] = `listRelatives -f -ad -c -ni -type "mesh" -type "nurbsSurface" $T`;
+			string $shapeT;
+			for($shapeT in $shape)
+			{
+				string $SG[]  = `listConnections -s 0 -type "shadingEngine" $shapeT`;
+				string $SGT;
+				for($SGT in $SG)
+				{
+					//temp the SG node name for arnold SG to rename as the date massage, and is not already contained in $arnoldSG_tempName array
+					if($arnoldState && $SGT != "initialParticleSE" && $SGT != "initialShadingGroup" && !stringArrayContains($SGT,$arnoldSG_tempName))
+					{
+						
+						$arnoldSG_tempName[$arnoldSG_tempIndex] = $SGT; 
+						$arnoldSG_tempIndex++;
+					}
+					$nodeTypeGain = {};
+					$nodeId = 0;
+					 if(!stringArrayContains($SGT,$isCheckedSG))//checking this SG has not been calculated
+					 {
+						OCT_getInputMatNodeArray("file",$SGT);//this function will get all file node to $nodeTypeGain string array
+						$isCheckedSG[$isCheckID] = $SGT;
+						$isCheckID++;
+					 }
+					//will get the all file node in global string array $nodeTypeGain[]
+					if(size($nodeTypeGain))
+					{
+						 string $texFileNodeT;
+						for($texFileNodeT in $nodeTypeGain)
+						{
+							
+							string $sourceTex = "";
+							OCT_checkSetTexFilePath_S($texFileNodeT);//set to relatives
+							string $tex = `getAttr ($texFileNodeT+".fileTextureName")`;
+							//get absolutly path
+							if(`file -q -ex  ($projPath+$tex)`)
+							{
+								$sourceTex = $projPath+$tex;
+								//print ("projPath is ==> "+$projPath+"  tex is ==> "+$tex+"\n");
+								
+							}
+							else if(`file -q -ex $tex`)
+							{
+								$sourceTex = $tex;
+								//print("tex is ==> "+$tex+"\n");
+							}
+							//for the situation about open from other workspace,the texture path will to "$fileWorkSpace+\\sourceimage/****"
+							else
+							{
+								string $tokenP[] = {};
+								tokenize $tex "\\/" $tokenP;
+								string $TT;
+								
+								for($TT in $tokenP)
+								{
+									if($TT == $tokenP[size($tokenP)-1]){$sourceTex += $TT;}
+									else {$sourceTex += $TT +"/";}
+								}
+							}
+							string $tokenTex[] = {};
+							tokenize $tex "/\\" $tokenTex;
+							string $texName = $tokenTex[size($tokenTex)-1];
+							string $tartgetTexPath = $projPath+$ecoTexPath+$T+"/";
+							if(chdir($tartgetTexPath) == -1){sysFile -md $tartgetTexPath;}
+							if(`file -q -ex $sourceTex`)
+							{
+								if(!`file -q -ex ($tartgetTexPath+$texName)`){sysFile -copy ($tartgetTexPath+$texName) $sourceTex;}
+							}
+							else
+							{
+								confirmDialog -t "OCT error" -message ("this texture is not find, node name ==> " + $texFileNodeT+"\ntexutre path ==> "+$sourceTex+"\nseed name is ==> "+$T+"\n") -icon "critical";
+								error ("this texture is not find, node name ==> " + $texFileNodeT+"\ntexutre path ==> "+$sourceTex+"\nseed name is ==> "+$T+"\n");
+							}
+							setAttr -type "string" ($texFileNodeT+".fileTextureName")  ($ecoTexPath+$T+"/"+$texName);
+						}
+					}
+				}
+			}
+		}
+		//string array for original sg and new sg name
+		string $originalSG[] = {};
+		string $ai_newNameSG[] = {};
+		int $aiSG_index = 0;
+        //export scenes model file
+        select -r $T;		
+		//export to mb format file
+		if(`checkBox -q -v exportMB`)
+		{		
+			int $vmeshStat = OCT_copyVmeshCache($T);//copy vray mesh
+			string $fileName_format = "";
+			if($vmeshStat){$fileName_format = $filePath+$T+"_vrProxy.mb";}
+			else{$fileName_format = $filePath+$T+".mb";}
+			if(!catch(`file -force -options "v=0;" -ch 1 -typ "mayaBinary" -pr -es $fileName_format`))
+			{print("the exported object is ==> "+$fileName_format+"\n");}
+		}
+		//export to ma format file
+		if(`checkBox -q -v exportMA`)
+		{		
+			int $vmeshStat = OCT_copyVmeshCache($T);//copy vray mesh
+			string $fileName_format = "";
+			if($vmeshStat){$fileName_format = $filePath+$T+"_vrProxy.ma";}
+			else{$fileName_format = $filePath+$T+".ma";}
+			if(!catch(`file -force -options "v=0;" -ch 1 -typ "mayaAscii" -pr -es $fileName_format`))
+			{print("the exported object is ==> "+$fileName_format+"\n");}
+			
+		}
+		//export to ass format file
+		if(`checkBox -q -v exportARNOLD_ASS`)
+		{		
+			////////////////rename shading engine with current data time massages//////////////////
+			if(size($arnoldSG_tempName))
+			{
+				string $aiTempSG_T;
+				int $AISG_cout = 0;
+				for($aiTempSG_T in $arnoldSG_tempName)
+				{
+					string $currentDateTime = `date -f "YYYYYYMMDDhhmmss"`;
+					string $prefixName		= startString($aiTempSG_T,5);
+					string $newSG_name		= "AI_"+$prefixName+$currentDateTime+$AISG_cout+"SG";
+					string $reNameSG = "";
+					print("SG name is ==> "+$aiTempSG_T+"\n");
+					if(!catch($reNameSG = `rename $aiTempSG_T $newSG_name`))
+					{
+						$originalSG[$aiSG_index] = $aiTempSG_T;
+						$ai_newNameSG[$aiSG_index] = $reNameSG;
+						$AISG_cout++;
+						$aiSG_index ++ ;
+					}
+				}
+			}
+			if(catch(`setAttr -type "string" "defaultRenderGlobals.currentRenderer" "arnold"`)){warning("OCT warning : please check using arnold  as current render\n");}
+			string $fileName_format = $filePath+$T+".ass";
+			if(catch(`setAttr "defaultArnoldRenderOptions.absoluteTexturePaths" 0`)){warning("OCT warning : please check the arnold render is loaded and using now!");}
+			if(!catch(`file -force -options "-mask 25;-lightLinks 0;-shadowLinks 0" -typ "ASS Export" -pr -es $fileName_format`))
+			{print("the exported object is ==> "+$fileName_format+"\n");}
+			catch(`setAttr -type "string" "defaultRenderGlobals.currentRenderer" $render`);//set to the original render
+			//if not ass.gz export ,will set the sg name to original name
+			if(!`checkBox -q -v exportARNOLD_GZ`)
+			{
+				int $sgId = 0;
+				for($sgId = 0; $sgId < size($ai_newNameSG);$sgId ++)
+				{
+					rename $ai_newNameSG[$sgId]  $originalSG[$sgId];
+				}
+				$ai_newNameSG = {};
+				$originalSG   = {};
+				$arnoldSG_tempName = {};
+			}
+		}
+		//export to ass.gz format file
+		if(`checkBox -q -v exportARNOLD_GZ`)
+		{		
+			////////////////if not export ass, rename shading engine with current data time massages//////////////////
+			if(size($arnoldSG_tempName) && !`checkBox -q -v exportARNOLD_ASS`)
+			{
+				string $aiTempSG_T;
+				int $AISG_cout = 0;
+				for($aiTempSG_T in $arnoldSG_tempName)
+				{
+					string $currentDateTime = `date -f "YYYYYYMMDDhhmmss"`;
+					string $prefixName		= startString($aiTempSG_T,5);
+					string $newSG_name		= "AI_"+$prefixName+$currentDateTime+$AISG_cout+"SG";
+					string $reNameSG = "";
+					if(!catch($reNameSG = `rename $aiTempSG_T $newSG_name`))
+					{
+						$originalSG[$aiSG_index] = $aiTempSG_T;
+						$ai_newNameSG[$aiSG_index] = $reNameSG;
+						$AISG_cout++;
+						$aiSG_index ++ ;
+					}
+				}
+			}
+			
+			if(catch(`setAttr -type "string" "defaultRenderGlobals.currentRenderer" "arnold"`)){warning("OCT warning : please check using arnold  as current render\n");}
+			string $fileName_format = $filePath+$T+".ass";
+			if(catch(`setAttr "defaultArnoldRenderOptions.absoluteTexturePaths" 0`)){warning("OCT warning : please check the arnold render is loaded and using now!");}
+			if(!catch(`arnoldExportAss -f $fileName_format -s -mask 25 -lightLinks 0 -compressed -shadowLinks 0-cam perspShape`))
+			{print("the exported object is ==> "+$fileName_format+"\n");}
+			catch(`setAttr -type "string" "defaultRenderGlobals.currentRenderer" $render`);//set to the original render
+			////////////////set the shading engine name to the original name/////////////
+			if(size($ai_newNameSG))
+			{
+				int $sgId = 0;
+				for($sgId = 0; $sgId < size($ai_newNameSG);$sgId ++)
+				{
+					rename $ai_newNameSG[$sgId]  $originalSG[$sgId];
+				}
+				$ai_newNameSG = {};
+				$originalSG   = {};
+				$arnoldSG_tempName = {};
+			}
+		}
+		//export to vrmesh format file
+		if(`checkBox -q -v exportVRAY`)
+		{		
+			//back up the vrmesh file
+			string $vrProxyBackPath = $filePath+"vrProxyBackUP/";
+			string $vrProxyBackFile = $vrProxyBackPath+$T+"_vrBackUP.ma";
+			if(chdir($vrProxyBackPath) == -1){sysFile -md ($vrProxyBackPath);}
+			catch(`file -force -options "v=0;" -ch 1 -typ "mayaAscii" -pr -es $vrProxyBackFile`);	
+			//create the vrmesh file
+			string $fileName_vrmesh = $T+".vrmesh";
+			string $filePath_vrmesh = $filePath;
+			if(catch(`vrayCreateProxy -createProxyNode -node $T -dir $filePath_vrmesh -fname $fileName_vrmesh`)){warning("OCT warning : please checking the vray plugin is loading now!");}
+			else
+			{
+				//export the vray proxy mode new node
+				select -r $T;
+				string $vrProxyFile = $filePath+$T+"_vrProxy.ma";
+				catch(`file -force -options "v=0;" -ch 1 -typ "mayaAscii" -pr -es $vrProxyFile`);
+			}
+			{print("the exported object is ==> "+($filePath_vrmesh+$fileName_vrmesh)+"\n");}
+		}
+		
+    }
+	
+}
+//will get the mat list from list and checking the image file node array
+global proc OCT_getInputMatNodeArray(string $nodeType,string $checkNode_SG)//get mat node by sg ndoe
+{
+		//get maya mat 
+    string $connect[] = `listConnections -scn 1 -d 0 -type "shadingDependNode" $checkNode_SG`;//maya mat type
+		//get arnold and vray mat, THdependNode is the third render mat node type 
+	string $tempCon[] = `listConnections -scn 1 -d 0 -type "THdependNode" $checkNode_SG`;//arnold type mat
+	if(size($tempCon)){appendStringArray($connect,$tempCon,size($tempCon));}
+		//get displacement mat
+		$tempCon = {};
+		$tempCon = `listConnections -scn 1 -d 0 -type "displacementShader" $checkNode_SG`;//arnold type mat
+	if(size($tempCon)){appendStringArray($connect,$tempCon,size($tempCon));}
+	string $T;
+	for($T in $connect)
+	{
+		OCT_getInputNodeByType($nodeType,$T);
+	}
+}
+global proc OCT_getInputNodeByType(string $nodeType,string $checkNode)
+{
+    global string $nodeTypeGain[];
+	global int $nodeId;
+		//get maya mat 
+    string $connect[] = {};
+	if(catch($connect = `listConnections -d 0 -scn 1 $checkNode`)){error ("the error checking node is ==> "+$checkNode);}
+    string $con;
+    for($con in $connect)
+    {
+        print ("the current checking node is ==> "+$con+"\n");
+		if(nodeType($con) == $nodeType){$nodeTypeGain[$nodeId] = $con;$nodeId++;}
+        else{OCT_getInputNodeByType($nodeType,$con);}
+    }
+}
+
+
+
+///////////////copy vmesh cache to the //////////////////////////////////////////////////////////////////////
+global proc int OCT_copyVmeshCache(string $slGrp)
+{
+	global string $nodeTypeGain[];$nodeTypeGain = {};
+	global int $nodeId; $nodeId = 0;
+	//string $sl[] = `ls -sl`;
+	string $workSpace = `workspace -q -fn`+"/";
+	string $scenFilePath = "scenes/OCT_seed_lib/";
+	//if(chdir($workSpace+$scenFilePath) == -1){sysFile -md ($workSpace+$scenFilePath);}
+	
+	string $vMesh[] = `listRelatives -f -c -type "mesh" -type "nurbsSurface" -ad $slGrp`;
+	string $T;
+	for($T in $vMesh)
+	{
+		OCT_getInputNodeByType("VRayMesh",$T);
+		string $V;
+		for($V in $nodeTypeGain)
+		{
+			if(chdir($workSpace+$scenFilePath) == -1){sysFile -md ($workSpace+$scenFilePath);}
+			string $pathTemp = getAttr ($V+".fileName");
+			string $token[];
+			tokenize $pathTemp "\\/" $token;
+			string $fileName = $token[size($token)-1];
+			string $sourceVname = "";
+			if(`file -ex -q $pathTemp`){$sourceVname = $pathTemp;}//check if it is the absolutly path  
+			else if(`file -ex -q ($workSpace+$pathTemp)`) {$sourceVname = $workSpace+$pathTemp;} // if the path is relative the workspace
+			else{warning("the obj is not exists,please check the path ==> "+$pathTemp+"\n");} // warning it is exists
+			
+			/////////set the target vrmesh cache path//////////////////////////////////
+			//string $targetVrmesh = $slGrp+"/"+$fileName;
+			string $targetVname = $workSpace+$scenFilePath+$fileName;		
+			
+			if(!`file -ex -q $targetVname`)
+			{
+				//print ($sourceVname+"\n");
+				if(`file -ex -q $sourceVname`)
+				{
+					if(!catch(`sysFile -copy $targetVname $sourceVname`))
+					{
+						print ($targetVname+" is copys OK!\n");
+					}
+				}
+			}
+			if(`file -ex -q $targetVname`){setAttr -type "string" ($V+".fileName") ($scenFilePath+$fileName);}
+		}
+	}
+	if(size($nodeTypeGain)){return 1;}//get the vrayMeshChace
+	else{return 0;}
+}
+
+///////////////////checking and set texture path by file node//////////////////////////////////////////////////////////
+global proc OCT_checkSetTexFilePath_S(string $fileNode)
+{
+	string $projPath_SG = `workspace -fn`;
+	string $texPath = `getAttr ($fileNode+".fileTextureName")`;
+	string $pathToken[] = {};
+	tokenize $texPath "\\/" $pathToken;
+	string $sourceT;
+	int $getSource = 0;
+	string $texRelativePath = "";
+	for($sourceT in $pathToken)
+	{
+		if($sourceT == "sourceimages")
+		{
+			$getSource ++;
+		}
+		if($getSource>0)
+		{
+			if($sourceT == $pathToken[size($pathToken)-1]){$texRelativePath += $sourceT;}
+			else{$texRelativePath += $sourceT+"/";}//get path string from sourceimages
+		}
+	}
+	//print ("the path is ==> "+$texRelativePath+"\n");
+	//check the file is exists
+/*	
+	if(!`file -q -ex $texPath`)
+	{
+		confirmDialog -t "OCT error" -message ("this tex file node has lost texture map ==> "+$fileNode+"\n==> the path is "+$texPath+"\n") -icon "critical";
+		error("OCT_errorMassage : this tex file node has lost texture map ==> "+$fileNode+" ==> the path is "+$texPath+"\n");
+	}
+*/	
+	//check if it is exists in the current workspace
+	if(`file -q -ex ($projPath_SG+"/"+$texRelativePath)`){setAttr -type "string" ($fileNode+".fileTextureName") $texRelativePath;}
+	//else{warning("OCT_warning : the file texture map is not in current work space, the node is ==> "+$fileNode+" ==> current path is ==> "+$texPath+"\n");}
+}
+
+/*
+global proc OCT_getInputNodeByType(string $nodeType,string $checkNode)
+{
+    global string $nodeTypeGain[];
+	global int $nodeId;
+		//get maya mat 
+    string $connect[] = {};
+	if(catch($connect = `listConnections -d 0 -scn 1 $checkNode`)){error ("the error checking node is ==> "+$checkNode);}
+    string $con;
+    for($con in $connect)
+    {
+        //print ("the current checking node is ==> "+$con+"\n");
+		if(nodeType($con) == $nodeType){$nodeTypeGain[$nodeId] = $con;$nodeId++;}
+        else{OCT_getInputNodeByType($nodeType,$con);}
+    }
+}
+
+
+*/

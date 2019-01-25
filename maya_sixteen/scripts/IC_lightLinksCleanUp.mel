@@ -1,0 +1,85 @@
+global proc IC_LightLinksCleanUp() {
+	int $i=0;
+	for($i=0; $i < 20; $i++) {
+		string $errorObj[] = `ls -type "unknown"`;
+		for($obj in $errorObj) {
+			catch( `delete $obj` );
+		}
+	}
+
+	float $startTime = `timerX`;
+	float $elaspedTime;
+	int $min;
+	int $sec;
+	string $lightLinker[] = `ls -typ lightLinker`;
+	int $numOfLinker = size($lightLinker);
+	int $numOfbadLinks = 0;
+	int $numOfAllLinks = 0;
+	string $linkedPair[] = {};
+	print "\nLightLinksCleanUp:\n";
+	print "-------------------------------\n";
+
+	for ($i=0; $i<size($lightLinker); $i++) {
+		progressWindow -title  ("Checking '" + $lightLinker[$i] + "' (" + ($i+1) + "/" + $numOfLinker + ") ...") -isInterruptable  1 -status  ("查询LightLink中, 请等待... ");
+
+		if ( `progressWindow -query -isCancelled` ) break;
+		string $connections[] = `listConnections -connections  1 -plugs  1 -destination  0 -source  1 $lightLinker[$i]`;
+		string $tmpPair = "";
+		int $numOfcons = size($connections);
+
+		if (!$numOfcons) {
+			print ("- Cleaning Up '" + $lightLinker[$i] + "': 没有多余的灯光连接被找到!\n");
+			progressWindow -endProgress ;
+			continue;
+		}
+		else {
+			print ("- Cleaning Up '" + $lightLinker[$i] + "', All "  + ($numOfcons/2) + " Connections\n");
+		}
+
+		int $progress = 0;
+		int $percentage = 0;
+		progressWindow -edit -title ("'" + $lightLinker[$i] + "' (" + ($i+1) + "/" + $numOfLinker + ")" + ", " + ($numOfcons/2) + " Connections...") -progress $progress -isInterruptable 1 -min 0 -max $numOfcons;
+		int $j = 0;
+		while ($j<$numOfcons) {
+			if ( `progressWindow -query -isCancelled` ) {
+				warning "用户放弃了!\n";
+				break;
+			}
+			$numOfAllLinks ++;
+			$progress = $j;
+			$percentage = $progress * 100 / $numOfcons;
+			progressWindow -edit -progress $progress -status ("  处理 LightLinks (" + $percentage + "%) ... ");
+			string $LinkIgnoreLit = match("(link){0,1}(ignore){0,1}\\[[0-9]+\\]", $connections[$j]);
+			string $LinkIgnoreObj = match("(link){0,1}(ignore){0,1}\\[[0-9]+\\]", $connections[$j+2]);
+
+			if ($LinkIgnoreLit == $LinkIgnoreObj) {
+				$tmpPair = $connections[$j+1] + ":" + $connections[$j+3];
+
+				if (stringArrayCount($tmpPair, $linkedPair)) {
+					disconnectAttr $connections[$j+1] $connections[$j];
+					disconnectAttr $connections[$j+3] $connections[$j+2];
+					$numOfbadLinks ++;
+				}
+				else {
+					$linkedPair[size($linkedPair)] = $connections[$j+1] + ":" + $connections[$j+3];
+				}
+
+				$j += 4;
+			}
+			else {
+				disconnectAttr $connections[$j+1] $connections[$j];
+				$numOfbadLinks ++;
+				$j += 2;
+			}
+		}
+		progressWindow -endProgress;
+	}
+
+	$elaspedTime = `timerX -startTime $startTime`;
+	$min = $elaspedTime/60;
+	$sec = $elaspedTime%60;
+	print "\nLightLinksCleanUp摘要:\n";
+	print "-------------------------------\n";
+	print ("- 删除了总共 " + $numOfbadLinks + " 个多余无用的连接 " + $numOfAllLinks + " 灯光连接. (共耗时: " + $min + " 分钟, " + $sec + " 秒)\n");
+}
+

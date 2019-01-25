@@ -1,0 +1,31 @@
+global proc tazz_CreatePointToVolumnLight()
+{
+    string $cmd = "shadingNode -asLight pointLight";
+    string $lightName = `eval $cmd`;
+    string $sphereShape = `createNode renderSphere -parent $lightName`;
+    if (!`objExists pointLightSampler`)
+        createNode samplerInfo -name "pointLightSampler";
+    string $distance = `createNode distanceBetween`;
+    string $multiplyDivide = `createNode multiplyDivide`;
+    setAttr ($multiplyDivide + ".operation") 2;
+    string $clamp = `createNode clamp`;
+    setAttr ($clamp + ".maxR") 1;
+    string $ramp = `createNode ramp`;
+    removeMultiInstance -break true ($ramp + ".colorEntryList[1]");
+    setAttr ($ramp + ".colorEntryList[0].color") -type double3 1 1 1;
+    setAttr ($ramp + ".colorEntryList[2].color") -type double3 0 0 0;
+    setAttr ($ramp + ".colorEntryList[0].position") 0;
+    setAttr ($ramp + ".colorEntryList[2].position") 1;
+    setAttr ($ramp + ".interpolation") 4;
+    string $curlightShape[] = `listRelatives -shapes -children -type light $lightName`;
+    addAttr -longName range -attributeType "float"  -min 0 -max 10000 -softMaxValue 100 -defaultValue 1 $curlightShape[0];
+    connectAttr -f ($curlightShape[0] + ".range") ($sphereShape + ".radius");
+    connectAttr -f ($sphereShape + ".worldInverseMatrix[0]") ($distance + ".inMatrix1") ;
+    connectAttr -f "pointLightSampler.pointWorld" ($distance + ".point1") ;
+    connectAttr -f ($distance + ".distance") ($multiplyDivide + ".input1X") ;
+    connectAttr -f ($curlightShape[0] + ".range") ($multiplyDivide + ".input2X") ;
+    connectAttr -f ($multiplyDivide + ".outputX") ($clamp + ".inputR") ;
+    connectAttr -f ($clamp + ".outputR") ($ramp + ".vCoord") ;
+    connectAttr -f ($ramp + ".outColor") ($curlightShape[0] + ".color") ;
+}
+

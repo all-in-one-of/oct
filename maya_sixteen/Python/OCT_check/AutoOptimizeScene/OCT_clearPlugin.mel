@@ -1,0 +1,14 @@
+global proc OCT_clearPlugin(){
+	string $plugin;
+	string $unknownPlugins[] = `unknownPlugin -query -list`;
+	for ($plugin in $unknownPlugins)
+	{
+		if(catch (`unknownPlugin -remove $plugin`) ){
+			print("Plug-in cannot be removed "+$plugin+"\n");
+		}else{
+			
+		}
+	}
+}
+
+OCT_clearPlugin();

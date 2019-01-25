@@ -1,0 +1,60 @@
+//This MEL is using to change every texture file path to //"sourceimages/..." and set
+//the "Use Cache" on.
+
+global proc UniformPathnames()
+{
+    string  $allfile[];
+    string  $file;
+    $allfile = `ls -typ file`;
+    float $size;
+    for ( $file in $allfile )
+     {
+         string $texturename=$file+".fileTextureName";
+         string $filepath1     = `getAttr $texturename`;
+         string $s1 = `substitute "urceimages" $filepath1 "+"`;
+         string $buffer[];
+         $numTokens = `tokenize $s1 "+" $buffer`;
+         $size=size($buffer);
+         if ($size>1)
+          {
+          string $filepath="sourceimages"+$buffer[1];
+          setAttr -type "string" $texturename $filepath;
+          }
+         else
+          {
+              string $s1 = `substitute "mages" $filepath1 "+"`;
+              string $buffer1[];
+              $numTokens = `tokenize $s1 "+" $buffer1`;
+              $size=size($buffer1);
+              if ($size>1)
+                 {
+                  string $filepath="sourceimages"+$buffer1[1];
+                  setAttr -type "string" $texturename $filepath;
+                 }
+              else
+                {
+                  string $s1 = `substitute "extures" $filepath1 "+"`;
+                  string $buffer2[];
+                  $numTokens = `tokenize $s1 "+" $buffer2`;
+                  $size=size($buffer2);
+                  if ($size>1)
+                    {
+                      string $filepath="sourceimages"+$buffer2[1];
+                      setAttr -type "string" $texturename $filepath;
+                    }
+                  else
+                   {
+                     string $filepath="sourceimages"+$filepath1;
+                     setAttr -type "string" $texturename $filepath;
+                   }
+               }
+          }
+
+
+    string $filecache=$file+".useCache";
+    setAttr $filecache 1;
+    string $filecache=$file+".filterType";
+    setAttr $filecache 1;
+     }
+
+}

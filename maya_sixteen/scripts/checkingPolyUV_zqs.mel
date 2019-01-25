@@ -1,0 +1,103 @@
+////////////////////////////check the poly UV ///////////////////////////////////////////////////////////////////////
+global proc checkingPolyUV_zqs()
+{
+	string $exceptGroup = "trees_02";
+	//if(!`objExists $exceptGroup`){error("please test the exept group is exists");}
+	string $mShape[] = `ls -ni -ap -type "mesh"`;
+	string $mT;
+	int $noUVCout  = 0;
+	int $badUVCout = 0;
+	int $unUsedUV  = 0;
+	constructionHistory -toggle false;
+	for($mT in $mShape)
+	{
+		if(!`objExists $exceptGroup` || (`objExists $exceptGroup` && !isParentOf($exceptGroup,$mT))  )
+		{
+			string $uvN[] = `polyUVSet -q -awc $mT`;
+			if(size($uvN) <1)
+			{
+				select -cl;
+				polyAutoProjection -ch 0 $mT;
+				$noUVCout++;
+				print("this obj has no uv set ==> "+ $mT+"\n");
+			}
+			else if(size($uvN) == 1)
+			{
+				string $cuv[] = `polyUVSet -q -cuv $mT`; //get current uvset name
+				float $uvBBox[] = `polyEvaluate -b2 -uvs $cuv[0] $mT`;
+				if(abs($uvBBox[1] - $uvBBox[0]) == 0 && abs($uvBBox[3] - $uvBBox[2]) == 0 )
+				{
+					select -cl;
+					polyAutoProjection -ch 0 $mT;
+					//print("has  bad uv set obj ==> "+$mT+"\n");
+					$badUVCout ++;
+				}
+			}
+			else if(size($uvN)>1)
+			{
+				string $cuv[] = `polyUVSet -q -cuv $mT`; //get current uvset name
+				float $uvBBox[] = `polyEvaluate -b2 -uvs $cuv[0] $mT`;
+				//if the current uv is good
+				if(abs($uvBBox[1] - $uvBBox[0]) > 0 || abs($uvBBox[3] - $uvBBox[2]) > 0 )
+				{
+					if($cuv[0] != $uvN[0])
+					{
+						if(catch(`polyCopyUV -uvSetNameInput $cuv[0] -uvSetName $uvN[0]  -ch 0 $mT`))
+						{
+							print ("the has no default uv set ==> map1, the mesh is ==>" + $mT+"\n");
+							polyCopyUV -uvSetNameInput $cuv[0] -cm 1 -uvSetName $uvN[0]  -ch 0 $mT;
+						}
+
+						polyUVSet -currentUVSet -uvSet $uvN[0] $mT;
+					}
+				}
+				else // if the current uv is not good ,copy other uv to current defultUV
+				{
+					string $uvT;
+					int $uvStat = 0;
+					for($uvT in $uvN)
+					{
+						float $uvBBox[] = `polyEvaluate -b2 -uvs $uvT $mT`;
+						// if this uv is good then copy to map1
+						if(abs($uvBBox[1] - $uvBBox[0]) > 0 || abs($uvBBox[3] - $uvBBox[2]) > 0 )
+						{
+							if($uvT!= $uvN[0])
+							{
+								polyCopyUV -uvSetNameInput $uvT -uvSetName $uvN[0] -ch 0 $mT;
+							}
+							if($cuv[0] != $uvN[0]){polyUVSet -currentUVSet -uvSet $uvN[0] $mT;}
+							$uvStat ++;
+							break;
+						}
+					}
+					if($uvStat <1)//if the uvStat still less than 1 it is no UV autoUV
+					{
+						if($cuv[0] != $uvN[0]){polyUVSet -currentUVSet -uvSet $uvN[0] $mT;}
+						select -cl;
+						polyAutoProjection -ch 0 $mT;
+					}
+				}
+				//delete other uv set////////////////////////////////////////////////////////
+				string $uvT;
+				for($uvT in $uvN)
+				{
+					if($uvT != $uvN[0])
+					{
+						if (!catch(`polyUVSet -d -uvSet $uvT  $mT`))
+						{
+							print("delete unUsed UV ==> " +$unUsedUV +" \t: "+ $uvT +"\n");
+							//print("withShape is   ==> " +$mT +"\n");
+							$unUsedUV++;
+						}
+					}
+				}
+
+			}//if(size($uvN)>1)
+		}
+	}
+	constructionHistory -toggle true;
+	print ("delete unUsed UV number is ==> "+$unUsedUV+"\n");
+	print ("this obj has no uv poly number is ==> "+$noUVCout+"\n");
+	print ("has  bad uv set obj poly number is ==> "+$badUVCout+"\n");
+
+}

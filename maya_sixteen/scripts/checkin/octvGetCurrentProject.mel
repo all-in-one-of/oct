@@ -1,0 +1,24 @@
+global proc string octvGetCurrentProject(string $path)
+{
+	string $project = "";
+
+	if ($path == "")
+	{
+		$path = `file -query -sceneName`;
+	}
+	string $filename = `match "[^/\\]+$" $path`;
+	string $shortName = `match "^[^_]+" $filename`;
+	$shortName = tolower($shortName);
+	
+	string $projects[] = octvGetProjects();
+	for ($item in $projects)
+	{
+		if ($shortName == tolower($item))
+		{
+			$project = $item;
+			break;
+		}
+	}
+
+	return $project;
+}

@@ -1,0 +1,38 @@
+global proc delect_UnuseredCache()
+{
+	string $cacheFiles[] = `ls -type "cacheFile"`;
+	for ($cacheFile in $cacheFiles)
+	{
+		if (`referenceQuery -isNodeReferenced $cacheFile`)
+		{
+			continue;
+		}
+		string $source = `getAttr ($cacheFile+".cachePath")`;
+		
+		if ($source == "")
+		{
+			continue;
+		}
+		
+		string $cacheShape[]=`listConnections -sh 1 -s 0 $cacheFile`;
+		int $flags=0;
+		string $caches;
+		for($cacheS in $cacheShape){
+			if(objectType($cacheS)=="nCloth"){
+				$flags=1;
+				break;
+			}else if(objectType($cacheS)=="hairSystem"){
+				$flags=2;
+				break;
+			}else if(objectType($cacheS)=="historySwitch"){
+				$flags=3;
+				break;
+			}
+		}
+		if($flags == 0){
+			delete $cacheFile;
+		}
+	}
+
+	print "UnuseredCache....................";
+}

@@ -1,0 +1,22 @@
+global proc wind_noises(){
+    string $pySelectObjects[] = `ls -sl`;
+    string $pyAddnoiseName;
+    select -cl;
+    for($i=0;$i<size($pySelectObjects);$i++)
+    {   
+        string $geo[] =  `listRelatives -p -f $pySelectObjects[$i]`;
+        if(`size($geo)`>0){
+            string $add_noise[] =  `listRelatives -p -f $geo[0]`;
+            if(`objectType($add_noise[0])` == "houdiniAsset"){
+                continue;
+            }
+        }
+        select -r $pySelectObjects[$i] ;
+        houdiniEngine_addRecentAsset "Z:/Tech/Vfx/houdini/otlsformaya/wind_noise.hda" "Object/add_noise";
+        houdiniEngineAssetLibraryManager_addLoadedFile "Z:/Tech/Vfx/houdini/otlsformaya/wind_noise.hda";
+        $pyAddnoiseName = `houdiniAsset -loadAsset "Z:/Tech/Vfx/houdini/otlsformaya/wind_noise.hda" "Object/add_noise"`;
+        AEhoudiniAssetSetInputToSelection ($pyAddnoiseName + ".input[0]");
+        setAttr ($pySelectObjects[$i] + ".visibility") 0;
+    }
+    clear $pySelectObjects;
+}

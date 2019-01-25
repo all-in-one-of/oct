@@ -1,0 +1,404 @@
+global proc lbTr01() 
+{ 
+	string $lbSel0[] = `ls -sl`; 
+ 
+	float $lbFF01v = `floatField -q -v lbFF01v`; 
+	float $lbFFG01v = `floatSliderGrp -q -v lbFFG01v`; 
+ 
+	int $i; 
+	for($i = 0; $i < size($lbSel0); $i++) 
+	{ 
+		float $lbTemp0 = rand(-.5,.5) * $lbFFG01v * $lbFF01v ; 
+ 
+		move -r $lbTemp0 0 0 $lbSel0[$i]; 
+	} 
+} 
+ 
+global proc lbTr01b() 
+{ 
+	string $lbSel0[] = `ls -sl`; 
+ 
+	float $lbFF01v = `floatField -q -v lbFF01v`; 
+	float $lbFFG01v = `floatSliderGrp -q -v lbFFG01bv`; 
+ 
+	int $i; 
+	for($i = 0; $i < size($lbSel0); $i++) 
+	{ 
+		float $lbTemp1 = rand(-.5,.5) * $lbFFG01v * $lbFF01v ; 
+ 
+		move -r 0 $lbTemp1 0 $lbSel0[$i]; 
+	} 
+} 
+ 
+global proc lbTr01c() 
+{ 
+	string $lbSel0[] = `ls -sl`; 
+ 
+	float $lbFF01v = `floatField -q -v lbFF01v`; 
+	float $lbFFG01v = `floatSliderGrp -q -v lbFFG01cv`; 
+ 
+	int $i; 
+	for($i = 0; $i < size($lbSel0); $i++) 
+	{ 
+		float $lbTemp2 = rand(-.5,.5) * $lbFFG01v * $lbFF01v ; 
+ 
+		move -r 0 0 $lbTemp2 $lbSel0[$i]; 
+	} 
+} 
+ 
+ 
+global proc lbTr02() 
+{ 
+	string $lbSel0[] = `ls -sl`; 
+ 
+	float $lbFF02v = `floatField -q -v lbFF02v`; 
+	float $lbFFG02v = `floatSliderGrp -q -v lbFFG02v`; 
+ 
+	int $i; 
+	for($i = 0; $i < size($lbSel0); $i++) 
+	{ 
+		float $lbTemp0 = rand(-.5,.5) * $lbFFG02v * $lbFF02v ; 
+ 
+		rotate -r -os $lbTemp0 0 0 $lbSel0[$i]; 
+	} 
+ 
+} 
+ 
+global proc lbTr02b() 
+{ 
+	string $lbSel0[] = `ls -sl`; 
+ 
+	float $lbFF02v = `floatField -q -v lbFF02v`; 
+	float $lbFFG02v = `floatSliderGrp -q -v lbFFG02bv`; 
+ 
+	int $i; 
+	for($i = 0; $i < size($lbSel0); $i++) 
+	{ 
+		float $lbTemp1 = rand(-.5,.5) * $lbFFG02v * $lbFF02v ; 
+ 
+		rotate -r -os 0 $lbTemp1 0 $lbSel0[$i]; 
+	} 
+ 
+} 
+ 
+global proc lbTr02c() 
+{ 
+	string $lbSel0[] = `ls -sl`; 
+ 
+	float $lbFF02v = `floatField -q -v lbFF02v`; 
+	float $lbFFG02v = `floatSliderGrp -q -v lbFFG02cv`; 
+ 
+	int $i; 
+	for($i = 0; $i < size($lbSel0); $i++) 
+	{ 
+		float $lbTemp2 = rand(-.5,.5) * $lbFFG02v * $lbFF02v ; 
+ 
+		rotate -r -os 0 0 $lbTemp2 $lbSel0[$i]; 
+	} 
+ 
+} 
+
+global proc lbTr04(int $j)
+{
+	string $lbSel0[] = `ls -sl`; 
+	for($i = 0; $i < size($lbSel0); $i++) 
+	{ 
+		float $lbTemp2 = rand(0, 360);
+		if($j == 0){
+			setAttr ($lbSel0[$i]+".rotateX") $lbTemp2;
+		}
+		else if($j == 1){
+			setAttr ($lbSel0[$i]+".rotateY") $lbTemp2;
+		}
+		else if($j == 2){
+			setAttr ($lbSel0[$i]+".rotateZ") $lbTemp2;
+		}
+	} 
+	
+	
+}
+
+global proc lbTr03() 
+{ 
+	string $lbSel0[] = `ls -sl`; 
+ 
+	float $lbFF03v = `floatField -q -v lbFF03v`; 
+	float $lbFFG03v = `floatSliderGrp -q -v lbFFG03v`; 
+
+	int $i; 
+	for($i = 0; $i < size($lbSel0); $i++) 
+	{ 
+		float $lbTemp0 = $lbFFG03v * $lbFF03v ; 
+		float $temp0[] = `getAttr ($lbSel0[$i]+".scale")`;
+		if($lbTemp0 != 0 && $temp0[0] != 0){
+			float $temp1 = $lbTemp0/$temp0[0];
+			scale -r $temp1 1 1 $lbSel0[$i]; 
+		}
+		
+	} 
+} 
+ 
+ 
+global proc lbTr03b() 
+{ 
+	string $lbSel0[] = `ls -sl`; 
+ 
+	float $lbFF03v = `floatField -q -v lbFF03v`; 
+	float $lbFFG03v = `floatSliderGrp -q -v lbFFG03bv`; 
+
+ 	int $i; 
+	for($i = 0; $i < size($lbSel0); $i++) 
+	{ 
+		float $lbTemp0 = $lbFFG03v * $lbFF03v ; 
+		float $temp0[] = `getAttr ($lbSel0[$i]+".scale")`;
+		if($lbTemp0 != 0 && $temp0[1] != 0){
+			float $temp1 = $lbTemp0/$temp0[1];
+			scale -r 1 $temp1 1 $lbSel0[$i]; 
+		}
+		
+	} 
+	
+} 
+ 
+ 
+global proc lbTr03c() 
+{ 
+	string $lbSel0[] = `ls -sl`; 
+ 
+	float $lbFF03v = `floatField -q -v lbFF03v`; 
+	float $lbFFG03v = `floatSliderGrp -q -v lbFFG03cv`; 
+ 
+	int $i; 
+	for($i = 0; $i < size($lbSel0); $i++) 
+	{ 
+		float $lbTemp0 = $lbFFG03v * $lbFF03v ; 
+		float $temp0[] = `getAttr ($lbSel0[$i]+".scale")`;
+		if($lbTemp0 != 0 && $temp0[2] != 0){
+			float $temp1 = $lbTemp0/$temp0[2];
+			scale -r $temp1 1 1 $lbSel0[$i]; 
+		}
+		
+	} 
+} 
+
+global proc lbTr03d() 
+{ 
+	string $lbSel0[] = `ls -sl`; 
+ 
+	float $lbFF03v = `floatField -q -v lbFF03av`; 
+	float $lbFFG03v = `floatField -q -v lbFF03bv`; 
+ 
+	int $i; 
+	for($i = 0; $i < size($lbSel0); $i++) 
+	{ 
+		float $lbTemp0 = rand($lbFF03v,$lbFFG03v);
+		//float $lbTemp0 = $lbFFG03v * $lbFF03v ; 
+		scale -r $lbTemp0 $lbTemp0 $lbTemp0 $lbSel0[$i]; 
+		//setAttr ($lbSel0[$i]+".scale") $lbTemp0 $lbTemp0 $lbTemp0;
+		
+	} 
+} 
+ 
+global proc lbResetv01() 
+{ 
+	floatSliderGrp -e -v 0.0 lbFFG01v; 
+	floatSliderGrp -e -v 0.0 lbFFG01bv; 
+	floatSliderGrp -e -v 0.0 lbFFG01cv; 
+ 
+	floatSliderGrp -e -v 0.0 lbFFG02v; 
+	floatSliderGrp -e -v 0.0 lbFFG02bv; 
+	floatSliderGrp -e -v 0.0 lbFFG02cv; 
+ 
+	floatSliderGrp -e -v 0.0 lbFFG03v; 
+	floatSliderGrp -e -v 0.0 lbFFG03bv; 
+	floatSliderGrp -e -v 0.0 lbFFG03cv; 
+ 	
+ 
+	floatField -e -v 5.00 lbFF01v; 
+	floatField -e -v 20.00 lbFF02v; 
+	floatField -e -v 1 lbFF03v; 
+} 
+ 
+ 
+global proc lbTrUIv01() 
+{ 
+	string $myWindowName = "lbTrUIv01Win"; 
+	if( `window -exists $myWindowName` ) 
+	{ 
+		deleteUI $myWindowName; 
+		windowPref -remove $myWindowName; 
+	} 
+	if( !`window -exists $myWindowName` ) 
+	{ 
+		string $window = `window -title "libo MEL UI" -wh 400 450 -s 1 -rtf 1 $myWindowName`; 
+ 
+		string $form = `formLayout -numberOfDivisions 300`; 
+ 
+		string $lbCloseWindow = "deleteUI -window " + $myWindowName; 
+ 
+		string $t0 = `text -label "velcome" -al "center"`; 
+ 
+		string $lbFF01 = `floatField -minValue -100 -maxValue 100 -precision 2 -step 1 -v 5 lbFF01v`; 
+ 
+		string $lbFFG01 = `floatSliderGrp -label "move x" -field true -minValue -1.0 -maxValue 1.0 
+    			-fieldMinValue -10.0 -fieldMaxValue 10.0 -value 0 -cc lbTr01 lbFFG01v`; 
+		string $lbFFG01b = `floatSliderGrp -label "move y" -field true -minValue -1.0 -maxValue 1.0 
+    			-fieldMinValue -10.0 -fieldMaxValue 10.0 -value 0 -cc lbTr01b lbFFG01bv`; 
+		string $lbFFG01c = `floatSliderGrp -label "move z" -field true -minValue -1.0 -maxValue 1.0 
+    			-fieldMinValue -10.0 -fieldMaxValue 10.0 -value 0 -cc lbTr01c lbFFG01cv`; 
+ 
+		string $lbFF02 = `floatField -minValue -100 -maxValue 100 -precision 2 -step 1 -v 20 lbFF02v`; 
+ 
+		string $lbFFG02 = `floatSliderGrp -label "rotate x" -field true -minValue -1.0 -maxValue 1.0 
+    			-fieldMinValue -10.0 -fieldMaxValue 10.0 -value 0 -cc lbTr02 lbFFG02v`; 
+		string $lbFFG02b = `floatSliderGrp -label "rotate y" -field true -minValue -1.0 -maxValue 1.0 
+    			-fieldMinValue -10.0 -fieldMaxValue 10.0 -value 0 -cc lbTr02b lbFFG02bv`; 
+		string $lbFFG02c = `floatSliderGrp -label "rotate z" -field true -minValue -1.0 -maxValue 1.0 
+    			-fieldMinValue -10.0 -fieldMaxValue 10.0 -value 0 -cc lbTr02c lbFFG02cv`;
+
+    	string $lbFFG04 = `button -label "rotate x"  -c "lbTr04 0"`;
+
+    	string $lbFFG04b = `button -label "rotate y" -c "lbTr04 1"`;	
+
+    	string $lbFFG04c = `button -label "rotate z" -c "lbTr04 2"`;
+
+ 
+		string $lbFF03 = `floatField -minValue 1 -maxValue 100 -precision 3 -step 1 -v 1 lbFF03v`; 
+ 
+		string $lbFFG03 = `floatSliderGrp -label "scale x" -field true -minValue -1 -maxValue 1 
+    			-fieldMinValue -1 -fieldMaxValue 1 -value 0 -cc lbTr03 lbFFG03v`; 
+		string $lbFFG03b = `floatSliderGrp -label "scale y" -field true -minValue -1 -maxValue 1 
+    			-fieldMinValue -1 -fieldMaxValue 1 -value 0 -cc lbTr03b lbFFG03bv`; 
+		string $lbFFG03c = `floatSliderGrp -label "scale z" -field true -minValue -1 -maxValue 1 
+    			-fieldMinValue -1 -fieldMaxValue 1 -value 0 -cc lbTr03c lbFFG03cv`;
+
+    	string $lbFF03a = `floatField -minValue 0 -maxValue 100 -precision 2 -step 1 -v 0 lbFF03av`; 
+
+    	string $lbFF03b = `floatField -minValue 0 -maxValue 100 -precision 2 -step 1 -v 1 lbFF03bv`; 
+
+    	string $lbFF03c = `button -label "update" -c "lbTr03d"`;
+
+    	//string $lbFFG03d = `floatSliderGrp -label "scale" -field true -minValue -1 -maxValue 1 
+    	//		-fieldMinValue -1 -fieldMaxValue 1 -value 0 -cc lbTr03d lbFFG03dv`;
+
+		string $b0 = `button -label "Reset All" -al "center" -c lbResetv01`; 
+		string $b1 = `button -label "Close" -al "center" -c $lbCloseWindow`; 
+ 
+		formLayout -edit 
+			-attachForm            $t0    "top"     10 
+			-attachForm            $t0    "left"    10 
+			-attachNone            $t0    "bottom" 
+			-attachNone            $t0    "right" 
+ 
+			-attachControl         $lbFFG01  "top"      10  $t0 
+			-attachForm            $lbFFG01  "left"     -80 
+			-attachNone            $lbFFG01  "bottom" 
+			-attachNone            $lbFFG01  "right" 
+ 
+			-attachOppositeControl $lbFF01 "top"      0  $lbFFG01 
+			-attachNone            $lbFF01 "left"  
+			-attachNone            $lbFF01 "bottom" 
+			-attachForm            $lbFF01 "right"  10 
+ 
+			-attachControl         $lbFFG01b  "top"      10  $lbFFG01 
+			-attachForm            $lbFFG01b  "left"     -80 
+			-attachNone            $lbFFG01b  "bottom" 
+			-attachNone            $lbFFG01b  "right" 
+ 
+			-attachControl         $lbFFG01c  "top"      10  $lbFFG01b 
+			-attachForm            $lbFFG01c  "left"     -80 
+			-attachNone            $lbFFG01c  "bottom" 
+			-attachNone            $lbFFG01c  "right" 
+ 
+			-attachControl         $lbFFG02  "top"      10  $lbFFG01c 
+			-attachForm            $lbFFG02  "left"     -80 
+			-attachNone            $lbFFG02  "bottom" 
+			-attachNone            $lbFFG02  "right" 
+ 
+			-attachOppositeControl $lbFF02 "top"      0  $lbFFG02 
+			-attachNone            $lbFF02 "left"  
+			-attachNone            $lbFF02 "bottom" 
+			-attachForm            $lbFF02 "right"  10 
+ 
+			-attachControl         $lbFFG02b  "top"      10  $lbFFG02 
+			-attachForm            $lbFFG02b  "left"     -80 
+			-attachNone            $lbFFG02b  "bottom" 
+			-attachNone            $lbFFG02b  "right" 
+ 
+			-attachControl         $lbFFG02c  "top"      10  $lbFFG02b 
+			-attachForm            $lbFFG02c  "left"     -80 
+			-attachNone            $lbFFG02c  "bottom" 
+			-attachNone            $lbFFG02c  "right" 
+
+			
+			-attachControl         $lbFFG04  "top"      10  $lbFFG02c 
+			-attachForm            $lbFFG04  "left"     20
+			-attachNone            $lbFFG04  "bottom" 
+			-attachPosition        $lbFFG04   "right"    10  50 
+
+			-attachControl         $lbFFG04b  "top"      10  $lbFFG04 
+			-attachForm            $lbFFG04b  "left"     20
+			-attachNone            $lbFFG04b  "bottom" 
+			-attachPosition        $lbFFG04b   "right"    10  50 
+
+			-attachControl         $lbFFG04c  "top"      10  $lbFFG04b 
+			-attachForm            $lbFFG04c  "left"     20
+			-attachNone            $lbFFG04c  "bottom" 
+			-attachPosition        $lbFFG04c   "right"    10  50 
+
+ 
+			-attachControl         $lbFFG03  "top"      10  $lbFFG04c 
+			-attachForm            $lbFFG03  "left"     -80 
+			-attachNone            $lbFFG03  "bottom" 
+			-attachNone            $lbFFG03  "right" 
+ 
+			-attachOppositeControl $lbFF03 "top"      0  $lbFFG03 
+			-attachNone            $lbFF03 "left"  
+			-attachNone            $lbFF03 "bottom" 
+			-attachForm            $lbFF03 "right"  10 
+ 
+			-attachControl         $lbFFG03b  "top"      10  $lbFFG03 
+			-attachForm            $lbFFG03b  "left"     -80 
+			-attachNone            $lbFFG03b  "bottom" 
+			-attachNone            $lbFFG03b  "right" 
+ 
+			-attachControl         $lbFFG03c  "top"      10  $lbFFG03b 
+			-attachForm            $lbFFG03c  "left"     -80 
+			-attachNone            $lbFFG03c  "bottom" 
+			-attachNone            $lbFFG03c  "right" 
+
+			-attachControl         $lbFF03a  "top"      10  $lbFFG03c 
+			-attachForm            $lbFF03a  "left"     20
+			-attachNone            $lbFF03a  "bottom" 
+			-attachPosition        $lbFF03a   "right"   20  80
+ 
+			-attachControl         $lbFF03b  "top"      10  $lbFFG03c 
+			-attachForm            $lbFF03b  "left"     150
+			-attachNone            $lbFF03b  "bottom" 
+			-attachPosition        $lbFF03b   "right"   150  270
+			
+			-attachOppositeControl $lbFF03c   "top"      0  $lbFF03b
+			-attachNone            $lbFF03c "left"  
+			-attachNone            $lbFF03c "bottom" 
+			-attachForm            $lbFF03c "right"  10 
+ 
+			
+
+			-attachNone            $b0    "top" 
+			-attachForm            $b0    "left"    10 
+			-attachForm            $b0    "bottom"  10 
+			-attachPosition        $b0    "right"    5  100 
+ 
+			-attachOppositeControl $b1    "top"      0  $b0 
+			-attachPosition        $b1    "left"     100  150 
+			-attachNone            $b1    "bottom" 
+			-attachForm            $b1    "right"   10 
+ 
+			$form; 
+	} 
+	showWindow $myWindowName; 
+} 
+lbTrUIv01(); 
+
+ 
+ 

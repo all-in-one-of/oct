@@ -1,0 +1,87 @@
+global proc ReferenceToInstance_YH(){
+	string $allObj[]=`ls -sl -ap`;
+	int $number=`size($allObj)`;
+	if(size($allObj)<1){
+		print "必须选择两个物体以上！";	
+	}
+	int $i=0;
+	
+	for($i=0;$i<$number-1;$i++){
+		select -d;
+		string $instanceObj[];
+		string $objParent[]=`listRelatives -p $allObj[$i]`;
+		string $child;
+		$instanceObj=`instance($allObj[$number-1])`;
+		parent $instanceObj[0] $objParent[0];
+		$child = $instanceObj[0];
+		/*if($i<$number-2){
+			$instanceObj=`instance($allObj[$number-1])`;
+			parent $instanceObj[0] $objParent[0];
+			$child = $instanceObj[0];
+		}else{
+			parent $allObj[$number-1] $objParent[0];
+			$child = $allObj[$number-1];
+		}*/
+		
+		float $objtX=`getAttr ($allObj[$i]+".tx")`;
+		float $objtY=`getAttr ($allObj[$i]+".ty")`;
+		float $objtZ=`getAttr ($allObj[$i]+".tz")`;
+		float $objrX=`getAttr ($allObj[$i]+".rx")`;
+		float $objrY=`getAttr ($allObj[$i]+".ry")`;
+		float $objrZ=`getAttr ($allObj[$i]+".rz")`;
+		float $objsX=`getAttr ($allObj[$i]+".sx")`;
+		float $objsY=`getAttr ($allObj[$i]+".sy")`;
+		float $objsZ=`getAttr ($allObj[$i]+".sz")`;
+		setAttr ($child+".tx") $objtX;
+		setAttr ($child+".ty") $objtY;
+		setAttr ($child+".tz") $objtZ;
+		setAttr ($child+".rx") $objrX;
+		setAttr ($child+".ry") $objrY;
+		setAttr ($child+".rz") $objrZ;
+		setAttr ($child+".sx") $objsX;
+		setAttr ($child+".sy") $objsY;
+		setAttr ($child+".sz") $objsZ;
+		int $keyframeCount=`keyframe -q -keyframeCount ($allObj[$i]+".translateX")`;
+		//keyframe -q -keyframeCount ("pSphere1.translateX")
+		print $keyframeCount; 
+		int $j=0;
+		for($j=0;$j<$keyframeCount;$j++){
+			float $keyframe[]=`keyframe -index $j -q -attribute  ($allObj[$i]+".translateX")`;
+			float $translate[]=`keyframe -t  $keyframe[0]  -attribute "translate" -q -eval $allObj[$i]`;
+			//currentTime $keyframe[0];
+			//setAttr ($child+".t") $translate[0] $translate[1] $translate[2];
+			//setKeyframe ($child+".tx");
+			//setKeyframe ($child+".ty");
+			//setKeyframe ($child+".tz");
+			setKeyframe -v $translate[0] -at translateX -t $keyframe[0] $child;
+			setKeyframe -v $translate[1] -at translateY -t $keyframe[0] $child;
+			setKeyframe -v $translate[2] -at translateZ -t $keyframe[0] $child;
+		}
+		for($j=0;$j<$keyframeCount;$j++){
+			float $keyframe[]=`keyframe -index $j -q -attribute  ($allObj[$i]+".rotateX")`;
+			float $translate[]=`keyframe -t  $keyframe[0]  -attribute "rotate" -q -eval $allObj[$i]`;
+			//currentTime $keyframe[0];
+			//setAttr ($child+".t") $translate[0] $translate[1] $translate[2];
+			setKeyframe -v $translate[0] -at rotateX -t $keyframe[0] $child;
+			setKeyframe -v $translate[1] -at rotateY -t $keyframe[0] $child;
+			setKeyframe -v $translate[2] -at rotateY -t $keyframe[0] $child;
+			
+			//setKeyframe ($child+".rx");
+			//setKeyframe ($child+".ry");
+			//setKeyframe ($child+".rz");
+		}
+		for($j=0;$j<$keyframeCount;$j++){
+			float $keyframe[]=`keyframe -index $j -q -attribute  ($allObj[$i]+".scaleX")`;
+			float $translate[]=`keyframe -t  $keyframe[0]  -attribute "scale" -q -eval $allObj[$i]`;
+			//currentTime $keyframe[0];
+			//setAttr ($child+".t") $translate[0] $translate[1] $translate[2];
+			//setKeyframe ($child+".sx");
+			//setKeyframe ($child+".sy");
+			//setKeyframe ($child+".sz");
+			setKeyframe -v $translate[0] -at scaleX -t $keyframe[0] $child;
+			setKeyframe -v $translate[1] -at scaleY -t $keyframe[0] $child;
+			setKeyframe -v $translate[2] -at scaleZ -t $keyframe[0] $child;
+		} 
+	}
+}
+

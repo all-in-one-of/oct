@@ -1,0 +1,44 @@
+///////////////check the small bounding box obj///////////////////////////////////////////////////////////////////////
+global proc checkingSmallArea_zqs()
+{
+	string $mShape[] = `ls -ni -type "mesh"`;
+	string $mT;
+	int $noPointCout = 0;
+	float $minArea = 0.001;
+	int $minAreeCout = 0;
+	for($mT in $mShape)
+	{
+		int $vcN[] = `polyEvaluate -v $mT`;
+		if($vcN[0] <3)
+		{
+			string $tr[] = `listRelatives -ap -f $mT`;
+			string $tT;
+			for($tT in $tr)
+			{
+				delete $tT;
+				print("deleting no poly obj ==> "+$tT+"\n");
+				$noPointCout++;
+			}
+		}
+		else
+		{
+			string $tP[] = `listRelatives -f -ap  $mT`;
+			string $tpT;
+			for($tpT in $tP)
+			{
+				
+				float $bbs[]={};
+				if(catch($bbs = `polyEvaluate -b  $tpT`)){print ("the error obj is ==> "+$tpT);}
+				
+				if(abs($bbs[1]-$bbs[0])<$minArea && abs($bbs[3]-$bbs[2])<$minArea && abs($bbs[5]-$bbs[4])<$minArea)
+				{
+					delete $tpT;
+					print("deleting  too small obj  ==>"+$tpT+"\n");
+					$minAreeCout++;
+				}
+			}
+		}
+	}
+	print ("delete too small area poly number is ==> "+$minAreeCout+"\n");
+	print ("delete no point poly number is ==> "+$noPointCout+"\n");
+}

@@ -1,0 +1,20 @@
+global proc setArnoldDsoPath_zqs()
+{
+	string $std_ass[] = `ls -type "aiStandIn"`;
+	string $T;
+	for($T in $std_ass)
+	{
+	    string $dsoPath = `getAttr ($T+".dso")`;
+	    string $token[];
+	    tokenize $dsoPath "\\/" $token;
+	    setAttr -type "string" ($T+".dso") $token[size($token)-1];
+	}
+	/////setTexture Path
+	setAttr "defaultArnoldRenderOptions.absoluteProceduralPaths" 0;
+	setAttr "defaultArnoldRenderOptions.absoluteTexturePaths" 0;
+	string $path = fromNativePath(`getAttr "defaultArnoldRenderOptions.texture_searchpath"`);
+	string $workPath = fromNativePath(`workspace -fn`);
+	string $newArnoldTexPath = $path+";"+$workPath+"/sourceimages;";
+	setAttr -type "string" "defaultArnoldRenderOptions.procedural_searchpath" $newArnoldTexPath;
+	setAttr -type "string" "defaultArnoldRenderOptions.texture_searchpath" $newArnoldTexPath;
+}

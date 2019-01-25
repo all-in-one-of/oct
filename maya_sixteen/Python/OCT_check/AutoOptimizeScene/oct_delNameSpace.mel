@@ -1,0 +1,28 @@
+//////////////delete name space//////////////////////////////
+global proc oct_delNameSpace()
+{
+	string $trName[];
+	$trName = `ls -sl -dag`;
+	print $trName;
+	if(size($trName) <= 0){
+	   $trName = `ls`;
+	}
+	
+	string $trNameT;
+	int $cout = 0;
+	for($trNameT in $trName)
+	{
+		if(`gmatch $trNameT "*:*"`)
+		{
+			string $token[];
+			tokenize $trNameT ":" $token;
+			if(!catch(`rename $trNameT ($token[size($token)-1])`))
+			{
+				print("renamSpace ==> "+$token[size($token)-1]+"\n");
+				$cout++;
+			}
+		}
+	}
+	print(" renameSpace number is ==> " + $cout + "\n");
+}
+oct_delNameSpace();

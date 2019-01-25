@@ -1,0 +1,130 @@
+
+
+sels = nuke.selectedNodes()
+
+mergnd = nuke.toNode('Merge2')
+
+stuffH = 8135
+stuffW = 6858
+
+ratio = (float(stuffH)/float(stuffW))
+horizonta_line_num= 80
+vertical_line_num = int(horizonta_line_num/ratio)
+
+
+#=========locator position=============
+
+loc_pot = nuke.nodes.Dot(name="location")
+sel_pos_x = sels[0].xpos()
+sel_pos_y = sels[0].ypos()
+
+x_bias = -600
+y_bias = 100
+
+loc_pot.setXYpos(sel_pos_x+x_bias,sel_pos_y+y_bias)
+
+#===========calculate =============
+
+loc_x = loc_pot.xpos()
+loc_y = loc_pot.ypos()
+
+
+tx_pos = stuffH
+
+tx2txDis_y = (float(stuffH)/float(horizonta_line_num))
+tx2txDis_x = (float(stuffW)/float(vertical_line_num))
+
+tx2txDis_dic = {'x':tx2txDis_x,'y':tx2txDis_y}
+#print("\n".join(dir(nuke.nodes.Grid())))
+
+
+
+x_axis_loc = 0    
+y_axis_loc = 0
+
+axisLoc = {'x':[0,x_axis_loc],'y':[y_axis_loc,0]}
+
+
+ori='y'
+
+tx_st_x = 0
+tx_st_y = 0
+
+ft_sz = 50
+create_nds = []
+aboveNd = ""
+horizonta_line_num 
+
+for n in range(horizonta_line_num):
+#n = 0
+    tx_nd = nuke.nodes.Text2(name = "idTx_{}".format(n))
+    tx_nd.setXYpos(loc_x+5,loc_y+n)
+    dis =axisLoc[ori] 
+    box_x = axisLoc[ori][0] + 10
+    box_r = box_x + ft_sz*3
+    box_y = n*tx2txDis_dic['y'] 
+    box_t =box_y +ft_sz 
+    
+    tx_nd['box'] .setValue([box_x,box_y,box_r,box_t])
+    tx_nd['xjustify'].setValue('left')
+    tx_nd['yjustify'].setValue('bottom')
+    #tx_nd.knob('font_size').setValue(50)
+    #tx_nd.knob('font_width').setValue(50)
+    #tx_nd.knob('font_height').setValue(50)
+    #tx_nd.knob("message").setValue("{:d}".format(n))
+    #tx_nd.knob("message").setValue("{:d}".format(n))
+    if n!= 0:
+        tx_nd.setInput(0,aboveNd)
+    aboveNd = tx_nd   
+    create_nds.append(tx_nd)
+for n in range(len(create_nds)):
+    create_nds[n]. knob('font_size').setValue(80)
+    create_nds[n].knob('font_width').setValue(80)
+    create_nds[n].knob('font_height').setValue(80)
+
+for n in range(len(create_nds)):
+    create_nds[n]. knob('message').setValue('{:02d}'.format(n))
+
+mergnd.setInput(4,create_nds[-1])
+
+
+
+
+p = nuke.selectedNodes()[0]
+
+p['font_size'].setValue(100)
+
+
+tx_nd['font_size'].setValue(ft_sz)
+
+current_ty = stuffH - transLate_dist_h
+current_tx = 0
+clor = [1,1,1,1]
+h_v_dict = {"horizontal":[0,current_ty],"vertically":[current_tx,0]}
+pos_bias = 0
+pos_x_bias = pos_x +350
+
+
+dir_nams = h_v_dict.keys()[0]
+maxNum = vertically_num
+
+for i in range(maxNum):
+    new_yp = pos_y+ pos_bias
+    grdNode = nuke.nodes.Grid(name="CropGrid_{:02d}".format(i+1),xpos = pos_x_bias,ypos= pos_y)   
+    grdNode.setInput(0,aboveNd)
+    pos_y = new_yp
+    aboveNd = grdNode    
+    grdNode.knob("translate").setValue(h_v_dict[dir_nams])
+    grdNode.knob("color").setValue(clor)
+    grdNode.knob("size").setValue(.2)
+    grdNode.knob("number").setValue(1)
+    cr_xy = grdNode.knob("translate").getValue()
+    if dir_nams =="horizontal":  current_ty = cr_xy[1]-transLate_dist_h
+    else:  current_tx = cr_xy[0] +  transLate_dist_w
+    h_v_dict[dir_nams] = [current_tx,current_ty]
+  
+bdrp = nuke.nodes.BackdropNode(xpos=pos_x_bias-20, bdwidth= 130, ypos=(sels[0].ypos() - 35),bdheight=( 80), tile_color=int((random.random() * (16 - 10))) + 10, note_font_size=45)
+bdrp.setName(dir_nams)
+drp_lab = "direction: {}".format(dir_nams)
+
+      

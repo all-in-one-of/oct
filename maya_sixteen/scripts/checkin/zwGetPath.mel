@@ -1,0 +1,271 @@
+// 根据文件名得到各种路径
+global proc string zwGetPath(string $type, string $sceneName)
+{
+	string $rs = "";
+	if ($sceneName == "")
+	{
+		$sceneName = `file -query -sceneName -shortName`;
+	}
+	$sceneName = `match "[^/\\@]+$" $sceneName`;
+	string $project = octvGetCurrentProject($sceneName);
+	string $Repository = `getenv "OCTV_PROJECTS"` + "/" + $project;
+	string $mode = zwGetMode($sceneName);
+
+	string $format = "";
+	switch ($type)
+	{
+	case "camera":
+		if (zwHasSeq($project))
+		{
+			$format = $Repository + "/Project/scenes/Animation/episode_<Episode>/episode_camera/<ProjectShort>_<Episode>_<Sequence>_<Shot>_cam.ma";
+		}
+		else
+		{
+			$format = $Repository + "/Project/scenes/Animation/episode_<Episode>/episode_camera/<ProjectShort>_<Episode>_<Shot>_cam.ma";
+		}
+		$rs = `zwGetPathFormat $format $sceneName`;
+		break;
+	case "cameraName":
+		if (zwHasSeq($project))
+		{
+			$format = "cam_<Episode>_<Sequence>_<Shot>";
+		}
+		else
+		{
+			$format = "cam_<Episode>_<Shot>";
+		}
+		$rs = `zwGetPathFormat $format $sceneName`;
+		break;
+	case "data":
+		if (zwHasSeq($project))
+		{
+			$format = $Repository + "/Project/data/episode_<Episode>/sequence_<Sequence>/scene_<Shot>";
+		}
+		else
+		{
+			$format = $Repository + "/Project/data/episode_<Episode>/scene_<Shot>";
+		}
+		$rs = `zwGetPathFormat $format $sceneName`;
+		break;
+	case "hair":
+		if (zwHasSeq($project))
+		{
+			$format = $Repository + "/Project/data/episode_<Episode>/sequence_<Sequence>/scene_<Shot>/" + $type;
+		}
+		else
+		{
+			$format = $Repository + "/Project/data/episode_<Episode>/scene_<Shot>/" + $type;
+		}
+		$rs = `zwGetPathFormat $format $sceneName`;
+		break;
+	case "geoCache":
+	case "fluid":
+	case "nClothCache":
+		if (zwHasSeq($project))
+		{
+			$format = $Repository + "/Project/data/episode_<Episode>/sequence_<Sequence>/scene_<Shot>/" + $type;
+		}
+		else
+		{
+			$format = $Repository + "/Project/data/episode_<Episode>/scene_<Shot>/" + $type;
+		}
+		$rs = `zwGetPathFormat $format $sceneName`;
+		break;
+	case "GeoCache":
+		if (zwHasSeq($project))
+		{
+			$format = $Repository + "/Project/data/" + $type + "/<Episode>/<Sequence>/<Shot>" + `match "[^.]+" $sceneName`;
+		}
+		else
+		{
+			$format = $Repository + "/Project/data/" + $type + "/<Episode>/<Shot>" + `match "[^.]+" $sceneName`;
+		}
+		$rs = `zwGetPathFormat $format $sceneName`;
+		break;
+	case "scene":
+		if (zwHasSeq($project))
+		{
+			$format = $Repository + "/Project/scenes/Animation/episode_<Episode>/sequence_<Sequence>/scene_<Shot>/<Mode>";
+		}
+		else
+		{
+			$format = $Repository + "/Project/scenes/Animation/episode_<Episode>/scene_<Shot>/<Mode>";
+		}
+		$rs = `zwGetPathFormat $format $sceneName`;
+		break;
+	case "history":
+		$rs = zwGetPath("scene", $sceneName);
+		if (zwIsRainbowProject($project))
+		{
+			if ($mode == "layout")
+			{
+				$rs += "/history";
+			}
+			else
+			{
+				$rs += "/tmp";
+			}
+		}
+		else
+		{
+			$rs += "/history";
+		}
+		break;
+	case "ImageOutputDir":
+		if ($project == "")
+		{
+			$project = `match "^[0-9a-zA-Z]+" $sceneName`;
+			if ($project == "")
+			{
+				return "";
+			}
+		}
+		string $folder = "//file-cluster/GDC/Netrender/Scenes/" + $project;
+		if (!`filetest -d $folder`)
+		{
+			$folder = "//file-cluster/GDC/Netrender/Scenes/Others/" + $project;
+		}
+
+		if (zwHasSeq($project))
+		{
+			$format = $folder + "/<Parity>/ep_<Episode>/seq_<Sequence>/sc_<Shot>";
+		}
+		else
+		{
+			$format = $folder + "/<Parity>/ep_<Episode>/sc_<Shot>";
+		}
+		$rs = `zwGetPathFormat $format $sceneName`;
+		break;
+	case "scenes":
+		$format = $Repository + "/Project/scenes";
+		$rs = `zwGetPathFormat $format $sceneName`;
+		break;
+	case "particles":
+		if (zwHasSeq($project))
+		{
+			$format = $Repository + "/Project/particles/episode_<Episode>/sequence_<Sequence>/scene_<Shot>";
+		}
+		else
+		{
+			$format = $Repository + "/Project/particles/episode_<Episode>/scene_<Shot>";
+		}
+		$rs = `zwGetPathFormat $format $sceneName`;
+		break;
+	default:
+		$rs = `zwGetPathFormat $type $sceneName`;
+		if ($rs == $type)
+		{
+			$rs = "";
+		}
+		break;
+	}
+
+	// 加个双保险
+	if (`match "[<>]" $rs` != "")
+	{
+		$rs = "";
+	}
+
+	return $rs;
+}
+
+// 根据文件名得到Episode、Sequence、Shot信息，从而组合成路径
+global proc string zwGetPathFormat(string $format, string $sceneName)
+{
+	string $rs = "";
+
+	if ($sceneName == "")
+	{
+		$sceneName = `file -query -sceneName -shortName`;
+	}
+	$sceneName = `match "[^/\\]+$" $sceneName`;
+	$sceneName = `match "^[^.]+" $sceneName`;
+
+	string $project = octvGetCurrentProject($sceneName);
+	string $mode = zwGetMode($sceneName);
+
+	string $buf[];
+	int $size = `tokenize $sceneName "_" $buf`;
+
+	string $episode = "";
+	string $sequence = "";
+	string $shot = "";
+	if (zwHasSeq($project))
+	{
+		if ($size > 3)
+		{
+			$episode = $buf[1];
+			$sequence = $buf[2];
+			$shot = $buf[3];
+		}
+	}
+	else
+	{
+		if ($size > 2)
+		{
+			$episode = $buf[1];
+			$shot = $buf[2];
+		}
+	}
+
+	string $character = "";
+	if ($mode == "lighting")
+	{
+		if ($size > 3)
+		{
+			$character = $buf[3];
+		}
+	}
+
+
+	$rs = $format;
+	while (`match "<Project>" $rs` != "")
+	{
+		if ($project == "")
+		{
+			return "";
+		}
+		$rs = `substitute "<Project>" $rs $project`;
+	}
+	while (`match "<Episode>" $rs` != "")
+	{
+		if ($episode == "")
+		{
+			return "";
+		}
+		$rs = `substitute "<Episode>" $rs $episode`;
+	}
+	while (`match "<Sequence>" $rs` != "")
+	{
+		if ($sequence == "")
+		{
+			return "";
+		}
+		$rs = `substitute "<Sequence>" $rs $sequence`;
+	}
+	while (`match "<Shot>" $rs` != "")
+	{
+		if ($shot == "")
+		{
+			return "";
+		}
+		$rs = `substitute "<Shot>" $rs $shot`;
+	}
+	while (`match "<Mode>" $rs` != "")
+	{
+		if ($mode == "")
+		{
+			return "";
+		}
+		$rs = `substitute "<Mode>" $rs $mode`;
+	}
+	while (`match "<Character>" $rs` != "")
+	{
+		if ($character == "")
+		{
+			return "";
+		}
+		$rs = `substitute "<Character>" $rs $character`;
+	}
+	return $rs;
+}

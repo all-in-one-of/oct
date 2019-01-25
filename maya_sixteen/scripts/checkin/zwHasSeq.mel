@@ -1,0 +1,4 @@
+global proc int zwHasSeq(string $project)
+{
+	return 0;
+}

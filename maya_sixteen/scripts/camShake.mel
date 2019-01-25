@@ -1,0 +1,108 @@
+
+global proc camShake()
+{
+if(`window -exists "camShake"`){deleteUI "camShake";}
+window -w 300 -s 0 "camShake";
+    frameLayout -l "=====>transform and rotation<======" "transFrame";
+        columnLayout "transColumn";
+           checkBoxGrp -ncb 3 -la3 "tx" "ty" "tz" -va3 1 1 1  -cw4 30 30 30 30 "transCheckBox";
+           checkBoxGrp -ncb 3 -la3 "rx" "ry" "rz" -va3 1 1 1  -cw4 30 30 30 30 "rotateCheckBox";
+           setParent..;
+    button -h 50 -bgc 0.1 0.3 0 -c "createAttr" -l "create Cam Shake" "createShake";
+showWindow "camShake";
+}
+
+global proc createAttr()
+{
+    string $ls[] = `ls -type "transform" -sl`;
+    string $attr = " ";
+    string $temps = " ";
+    if(size($ls)!=1){error("你只能选择一个相机或物体进行此操作");}
+    //get transCheckBox
+    int $tx = `checkBoxGrp -q -v1 "transCheckBox"`;
+    int $ty = `checkBoxGrp -q -v2 "transCheckBox"`;
+    int $tz = `checkBoxGrp -q -v3 "transCheckBox"`;
+    //get rotCheckBox
+    int $rx = `checkBoxGrp -q -v1 "rotateCheckBox"`;
+    int $ry = `checkBoxGrp -q -v2 "rotateCheckBox"`;
+    int $rz = `checkBoxGrp -q -v3 "rotateCheckBox"`;
+    //add transform attribute
+    if($tx>0)
+    {
+        addAttr -ln "tRateX"   -min 0 -max 2 -dv 0  -at double  $ls[0];
+        setAttr -e -keyable true ($ls[0]+".tRateX");
+        addAttr -ln "tStrongX"  -min 0 -max 100 -dv 0  -at double  $ls[0];
+        setAttr -e-keyable true ($ls[0]+".tStrongX");
+        $attr+= ($ls[0]+".tx = sind($txTemp)*" + ($ls[0]+".tStrongX"))+"; \n";
+        $temps += ("float $txTemp ;\n"+
+                   "$txTemp +=90*"+($ls[0]+".tRateX")+";\n"+
+                   " $txTemp = $txTemp%360; \n"
+                    );
+    }
+    if($ty>0)
+    {
+        addAttr -ln "tRateY"   -min 0 -max 2 -dv 0  -at double  $ls[0];
+        setAttr -e -keyable true ($ls[0]+".tRateY");
+        addAttr -ln "tStrongY"  -min 0 -max 100 -dv 0 -at double  $ls[0];
+        setAttr -e-keyable true ($ls[0]+".tStrongY");
+        $attr+= ($ls[0]+".ty = sind($tyTemp)*" + ($ls[0]+".tStrongY"))+"; \n";
+        $temps += ("float $tyTemp ;\n"+
+                   "$tyTemp +=90*"+($ls[0]+".tRateY")+";\n"+
+                   " $tyTemp = $tyTemp%360; \n"
+                    );
+    }
+    if($tz>0)
+    {
+        addAttr -ln "tRateZ"   -min 0 -max 2 -dv 0  -at double  $ls[0];
+        setAttr -e -keyable true ($ls[0]+".tRateZ");
+        addAttr -ln "tStrongZ"  -min 0 -max 100 -dv 0  -at double  $ls[0];
+        setAttr -e -keyable true ($ls[0]+".tStrongZ");
+
+        $attr+= ($ls[0]+".tz = sind($tzTemp)*" + ($ls[0]+".tStrongZ"))+"; \n";
+        $temps += ("float $tzTemp ;\n"+
+                   "$tzTemp +=90*"+($ls[0]+".tRateZ")+";\n"+
+                   " $tzTemp = $tzTemp%360; \n"
+                    );
+    }
+
+    if($rx>0)
+    {
+        addAttr -ln "rRateX"  -min 0 -max 2 -dv 0  -at double  $ls[0];
+        setAttr -e -keyable true ($ls[0]+".rRateX");
+        addAttr -ln "rStrongX"  -min 0 -max 100 -dv 0  -at double  $ls[0];
+        setAttr -e -keyable true ($ls[0]+".rStrongX");
+
+        $attr+= ($ls[0]+".rx = sind($rxTemp)*" + ($ls[0]+".rStrongX"))+"; \n";
+        $temps += ("float $rxTemp ;"+
+                   "$rxTemp +=90*"+($ls[0]+".rRateX")+";\n"+
+                   " $rxTemp = $rxTemp%360; \n"
+                    );
+    }
+    if($ry>0)
+    {
+        addAttr -ln "rRateY"  -min 0 -max 2 -dv 0  -at double  $ls[0];
+        setAttr -e -keyable true ($ls[0]+".rRateY");
+        addAttr -ln "rStrongY"  -min 0 -max 100 -dv 0 -at double  $ls[0];
+        setAttr -e -keyable true ($ls[0]+".rStrongY");
+        $attr+= ($ls[0]+".ry = sind($ryTemp)*" + ($ls[0]+".rStrongY"))+"; \n";
+        $temps += ("float $ryTemp ;"+
+                   "$ryTemp +=90*"+($ls[0]+".rRateY")+";\n"+
+                   " $ryTemp = $ryTemp%360; \n"
+                    );
+    }
+    if($rz>0)
+    {
+        addAttr -ln "rRateZ"  -min 0 -max 2 -dv 0  -at double  $ls[0];
+        setAttr -e -keyable true ($ls[0]+".rRateZ");
+        addAttr -ln "rStrongZ"  -min 0 -max 100 -dv 0  -at double  $ls[0];
+        setAttr -e -keyable true ($ls[0]+".rStrongZ");
+        $attr+= ($ls[0]+".rz = sind($rzTemp)*" + ($ls[0]+".rStrongZ"))+"; \n";
+        $temps += ("float $rzTemp ;"+
+                   "$rzTemp +=90*"+($ls[0]+".rRateZ")+";\n"+
+                   " $rzTemp = $rzTemp%360; \n"
+                    );
+    }
+    expression  -s ($temps+$attr) -o $ls[0] -ae 1 -uc all  -n "camShakeExp";
+
+}
+

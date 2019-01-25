@@ -1,0 +1,101 @@
+///////////////////clear with initalShadingGroup///////////////////////////////
+//  disconWireColor;
+//  reConWithNoneinitialSG;
+////////////////disConnection wireColor connections///////////////////////////////////////////////
+//clearInitialmat;
+global proc clearInitialmat_zqs()
+{
+	disconWireColor;
+	reConWithNoneinitialSG;
+}
+global proc disconWireColor()
+{
+	string $wireCon[] = `listConnections -s 0 -p 1 "initialShadingGroup.memberWireframeColor"`;
+	//print $wireCon;
+	string $wireT;
+	for($wireT in $wireCon)
+	{
+	    disconnectAttr "initialShadingGroup.memberWireframeColor" $wireT;
+	}
+}
+///////////////////listConnections mesh gorups//////////////////////////////////////////////////
+global proc reConWithNoneinitialSG()
+{
+	//get the list mesh connected initialShadingGroup
+	string $meshCon[] = `listConnections -d 0 -type "mesh" -p 1 "initialShadingGroup"`;
+	string $meshConT;
+	for($meshConT in $meshCon)
+	{
+		string $otherSG = "initialShadingGroup";
+		string $token[];
+		tokenize $meshConT "." $token;
+		string $targConSG[] = `listConnections -s 0 -type "shadingEngine" $token[0]`;
+		//print($targConSG[0]+"===>\n");
+		//get sg but not the initialShadingGroup
+		string $targSGT;
+		for($targSGT in $targConSG)
+		{
+			if($targSGT != "initialShadingGroup")
+			{
+				$otherSG = $targSGT;
+				break;
+			}
+		}
+		if($otherSG != "initialShadingGroup")//check if it has connect other SG
+		{
+			string $meshConAttr[] = `listConnections -s 0 -p 1 $meshConT`;
+			string $tokenInit[]={};
+			tokenize $meshConAttr[0] "." $tokenInit;
+			// if this plug is connected initialSG, break it
+			if($tokenInit[0] == "initialShadingGroup")
+			{
+				disconnectAttr $meshConT $meshConAttr[0];
+				int $index = size(`listAttr -m ($otherSG+".dagSetMembers")`);
+				catch(`connectAttr $meshConT ($otherSG+".dagSetMembers["+$index+"]")`);
+			}
+		}
+
+	}
+
+}
+
+clearInitialmat_zqs();
+/////////////////////supper clear initialSG////////////////////////////////
+/*
+
+//disConnectInitialSG_supper;
+global proc disConnectInitialSG_supper()
+{
+	string $con[] = `listConnections -s 0 -c 1 -p 1 "initialShadingGroup"`;
+	//string $con[] = `listConnections  -c 1 -p 1 "lightLinker1"`;
+	int $cout = 0;
+	int $i = 0;
+	for($i=0;$i<size($con);$i+=2)
+	{
+		if (!catch(`disconnectAttr $con[$i] $con[$i+1]`))
+		{print("breaking ==> "+$cout+" : "+($con[$i+1])+"\n");$cout++;}
+
+	}
+
+	print(" delete connections number is ==> "+$cout+"\n");
+}
+
+//////////break lightLinker connections////////////////////////////////////
+//disConnectInitialSG_lightLinker;
+global proc disConnectInitialSG_lightLinker()
+{
+
+	string $con[] = `listConnections  -c 1 -p 1 "lightLinker1"`;
+	int $cout = 0;
+	int $i = 0;
+	for($i=0;$i<size($con);$i+=2)
+	{
+		if (!catch(`disconnectAttr $con[$i+1] $con[$i]`))
+		{print("breaking ==> "+$cout+" : "+($con[$i+1])+"\n");$cout++;}
+
+	}
+
+	print(" delete connections number is ==> "+$cout+"\n");
+}
+
+*/

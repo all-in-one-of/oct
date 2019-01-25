@@ -1,0 +1,20 @@
+global proc OnSimulationBegin(string $node, float $t, float $dt) {
+}
+
+global proc OnNewFrame(string $node, float $t, float $dt) {
+	int $sizex = getAttr ($node + ".xSize");
+	int $sizey = getAttr ($node + ".ySize");
+	int $sizez = getAttr ($node + ".zSize");
+	int $i=0;
+	phxfdSystem "core";
+	for ($i=0; $i<100; ++$i) {
+		int $x = `rand $sizex`;
+		int $y = `rand $sizey`;
+		int $z = `rand $sizez`;
+		float $v[] = `phxfdGet -pos $x $y $z -vel`;
+		phxfdParticle -partgroup "particles" -pos $x $y $z -radius 0.1 -vel $v[0] $v[1] $v[2];
+	}
+}
+
+global proc OnSimulationEnd(string $node, float $t, float $dt) {
+}

@@ -1,0 +1,245 @@
+//The fifth Edition  modify by ZhongWenzhou 2013.4.10 If you have problems,then contact wiht my QQ:107512080
+global proc DY_RenderToolsUI_zwz(){
+if (`window -exists "DY_RenderTools"`)
+ {
+	deleteUI "DY_RenderTools";
+	}
+
+    setAttr "defaultRenderGlobals.imageFilePrefix" -type "string" "<Scene>/<RenderLayer>/<Camera>/<Camera>";
+
+	string $getCamWindow = `window -wh 240 370 -resizeToFitChildren 1 -sizeable 1 "DY_RenderTools"`;
+    	columnLayout -rowSpacing 2 -columnWidth 50 -columnAlign center;
+	    radioButtonGrp -columnAlign 1 "left" -columnAlign 2 "left" -columnWidth 1 100 -columnWidth 2 150 -numberOfRadioButtons 2 -label "Render Options:" -labelArray2 "Current Layer" "All Renderable Layers" -sl 1 -vertical -enable 1 renderLayerOption;
+	    setParent..;
+	    columnLayout -rowSpacing 2 -columnWidth 50 -columnAlign center;
+	    radioButtonGrp -columnAlign 1 "left" -columnAlign 2 "left" -columnWidth 1 100 -columnWidth 2 60 -numberOfRadioButtons 2 -label "PlayblastOptions:" -labelArray2 "Yes" "No" -sl 1  -enable 1 myPlayblastOptions;
+        intSliderGrp -label "By frame:" -field true -minValue 1 -maxValue 500 -value 0 -cl3 "left" "left" "left" -cw3 60 40 160 myIntByFrame;
+	    frameLayout -label "Cameras" -borderStyle "etchedIn" -w 270 -enable 1 camFrame;
+	    columnLayout -rowSpacing 5;
+        string $allCam[] = `listCameras -p`;
+        int $count = size($allCam);
+        int $step = floor($count/3);
+        int $mode = $count % 3;
+        if ($step > 0) {
+            for ($i=0;$i<$step;$i++) {
+                rowLayout -numberOfColumns 3 -columnWidth3 90 90 90;
+
+                for ($j=0;$j<3;$j++) {
+                    checkBox -l $allCam[3*$i+$j] -v 0 $allCam[3*$i+$j];
+                }
+                setParent..;
+            }
+        }
+        if ($mode > 0) {
+            if ($mode == 1) {
+                rowLayout -numberOfColumns 1 -columnWidth1 90;
+            }
+            else if ($mode == 2) {
+                rowLayout -numberOfColumns 2 -columnWidth2 90 90;
+            }
+                for ($i=0;$i<$mode;$i++) {
+                    checkBox -l $allCam[$count-$mode+$i] -v 0 $allCam[$count-$mode+$i];
+                }
+            setParent..;
+        }
+    	setParent..;
+        setParent..;
+rowLayout -numberOfColumns 4 -columnWidth4 50 80 80 20 -columnAlign4 "center" "center" "center" "center";
+        text -l "" -vis 0;
+        button -l "OK" -width 50 -align "center" -c "doRender_zwz";
+        button -l "Close" -width 50 -c ("deleteUI -window DY_RenderTools");
+        text -l "" -vis 0;
+        setParent..;
+frameLayout -label "打开文件夹" -borderStyle "etchedIn" -w 270  -enable 1 path;
+	columnLayout -columnAttach "both" 0 -columnWidth 270  -rowSpacing 2;
+        button -l "工程素材文件夹" -width 150 -h 30 -align "center" -bgc 0.5 0 0.5 -c "openfile_zwz(1)";
+        button -l "216服务器" -width 150 -h 30 -align "center" -c "openfile_zwz(2)" ;
+        button -l "215服务器" -width 150 -h 30 -align "center" -c "openfile_zwz(3)" ;
+        setParent..;
+	showWindow $getCamWindow;
+
+}
+
+global proc openfile_zwz(int $ii)
+		{
+
+		switch($ii)
+			{
+			case 1:
+					string $imgDir = `workspace -query -fileRuleEntry "images"`;
+					string $fullPath = `workspace -expandName $imgDir`;
+					string $buffer[];
+					string $mypath;
+					int $n=`tokenize $fullPath  "/" $buffer`;
+					int $i=0;
+					for($i=0;$i<$n;$i++)
+					{
+						if($i==0)
+							$mypath = ($buffer[0]+"\\");
+						else
+							$mypath += ($buffer[$i]+"\\");
+					}
+					print $mypath;
+					system("start explorer.exe " +$mypath);
+					break;
+			case 2:
+				system("start explorer.exe \\\\192.168.80.216");
+				break;
+			case 3:
+				system("start explorer.exe \\\\192.168.80.215\\d");
+				break;
+			}
+		}
+
+  global proc doRender_zwz()
+  {
+  	int $all = (`radioButtonGrp -q -sl "renderLayerOption"`)-1;
+    int $myPlayblastOptions = (`radioButtonGrp -q -sl "myPlayblastOptions"`)-1;
+  	string $allCam[] = `listCameras -p`;
+  	string $renderCam[];
+    int $renderStatic =0;
+
+    string $cmdString = ("activePlane = ''\n"+
+    "i = 1\n"+
+    "while(i):\n"+
+    "    try:\n"+
+    "        tmp = mc.modelEditor('modelPanel%d' % i, q=True, av=True)\n"+
+    "    except:\n"+
+    "        pass\n"+
+    "    else:\n"+
+    "        if tmp:\n"+
+    "            activePlane = 'modelPanel%d' % i\n"+
+    "            break\n"+
+    "    i += 1\n");
+    python($cmdString);
+    string $activePlane = python ("activePlane");
+
+    if ($activePlane=="")
+    {
+       	confirmDialog -message "请在点击主显示窗口" -button "重新选择";
+    	return;
+    }
+
+  	for ($eachCam in $allCam) {
+  		$renderStatic = `checkBox -q -v $eachCam`;
+  		if ($renderStatic)
+  			$renderCam[size($renderCam)] = $eachCam;
+  		}
+
+	if(size($renderCam)==0)
+    {
+       	confirmDialog -message "请选择要渲染的摄像机..." -button "重新选择";
+    	return;
+    }
+    string $buf[] = `listConnections "renderLayerManager.renderLayerId"`;
+
+    string $layers[];
+    if ($all)
+    {
+        for ($layer in $buf)
+        {
+            if (`getAttr ($layer + ".renderable")`)
+            {
+                $layers[size($layers)] = $layer;
+            }
+        }
+    }
+    else
+    {
+        $layers[size($layers)] = `editRenderLayerGlobals -query -currentRenderLayer`;
+    }
+
+    string $imgDir = `workspace -query -fileRuleEntry "images"`;
+    string $fullPath = `workspace -expandName $imgDir`;
+
+
+    RenderViewWindow;
+    setTestResolutionVar(1);
+
+    for ($layer in $layers)
+    {
+    	pause -sec 2;
+
+        string $show="耐心的等!考验你的时候到了";
+        string $currentRenderLayer = `editRenderLayerGlobals -query -currentRenderLayer`;
+        if ($currentRenderLayer != $layer)
+        {
+            editRenderLayerGlobals -currentRenderLayer $layer;
+            //renderLayerButton -edit -select false -current false $currentRenderLayer;
+            //renderLayerButton -edit -select true -current true $layer;
+        }
+        int $s = `getAttr defaultRenderGlobals.startFrame`;
+        int $e = `getAttr defaultRenderGlobals.endFrame`;
+        int $i;
+        int $ByFrame = `intSliderGrp -q -v "myIntByFrame"`;
+        int $amount = 0;
+     progressWindow
+         -title "特效渲染"
+         -progress $amount
+         -status "Frame: 0%"
+      -min $s
+      -max $e
+         -isInterruptable true;
+     for ($i=$s; $i<=$e; $i+=$ByFrame) {
+
+         progressWindow -edit
+             -progress $s
+             -status $show;    //("RenerLayer: "+$layer +"  / Frame: "+$s);
+
+         currentTime $i ;
+
+            int $startFrame = `getAttr "defaultRenderGlobals.startFrame"`;
+            setAttr "defaultRenderGlobals.startFrame" $i;
+            string $images[] = `renderSettings -firstImageName`;
+            setAttr "defaultRenderGlobals.startFrame" $startFrame;
+            string $buffer[];
+            string $buffer1[];
+            string $fn="";
+            int $n=`tokenize $images[0] "/" $buffer`;
+            $n = `tokenize $images[0] "." $buffer1`;
+            $fn = $buffer[0]+"/"+$buffer[1]+"/";
+            for ($cam in $renderCam)
+             {
+             	if ($myPlayblastOptions==0)
+             	{
+                	lookThru $cam $activePlane;
+                    currentTime $i ;
+                	updateModelPanelBar $activePlane;
+                	print $myPlayblastOptions;
+                }
+
+                string $fn1="";
+             	$fn1 =$fn + $cam +"/" +$cam+"."+$buffer1[1];
+                string $path = $fullPath  +"/"+$fn1;
+
+                //renderWindowRender redoPreviousRender renderView;
+                //renderWindowRenderCamera render renderView  stereoCameraLeft;
+
+                renderWindowRenderCamera render renderView $cam;
+                 // Check if the dialog has been cancelled
+                 if ( `progressWindow -query -isCancelled` || `progressWindow -query -progress` >$e )
+                      {
+                      progressWindow -endProgress;
+                     return;
+                     }
+				// Check if end condition has been reached
+                 //if ( `progressWindow -query -progress` >$e ) return;
+
+                setAttr defaultRenderGlobals.imfkey -type "string" "";
+                if (`filetest -f ($path+".iff")`)
+                {
+                    sysFile -delete ($path+".iff");
+                }
+
+                renderWindowSaveImageCallback "renderView" $path "Maya IFF";
+
+                print ("\nBuffaloRender " + $path + ".iff\n");
+
+             }
+             $s++;
+     	}
+
+     }
+	progressWindow -endProgress;
+
+  }

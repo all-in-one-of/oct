@@ -1,0 +1,79 @@
+global proc string zwGetMode(string $path)//此脚本作用为获得文件模式
+{
+	string $mode = "";//
+
+	if ($path == "")//如果路径为空
+	{
+		$path = `file -query -sceneName`;//获取当前场景路径
+	}
+	string $filename = `match "[^/\\]+$" $path`;//得到文件短名例如"DTAQ_pr004001TelevisionSet_l_mo.mb"
+	if (`match "_mo[_.]" $filename` != "")//如果文件以_mo.或_mo_XXX.字符类型结尾的
+	{
+		$mode = "model";//模式为"model"
+	}
+	//else if (`match "_msAnim[_.]" $filename` != ""||`match "_msCache[_.]" $filename` != ""||`match "_msTex[_.]" $filename` != ""||`match "_msNoTex[_.]" $filename` != "")
+	else if (`match "_msAnim[_.]" $filename` != ""||`match "_msTex[_.]" $filename` != ""||`match "_msNoTex[_.]" $filename` != "")
+	{//
+		$mode = "master";//
+	}
+	else if (`match "_rg[_.]" $filename` != "")//
+	{
+		$mode = "rigging";//
+	}
+	else if (`match "_mt[_.]" $filename` != "")//
+	{
+		$mode = "morph";//
+	}
+	else if (`match "_al[_.]" $filename` != "")//
+	{
+		$mode = "action";//
+	}
+	else if (`match "_dy[_.]" $filename` != "")//
+	{
+		$mode = "dynamic";//
+	}
+	else if (`match "_tx[_.]" $filename` != "")//
+	{
+		$mode = "texture";//
+	}
+	else if (`match "_lt[_.]" $filename` != "" || `match "_lg[_.]" $filename` != "")//
+	{
+		$mode = "lighting";//
+	}
+	else if (`match "_ly[_.]" $filename` != "")//
+	{
+		$mode = "layout";//
+	}
+	else if (`match "_an[_.]" $filename` != "")//
+	{
+		$mode = "anim";//
+	}
+	else if (`match "_sm[_.]" $filename` != "")//
+	{
+		$mode = "simulation";//
+	}
+	else if (`match "_cd[_.]" $filename` != "")//
+	{
+		$mode = "crowd";//
+	}
+	else if (`match "_cc[_.]" $filename` != "")//
+	{
+		$mode = "cache";//
+	}
+	else if (`match "_fx[_.]" $filename` != "")//
+	{
+		$mode = "effect";//
+	}
+	else if (`match "_rd[_.]" $filename` != "")//
+	{
+		$mode = "render";//
+	}
+	else if (`match "^[^_]+_cam" $filename` != "" || `match "_cam[_.]" $filename` != "")	//camera
+	{
+		$mode = "camera";
+	}
+	/*else if(`match "_cam[_.]" $filename` != ""){
+		$mode = "camera";
+	}*/
+	return $mode;
+}

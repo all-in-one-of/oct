@@ -1,0 +1,86 @@
+global proc renameTransForm_muilty_zqs()
+{
+	int $goON        = 1;
+	int $maxThreld   = 1000;
+	int $count_MD   = 0;
+	global int $chCount_MD = 0;
+	int $checkSameName = 0;
+	while($goON)
+	{
+		string $allDagNodes[] = `ls  -tr`;
+		string $node;
+		int $index_MD  = 0;
+	//	print("initial index is ==****===****=> "+$index_MD+"\n");
+		for ($node in $allDagNodes)
+		{
+			if (`gmatch $node "*|*"`)
+			{
+				//renameSameNameChild($node);
+				if( `objExists $node`)
+				{
+		//			print("the muiti name is ==>"+$node+"\n");
+					string $token[];
+					tokenize $node "|" $token;
+					string $nodeName = $token[(size($token)-1)];
+					if($checkSameName<1 || ($checkSameName>0 && catch(nodeType($nodeName))) )
+					{
+					///////check the child name, if it same with parent name ,it will alwayse whiled/////////////////
+						string $children[] = `listRelatives -f -c $node`;
+						string $child;
+						for($child in $children)
+						{
+								//print ("parent is B==>"+$node+" ==> child is ==>"+$child+"\n");
+								string $childToken[] = {};
+								tokenize $child "|" $childToken;
+								string $childName    = $childToken[(size($childToken)-1)];
+								if($childName == $nodeName)
+								{
+									string $newNameCH = ($childName+"_CHMD_"+$chCount_MD);
+									rename $child $newNameCH;
+									print("renamed the child name *** "+$child+" ==> "+$newNameCH+"\n");
+	//								if($checkSameName>0){print "it is the lass one!!!!!!!!!!!!!!!\n";}
+									$chCount_MD++;
+									$index_MD++;
+								}
+						}
+						rename $node ($nodeName+"_MD_"+$count_MD);
+						print("renaming node <== "+$node+" ==> "+($nodeName+"_MD_"+$count_MD)+"\n");
+	//					if($checkSameName>0){print "it is the lass one vertexes polygon\n";}
+						$index_MD++;
+						$count_MD++;
+					}
+				}
+			}
+		}
+	//	print("current index is ==***********=> "+$index_MD+"\n");
+		if($index_MD<$maxThreld){$checkSameName = 1;}
+		else{$checkSameName = 0;}
+		$goON = $index_MD;
+	}
+	//renameShape muilty ////////////////////////////////////
+	int $shapeOn = 1;
+	int $shapeReNameCout = 0;
+	string $preName = "_MDS";
+	while($shapeOn)
+	{
+		int $muilS_index = 0;
+		string $meshShape[] = `ls -type "mesh"`;
+		string $shapeT;
+		for($shapeT in $meshShape)
+		{
+			string $token[]={};
+			tokenize $shapeT "|" $token;
+			string $hapeOnly = $token[size($token)-1];
+			if(catch(nodeType($hapeOnly)))
+			{
+				rename $shapeT ($hapeOnly+$preName+$muilS_index);
+				print("muilty shape renaming  ==> " + ($hapeOnly+$preName+$muilS_index)+"\n");
+				$muilS_index++;
+				$shapeReNameCout ++ ;
+			}
+		}
+		$shapeOn = $muilS_index;
+	}
+	print("renamed shape ==> "+$shapeReNameCout+" muilti-name objects\n");
+	print("renamed ==> "+$count_MD+" muilti-name objects\n");
+}

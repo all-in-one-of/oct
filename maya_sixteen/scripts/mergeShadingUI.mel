@@ -1,0 +1,183 @@
+/*
+本脚本用于合并场景内重复引用的物体组中相同的材质网络。
+用法：依次选择想要合并材质的物体组，运行此脚本即可。
+使用前提：引用的物体组具有相同的后缀名，以及组下mesh节点具有相同的层级结构。
+Copyleft (c) 2011 Lisi Luo. Life is wonderful, have fun together^_^
+*/
+
+global proc mergeShadingUI()
+
+{
+if (`window -exists mergeShadingWindow`)
+    deleteUI mergeShadingWindow;
+
+window 
+    -w 600 -h 200 
+    -t "合并重复的材质网络" 
+    -rtf 0
+mergeShadingWindow;
+
+/////////////////////
+columnLayout -adjustableColumn true;
+
+     formLayout importFile;
+
+         $text1 = `text -label "使用前提:选择的物体组下必须具有相同的层级结构。"`;
+         $text2 = `text -label "请依次加选想要合并材质网络的物体组，再点击以下按钮："`;
+         $button4 = `button -l "合并材质网络" -w 80  -align "center"  -c "mergeShading"`;
+
+         formLayout -edit
+         
+           -af $text1 "top" 5  
+         -af $text1 "left" 8 
+           -af $text2 "top" 20  
+         -af $text2 "left" 8           
+           -ac $button4 "top" 35  $text2
+         -af $button4 "left" 20 
+           
+         importFile;
+         
+       setParent ..;
+
+
+//////////////////////
+
+showWindow mergeShadingWindow;
+
+}
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+
+global proc mergeShading()
+
+{
+string $meshes[];
+string $nurbs[];
+
+string $shadingEng[];
+string $shadingEng2[];
+
+int $selectCount = 0;
+int $selectCount2 = 0;
+int $selectCount3 = 0;
+
+int $meshNum;
+int $nurbsNum;
+
+string $groupNameSave;
+
+int $i,$j;
+
+string $selections[] =`ls -selection`;
+/*
+for ($selec in $selections)
+{
+    if($selectCount3 == 0)
+    {
+    string $groupName[];
+    tokenize  $selec  ":"  $groupName;
+    int $stringSize = size($groupName);
+    $groupNameSave = $groupName[$stringSize-1];
+    }
+    
+    else
+    {
+    string $groupName[];
+    tokenize  $selec  ":"  $groupName;
+    int $stringSize = size($groupName);
+    string $tempGroupName = $groupName[$stringSize-1];  
+        if( $tempGroupName!= $groupNameSave)
+        {
+            error "Sorry, you must choose the same objects!";
+        }
+    }
+
+    $selectCount3++;
+}
+*/
+for ($selec in $selections)
+{
+    $meshes = `listRelatives  -fullPath -ad -type mesh $selec`;
+    $meshNum = size($meshes);
+    
+      for($i=0;$i<$meshNum;$i++)
+      {
+          if($selectCount==0)
+          { 
+           string $shadingPlug[] =  `listConnections -plugs 1 -s 0 -t shadingEngine $meshes[$i]`;
+           string $shadingName[] =  `listConnections -s 0 -t shadingEngine $meshes[$i]`;
+              
+              if(size($shadingPlug)>=1)
+              {
+                  for ($j=0;$j<size($shadingPlug);$j++)
+                  {
+                    $shadingEng[$i*30+$j] = $shadingName[$j];
+                  }
+              }
+          }
+          
+          else
+          {
+              string $shadingPlug[] =  `listConnections -plugs 1 -s 0 -t shadingEngine $meshes[$i]`;
+              if(size($shadingPlug)>=1)
+              {
+                  for ($j=0;$j<size($shadingPlug);$j++)
+                  {
+                    string $objGroups[] = `listConnections -plugs 1 -d 0  $shadingPlug[$j]`;
+                    string $objGroup = $objGroups[0];
+                    disconnectAttr $objGroup $shadingPlug[$j];
+                    string $shadingSet = $shadingEng[$i*30+$j]+".dagSetMembers";
+                    connectAttr -na $objGroup $shadingSet;
+                  }
+              }
+          }
+      }
+   
+    $selectCount++;      
+}
+
+
+for ($selec in $selections)
+{
+    $nurbs = `listRelatives  -fullPath -ad -type nurbsSurface $selec`;
+    $nurbsNum = size($nurbs);
+    
+      for($i=0;$i<$nurbsNum;$i++)
+      {
+          if($selectCount2==0)
+          { 
+           string $shadingPlug[] =  `listConnections -plugs 1 -s 0 -t shadingEngine $nurbs[$i]`;
+           string $shadingName[] =  `listConnections -s 0 -t shadingEngine $nurbs[$i]`;
+              
+              if(size($shadingPlug)>=1)
+              {
+                  for ($j=0;$j<size($shadingPlug);$j++)
+                  {
+                    $shadingEng2[$i*30+$j] = $shadingName[$j];
+                  }
+              }
+          }
+          
+          else
+          {
+              string $shadingPlug[] =  `listConnections -plugs 1 -s 0 -t shadingEngine $nurbs[$i]`;
+              if(size($shadingPlug)>=1)
+              {
+                  for ($j=0;$j<size($shadingPlug);$j++)
+                  {
+                    string $objGroups[] = `listConnections -plugs 1 -d 0  $shadingPlug[$j]`;
+                    string $objGroup = $objGroups[0];
+                    disconnectAttr $objGroup $shadingPlug[$j];
+                    string $shadingSet = $shadingEng2[$i*30+$j]+".dagSetMembers";
+                    connectAttr -na $objGroup $shadingSet;
+                  }
+              }
+          }
+      }
+   
+    $selectCount2++;      
+}
+
+}
+
+mergeShadingUI;

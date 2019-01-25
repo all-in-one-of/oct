@@ -1,0 +1,31 @@
+/////////////////rename long name tool/////////////////////////////////////////////////////////////
+//OCT_reLongName();
+global proc OCT_reLongName()
+{
+	int $strLenMax = 30;
+	string $ls[]  = `ls`;
+	string $T;
+	int $cout = 0;
+	for ($T in $ls)
+	{
+		int $len = sizeBytes($T);
+		//check it is shape node
+		//string $typeWithParent[] = `nodeType -i $T`;
+		if(!catch(`nodeType -i $T`)){
+		    string $typeWithParent[] = `nodeType -i $T`; 
+		    int $shapeIndex = stringArrayFind("shape",0,$typeWithParent);//if find "shape", will bigger than one
+		
+    		if($len > $strLenMax && $shapeIndex < 0)
+    		{
+    			string $target = startString($T,$strLenMax - 10)+"_sMD"+$cout;
+    			if(`exists $target`){$cout++;}
+    			rename $T (startString($T,$strLenMax - 10)+"_sMD"+$cout);
+    			$cout++;
+    		}  
+		}
+		
+	}
+	print("rename long than "+$strLenMax+" obj number is ==> "+$cout+"\n");
+}
+
+OCT_reLongName();

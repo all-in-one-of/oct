@@ -1,0 +1,60 @@
+//////////////checking texture map path /////////////////////////////////
+global proc reMap_name_zqs()
+{
+	int $isCopy         = 1;
+	string $projPath    = `workspace -q  -fn`+"/";
+	string $newPath     = "sourceimages/tex_MD/";
+	int    $coutMD      = 0;
+	int    $copyID      = 0;
+	string $texFile[]   = `ls -type "file"`;
+	//////////set light catch///////////////////////////
+
+	//make new dir
+	if(`chdir ($projPath+$newPath)`==-1){sysFile -makeDir ($projPath+startString($newPath,size($newPath)-1));}
+	string $texF;
+	for($texF in $texFile)
+	{
+		string $texPath = `getAttr ($texF+".fileTextureName")`;
+	//	print ("textPath is ==>"+$texPath+"\n");
+		string $tokenPath[];
+		tokenize $texPath "\\/" $tokenPath;
+		string $mapName = $tokenPath[size($tokenPath)-1];
+		string $tokenName[];
+		tokenize $mapName " -|" $tokenName;
+	//  string $nameSlip;
+		string $texName = "";
+		if(size($tokenName)>1)
+		{
+			$coutMD++;
+			int $i = 0;
+			for($i=0;$i<size($tokenName);$i++)
+			{
+				if($i==size($tokenName)-1){$texName += $tokenName[$i];}
+				else{$texName += ($tokenName[$i]+"_");}
+			}
+			 string $source = $projPath+$texPath;
+			if(!`gmatch $tokenPath[0] "sourceimages"`){$source = $texPath;}//return true if it is relative path
+			string $target = $projPath + $newPath + $texName;
+			if(`file -q -ex $source`)
+			{
+				if(!`file -q -ex $target`)
+				{
+					int $copyState = `sysFile -copy $target $source`;
+					$copyID++;
+					print ("the number "+$copyID+" map is copyed \n");
+					if(!$copyState){error("the texture "+$source+" moved failed\n");}
+				}
+				setAttr -type "string" ($texF+".fileTextureName") ($newPath+$texName);
+			}
+			else
+			{
+				//if the target path has new map ,set the dir to it
+				if(`file -q -ex $target`){setAttr -type "string" ($texF+".fileTextureName") ($newPath+$texName);}
+				else{catch(`error("the text "+$source+" is not exiest\n")`);}
+			}
+		}
+
+	}
+	print ("it has ==>"+$coutMD+"textures with something problems\n");
+
+}

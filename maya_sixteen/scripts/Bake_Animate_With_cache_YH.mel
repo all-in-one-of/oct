@@ -1,0 +1,76 @@
+//author:阳慧
+global proc Bake_Animate_With_cache_YH(){
+	string $aa[] = `ls -type "cacheFile"`;
+	string $origal[]=`ls -sl`;
+	string $meshNames[];
+	for ($j in $aa)
+	{
+		print $j;
+		print "\n";
+		string $meshName[]=`cacheFile -q -gm $j`;
+		print $meshName[0];
+		if(size($origal)==1){
+			$meshNames=`listRelatives -s -ni  $origal[0]`;
+			print  $meshNames[0];
+		}else{
+			error"必须选一个物体";
+			//return -1;
+		}
+		if(!(`strcmp $meshName[0] $meshNames[0]`))
+			break;
+	}
+	if($j == ""){
+		error"必须选一个带点缓存节点的物体";
+	}
+	select -addFirst $j ;
+	float $sourceStart1=`getAttr $j.sourceStart`;
+	float $sourceEnd1=`getAttr $j.sourceEnd`;
+	float $startFrame1=`getAttr $j.startFrame`;
+	setAttr ($j+".postCycle") 10000;
+
+	int $c;
+	source"\\\\octvision.com\\cg\\td\\Maya\\2009\\Scripts\\Mel\\tazz_TransferShaders.mel";
+	string $oragl_Name[];
+	for($c=0;$c<($sourceEnd1-$sourceStart1);++$c){
+		$oragl_Name=`duplicate -rr -un`;
+		select -d $origal[0];
+		select -addFirst $origal[0];
+		select -add $oragl_Name[0];
+		TransferUVMatSelProc(1, 1);
+		doBakeNonDefHistory( 1, {"prePost" });
+		select -d $oragl_Name;
+		string $cache[] = `ls -type "cacheFile"`;
+		string $mesh[]=`listRelatives -s -ni  $oragl_Name`;
+		for($cc in $cache){
+			string $meshs[]=`cacheFile -q -gm $cc`;
+			if(!(`strcmp $mesh[0] $meshs[0]`))
+				break;
+		}
+		$startFrame1--;
+		select -addFirst $cc;
+		setAttr  ($cc+".startFrame") $startFrame1;
+		setAttr ($cc+".postCycle") 10000;
+		select -d  $cc;
+	}
+}
+//source"\\\\octvision.com\\cg\\td\\Maya\\2009\\Scripts\\Mel\\tazz_TransferShaders.mel";
+//select -addFirst $origal[0];
+//select -add
+
+
+
+//1、根据选择的物体获取物体名、根据物体名获取cache节点、把所有的cache节点列举成数组
+//2、根据物体名获取形节点
+//3、用cache节点进行循环判断，获取cache节点的形节点，如果形节点为物体的形节点断开循环，否则，继续循环找到相匹配的形节点。
+//4、获取cache节点的sourceStart、sourceEnd的属性
+//5、进行复制选择的物体（sourceEnd-sourceStart）个。;
+
+//1、先找到source工具
+//2、选择正确材质的物体和错误材质的物体
+//3、用Tranfershader工具给正确的物体的材质赋给错误的材质
+//4、将各个物体的frame错开(startFrame)。
+//source "\\\\octvision.com\\cg\\td\\Maya\\2009\\Scripts\\Mel\\tazz_TransferShaders.mel
+
+//TransferUVMatSelProc(1, 1)
+
+

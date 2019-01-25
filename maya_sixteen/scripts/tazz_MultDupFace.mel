@@ -1,0 +1,42 @@
+global proc tazz_MultDupFace()
+{
+	string $sel[] = `ls -selection`;
+	select -r $sel;
+	string $buf[];
+	clear $buf;
+	tokenize $sel[0] "." $buf;
+	string $f = $buf[0];
+
+	SelectAll;
+	select -cl;
+	for ($i=0;$i<size($sel);$i++)
+	{
+		clear $buf;
+		tokenize $sel[$i] "." $buf;
+		if ($f != $buf[0]) 
+		{
+			string $x[] = `ls -selection`;
+			polyChipOff -ch 1 -kft 1 -dup 1 -off 0 $x;
+			polyPerformAction ("polySeparate -rs 1", "o", 0);
+
+			$f = $buf[0];
+			doMenuComponentSelection($f, "facet");
+			select -r $sel[$i];  
+		}
+		else 
+		{
+			doMenuComponentSelection($f, "facet");
+			select -add $sel[$i];
+		}
+		if ($i == size($sel)-1)
+		{
+			string $x[] = `ls -selection`;
+			polyChipOff -ch 1 -kft 1 -dup 1 -off 0 $x;
+			polyPerformAction ("polySeparate -rs 1", "o", 0);        
+		}
+	}
+}
+
+
+
+

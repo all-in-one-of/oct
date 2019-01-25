@@ -1,0 +1,31 @@
+{
+  "RemoveName": [
+    "AbcExport",
+    "AbcImport",
+    "AbcBullet",
+    "modelingToolkit",
+    "animImportExport",
+    "ArubaTessellator",
+    "AutodeskPacketFile",
+    "bullet",
+    "gpuCache",
+    "objExport",
+    "stereoCamera",
+    "openEXRLoader",
+    "tiffFloatReader"
+  ],
+  "WhitePath": [],
+  "WhiteName": [],
+  "RemovePath": [
+    "//octvision.com/cg/Tech/maya_sixteen/Plugins"
+  ],
+  "RenderPluginName": [
+    "mtoa",
+    "vrayformaya",
+    "Mayatomr"
+  ],
+  "NoUsePluginName": [
+    "VectorRender",
+    "Turtle"
+  ]
+}

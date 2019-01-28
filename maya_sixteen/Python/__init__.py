@@ -14,7 +14,7 @@ import pymel as pm
 import maya.OpenMaya as om
 
 try:
-    sys.path.append(r'F:\Development\OCT\maya_sixteen\Lib')
+    sys.path.append(r'\\octvision.com\cg\Tech\maya_sixteen\Lib')
     from PyQt4 import QtCore, QtGui
     import maya.OpenMayaUI as mui
     import sip

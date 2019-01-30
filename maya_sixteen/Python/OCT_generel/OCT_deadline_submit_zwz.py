@@ -1138,7 +1138,8 @@ class CopyProject(QtGui.QDialog):
         CPAU_LPATH_FP = r'C:\OCTVTools\CPAU\CPAU.exe'
         cmd = ''
         if not os.path.isfile(CPAU_LPATH_FP):
-            cmd = r'%s /cmd=diff /force_close /error_stop=FALSE /no_confirm_del /force_start=FALSE "%s" /to="%s"' % (self.CopyLocalPath, CPAY_SPATH, CPAU_LPATH_DN)
+            # cmd = r'%s /cmd=diff /force_close /error_stop=FALSE /no_confirm_del /force_start=FALSE "%s" /to="%s"' % (self.CopyLocalPath, CPAY_SPATH, CPAU_LPATH_DN)
+            cmd = r'%s /cmd=update /force_close /error_stop=FALSE /no_confirm_del /force_start=FALSE "%s" /to="%s"' % (self.CopyLocalPath, CPAY_SPATH, CPAU_LPATH_DN)
             p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
             while True:
                 if not p.poll() is None:

@@ -693,7 +693,7 @@ global proc addRefEdPanel( string $whichPanel )
 	int $iconsize = 26;
 
 	iconTextButton
-		-i1 "createReference.png" 
+		-i1 "createReference.png"
 		-w $iconsize -h $iconsize
 		-annotation (uiRes("m_referenceEditorPanel.kCreateReference"))
 		-command "CreateReference"
@@ -962,6 +962,11 @@ global proc addRefEdPanel( string $whichPanel )
 		-attachForm		displayEditsButton		bottom	0
 		-attachControl		displayEditsButton		left	0	replaceReferenceButton2
 
+
+		-attachForm		zbToggleSpReferenceButton		top		0
+		-attachForm		zbToggleSpReferenceButton		bottom	0
+		-attachControl		zbToggleSpReferenceButton		left	0	displayEditsButton
+
 		-attachForm		zwImportTopReferenceButton	top		0
 		-attachForm		zwImportTopReferenceButton	bottom	0
 		-attachControl		zwImportTopReferenceButton	left	0	displayEditsButton
@@ -977,6 +982,8 @@ global proc addRefEdPanel( string $whichPanel )
 		-attachForm		zwWinxReplaceReferenceButton1	top		0
 		-attachForm		zwWinxReplaceReferenceButton1	bottom	0
 		-attachControl		zwWinxReplaceReferenceButton1	left	0	zwShadingEngineIOButton
+
+
 
 		-attachForm		zwWinxReplaceReferenceButton2	top		0
 		-attachForm		zwWinxReplaceReferenceButton2	bottom	0

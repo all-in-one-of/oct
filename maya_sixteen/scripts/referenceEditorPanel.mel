@@ -838,6 +838,14 @@ global proc addRefEdPanel( string $whichPanel )
 		-command "tazz_ToggleReference"
 		zwWinxReplaceReferenceButton1;
 
+    button  //add by zhangben for selecte in reference editor
+		-label "select reference"
+		//-label "换"
+		-w $iconsize -h $iconsize
+		//-annotation "选择对应的参考节点"
+		-command "zbSelRef"
+		zbToggleSpReferenceButton;
+
 	button
 		-label "R" 
 		-w $iconsize -h $iconsize
@@ -2530,4 +2538,11 @@ global proc tazzFix202()
 		$filename =  `substitute "Z:/Themes" $filename "${OCTV_PROJECTS}"`;
 		file -loadReference $referenceNode $filename;
 	}
+}
+
+global proc zbSelRef()
+{
+    python("import OCT_generel.zbSelInRefEditor as zb001");
+    python("zb001.selectInReferenceEditor()");
+
 }

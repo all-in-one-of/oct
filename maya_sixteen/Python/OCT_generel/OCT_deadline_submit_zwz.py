@@ -1336,7 +1336,7 @@ class CopyProject(QtGui.QDialog):
                                 LowerPathType = PathSplitT[1].lower()
                                 #当不是hdr贴图时，需要拷贝tx贴图
                                 if LowerPathType != '.hdr':
-                                    ArnoldTxFileName = ''
+                                    ArnoldTxFileName = ''               #  add by zhangben 2019 02 19   copy jpg
                                     if LowerPathType != ".tx":
                                         ArnoldTxFileName = PathSplitT[0]+'.tx'
                                     else:

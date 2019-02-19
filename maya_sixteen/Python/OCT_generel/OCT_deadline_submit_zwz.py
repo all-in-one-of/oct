@@ -316,7 +316,7 @@ class AssetDeadline():
             MrLayers = self.myUseRender[1]
             ArLayers = self.myUseRender[2]
             AllUsedRender = self.myUseRender[4]
-            print AllUsedRender
+            # print AllUsedRender
             if len(set(AllUsedRender)) > 1:
                 mc.confirmDialog(title=u'警告', message=u'提交的文件仅能使用一种渲染器！\n----------请修改文件---------', button=['OK'], defaultButton='Yes', dismissString='No')
                 return False
@@ -1325,13 +1325,17 @@ class CopyProject(QtGui.QDialog):
 
                     if not UseSeqFlag and UvSeqFlag != 2 and UvSeqFlag != 3:
                         #当存在Arnold渲染器时
-                        if self.ArnoldFlag:
+                        # print ("1328")
+                        # if self.ArnoldFlag:
+                        if mc.getAttr('defaultRenderGlobals.currentRenderer') == u"arnold":
+                            # print("1330")
                             #当仅仅是复制模式时，需要把普通贴图也拷贝
                             CopyHdrFlag = False
                             if self.copyType == 1 or self.copyType == 5:
                                 texFileNameGroup.append(texFirstFileName)
                                 CopyHdrFlag = True
                             PathSplitT = os.path.splitext(texFirstFileName)
+                            # print(PathSplitT)
                             if len(PathSplitT) > 1:
                                 LowerPathType = PathSplitT[1].lower()
                                 #当不是hdr贴图时，需要拷贝tx贴图
@@ -1343,9 +1347,11 @@ class CopyProject(QtGui.QDialog):
                                         ArnoldTxFileName = PathSplitT[0]+'.jpg'
                                     if os.path.isfile(ArnoldTxFileName):
                                         texFileNameGroup.append(ArnoldTxFileName)
+                                    # print("line 1349 {}".format(ArnoldTxFileName))
                                 else:
                                     if not CopyHdrFlag:
                                         texFileNameGroup.append(texFirstFileName)
+
                         else:
                             texFileNameGroup.append(texFirstFileName)
                     #当开启了序列时
@@ -1476,6 +1482,7 @@ class CopyProject(QtGui.QDialog):
 
                     # print texFileNameGroup
                     if texFileNameGroup:
+                        print texFileNameGroup
                         for texFileName in texFileNameGroup:
                             # print texFileName
                             texFileName = os.path.normpath(texFileName)
@@ -2647,6 +2654,8 @@ class CopyProject(QtGui.QDialog):
         3 单纯提交模式
         '''
         self.copyType = copyType
+
+        # print ("line 2655 ============{}".format(self.copyType))
         #创建素材输入文件夹
         if copyType == 2 or copyType == 3:
             self.serveImages = self.myCreateImagesFolder()

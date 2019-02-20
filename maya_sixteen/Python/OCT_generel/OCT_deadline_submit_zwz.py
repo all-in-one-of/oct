@@ -1339,19 +1339,19 @@ class CopyProject(QtGui.QDialog):
                             if len(PathSplitT) > 1:
                                 LowerPathType = PathSplitT[1].lower()
                                 #当不是hdr贴图时，需要拷贝tx贴图
-                                # if LowerPathType != '.hdr':
-                                #     ArnoldTxFileName = ''               #  add by zhangben 2019 02 19   copy jpg
-                                #     if LowerPathType != ".tx":
-                                #         ArnoldTxFileName = PathSplitT[0]+'.tx'
-                                #     else:
-                                #         ArnoldTxFileName = PathSplitT[0]+'.jpg'
-                                #     if os.path.isfile(ArnoldTxFileName):
-                                #         texFileNameGroup.append(ArnoldTxFileName)
-                                #     # print("line 1349 {}".format(ArnoldTxFileName))
                                 if LowerPathType != '.hdr':
-                                    ArnoldTxFileName = PathSplitT[0]+'.tx'
+                                    ArnoldTxFileName = ''               #  add by zhangben 2019 02 19   copy jpg
+                                    if LowerPathType != ".tx":
+                                        ArnoldTxFileName = PathSplitT[0]+'.tx'
+                                    else:
+                                        ArnoldTxFileName = PathSplitT[0]+'.jpg'
                                     if os.path.isfile(ArnoldTxFileName):
                                         texFileNameGroup.append(ArnoldTxFileName)
+                                #     # print("line 1349 {}".format(ArnoldTxFileName))
+                                # if LowerPathType != '.hdr':
+                                #     ArnoldTxFileName = PathSplitT[0]+'.tx'
+                                #     if os.path.isfile(ArnoldTxFileName):
+                                #         texFileNameGroup.append(ArnoldTxFileName)
                                 else:
                                     if not CopyHdrFlag:
                                         texFileNameGroup.append(texFirstFileName)

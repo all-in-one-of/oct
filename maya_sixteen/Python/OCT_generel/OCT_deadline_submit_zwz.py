@@ -1118,9 +1118,9 @@ class CopyProject(QtGui.QDialog):
             numLpath = self.fileCountIn(FCOPY_LPATH_DN)
             if numSpath != numLpath:
             #     cmd = r'%s /cmd=diff /force_close /error_stop=FALSE /no_confirm_del /force_start=FALSE "%s" /to="%s"' % (FCOPY_SPATH, FCOPY_SPATH_DN, FCOPY_LPATH_DN)
-                cmd = r'%s /cmd=force_copy /force_close /error_stop=FALSE /no_confirm_del /force_start=FALSE "%s" /to="%s"' % (FCOPY_SPATH, FCOPY_SPATH_DN, FCOPY_LPATH_DN)
+                cmd = r'%s /cmd=diff /force_close /error_stop=FALSE /no_confirm_del /force_start=FALSE "%s" /to="%s"' % (FCOPY_SPATH, FCOPY_SPATH_DN, FCOPY_LPATH_DN)
         else:
-            cmd = r'%s /cmd=force_copy /force_close /error_stop=FALSE /no_confirm_del /force_start=FALSE "%s" /to="%s"' % (FCOPY_SPATH, FCOPY_SPATH_DN, FCOPY_LPATH_DN)
+            cmd = r'%s /cmd=diff /force_close /error_stop=FALSE /no_confirm_del /force_start=FALSE "%s" /to="%s"' % (FCOPY_SPATH, FCOPY_SPATH_DN, FCOPY_LPATH_DN)
         # cmd = r'%s /cmd=update /force_close /error_stop=FALSE /no_confirm_del /force_start=FALSE "%s" /to="%s"' % (FCOPY_SPATH, FCOPY_SPATH_DN, FCOPY_LPATH_DN)
 
         if cmd:
@@ -1139,7 +1139,7 @@ class CopyProject(QtGui.QDialog):
         cmd = ''
         if not os.path.isfile(CPAU_LPATH_FP):
             # cmd = r'%s /cmd=diff /force_close /error_stop=FALSE /no_confirm_del /force_start=FALSE "%s" /to="%s"' % (self.CopyLocalPath, CPAY_SPATH, CPAU_LPATH_DN)
-            cmd = r'%s /cmd=force_copy /force_close /error_stop=FALSE /no_confirm_del /force_start=FALSE "%s" /to="%s"' % (self.CopyLocalPath, CPAY_SPATH, CPAU_LPATH_DN)
+            cmd = r'%s /cmd=diff /force_close /error_stop=FALSE /no_confirm_del /force_start=FALSE "%s" /to="%s"' % (self.CopyLocalPath, CPAY_SPATH, CPAU_LPATH_DN)
             p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
             while True:
                 if not p.poll() is None:

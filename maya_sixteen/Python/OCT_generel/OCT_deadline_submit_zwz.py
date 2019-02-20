@@ -2073,6 +2073,7 @@ class CopyProject(QtGui.QDialog):
                                     copyData.update({myArFilePaths: myFinalImageFolder})
 
                 if copyData:
+                    print("line 2076 ：：： now ready to copy  aiStandin")
                     mc.progressWindow(edit=True, progress=0, min=0, max=len(copyData), status=u"正在拷贝相应的 aiStandIn 文件!")
                     #拷贝文件
                     if not self.CopyDataJob(copyData, True):

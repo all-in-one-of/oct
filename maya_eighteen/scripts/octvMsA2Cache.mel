@@ -1,0 +1,46 @@
+//////////////////////////////////////////////////////////
+//
+//	Description:
+//				通过msAnim和tx文件制作msCache文件
+//				注意：
+//					1.msAnim文件中必须有CACHE_OBJS的set组，且set组的内容为制作Geocache的所有物体
+//					2.msAnim文件和tx文件必须是checkin到数据库上的
+//					3.打开网上的msAnim文件使用工具即可，不能将文件复制到本地使用
+//				
+//////////////////////////////////////////////////////////
+
+
+global proc octvMsA2Cache()
+{
+	string $setobjs[] = `ls -type objectSet "CACHE_OBJS"`;
+	if (!size($setobjs))
+		error "请先建立名为CACHE_OBJS的SET";
+
+	string $sel[] = `sets -q CACHE_OBJS`;
+	if (!size($sel))
+		error "SET CACHE_OBJS中不能为空";
+
+	string $filename = `file -q -sn`;
+	$filename = `substitute "/master/" $filename "/texture/"`;
+	string $tx = `substitute "msAnim" $filename "tx"`;
+	$tx = `substitute "msDyn" $tx "tx"`;	// ms_dyn文件也要用这个工具
+	if (!`filetest -r $tx`)
+		error "tx文件不存在";
+
+	string $mayaType[] = `file -q -type`;//增加判断类型的mb、ma都可以使用  
+	string $source = `file -q -sn -shn`;
+	string $fd = `workspace -q  -rootDirectory` + "scenes/";
+	string $cache = `substitute "msAnim" $source "msCache"`;
+	$cache = `substitute "msDyn" $cache "msCache"`;
+	string $fn = $fd + $cache;
+	select -r $sel;
+	
+	file -f -constructionHistory 0 -channels 0 -constraints 0 -expressions 0 -shader 0 -type $mayaType[0] -exportSelected $fn;
+	
+	string $mayalocation =`getenv "MAYA_LOCATION"`;
+	string $cmd = ("\"\"" + `substituteAllString $mayalocation "/" "\\"` + "\\bin\\mayabatch.exe\" -command \"zjApplyMaterialcache " + "\\\"" + $tx + "\\\"\" -file \"" + `substituteAllString $fn "/" "\\"` + "\"\"");
+	print `system $cmd`;
+	print ("\nfile:" + $fn);
+
+	file -f -options "v=0;p=17"  -ignoreVersion  -typ $mayaType[0] -o $fn;
+}

@@ -1,0 +1,65 @@
+
+global proc tazz_ProjNurbs2Poly()
+{
+	if (`window -q -exists win_n2p`)
+		return;
+
+	window -title "Project Tool" win_n2p;
+    		columnLayout -adjustableColumn true;
+
+			formLayout layout_formlayout;
+			$cont1 = `intFieldGrp -numberOfFields 1 -label "Nurbs Degree" -value1 1000`;
+			$cont2 = `radioButtonGrp  -numberOfRadioButtons 2 -select 1  -labelArray2 "Nurbs" "Poly" -columnWidth 1 120 -columnWidth 2 120`;
+
+			$cont3 = `button -label "Apply"  -h 27 -command ("ProjNurbs2Poly_func " + $cont1 + " " + $cont2)`;
+			$cont4 = `button -label "Close"  -h 27 -command "deleteUI -window win_n2p"`;
+			formLayout -edit
+				-attachForm		$cont1		"top"		15
+				-attachForm		$cont1		"left"		30
+			
+				-attachControl		$cont2		"top"		10	$cont1
+				-attachForm		$cont2		"left"		30
+
+				-attachControl		$cont3		"top"		10	$cont2
+				-attachForm		$cont3		"left"		0
+				-attachPosition		$cont3      	"right"		0       50
+				
+				-attachControl		$cont4		"top"		10	$cont2
+				-attachControl		$cont4		"left"		10	$cont3
+				-attachPosition		$cont4      	"right"		0       100
+
+			layout_formlayout;
+	showWindow win_n2p;
+}
+
+global proc ProjNurbs2Poly_func(string $cont1, string $cont2)
+{
+	int $count = `intFieldGrp -q -v1 $cont1`;
+	int $opt = `radioButtonGrp -q -select $cont2`;
+	
+	string $sel[] = `ls -sl -tr`;
+	if (size($sel)!=2)
+	    error "please select 2 objects";
+
+	if ($opt == 1)
+	{
+		string $n2p[] = `nurbsToPoly -mnd 1  -ch 1 -f 0 -pt 1 -pc $count -chr 0.9 -ft 0.01 -mel 0.001 -d 0.1 -ut 1 -un 3 -vt 1 -vn 3 -uch 0 -ucr 0 -cht 0.2 -es 0 -ntr 0 -mrt 0 -uss 1 $sel[1]`;
+		select -r $sel[1];
+		select -add $n2p[0];
+		performCreateWrap 0;
+		select -r $sel[0];
+		select -add $n2p[0];
+		transferAttributes -transferPositions 1 -transferNormals 0 -transferUVs 0 -transferColors 0 -sampleSpace 0 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 0 -flipUVs 0 -colorBorders 1 ;
+		select -r $sel[1];
+		DeleteHistory;
+		delete $n2p;
+	}
+	else 
+	{
+		select -r $sel[0];
+		select -add $sel[1];
+		transferAttributes -transferPositions 1 -transferNormals 0 -transferUVs 0 -transferColors 0 -sampleSpace 0 -sourceUvSpace "map1" -targetUvSpace "map1" -searchMethod 0 -flipUVs 0 -colorBorders 1 ;
+		select -r $sel[1];
+		DeleteHistory;
+	}
+}

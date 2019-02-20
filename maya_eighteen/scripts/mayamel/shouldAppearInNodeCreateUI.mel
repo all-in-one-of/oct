@@ -1,0 +1,56 @@
+// ===========================================================================
+// Copyright 2017 Autodesk, Inc. All rights reserved.
+//
+// Use of this software is subject to the terms of the Autodesk license
+// agreement provided at the time of installation or download, or which
+// otherwise accompanies this software in either electronic or hard copy form.
+// ===========================================================================
+/*
+	Creation Date:  March 16, 2005
+	Author:         vleung
+	
+	Description:
+	    shouldAppearInNodeCreateUI makes a check based on node type 
+		$type and certain environment variables, and returns a boolean 
+		value.
+
+		Returns true if a node is not in the list of types to be excluded,  
+		or if the variable MAYA_EXPOSE_FACADE_NODES is set. Returns 
+		false otherwise.
+
+		Currently the facade types as follows:
+		- materialFacade
+		- envFacade
+		- AISEnvFacade
+
+*/
+
+global int $expose_facade_nodes;
+$expose_facade_nodes = `getenv("MAYA_EXPOSE_FACADE_NODES")` != "";
+
+global proc int shouldAppearInNodeCreateUI(string $type) {
+	// Added by V-Ray, we don't want the user to create these directly
+	if ($type=="VRayLightMesh") return false;
+	if ($type=="VRayLightMeshLightLinking") return false;
+	if ($type=="VRayPluginNodeTex") return false;
+	if ($type=="VRayPluginNodeLightShape") return false;
+	if ($type=="VRayPluginNodeVolume") return false;
+
+	// Added by V-Ray, we don't want the user to create these directly
+	if ($type=="VRayLightMesh") return false;
+	if ($type=="VRayLightMeshLightLinking") return false;
+	if ($type=="VRayPluginNodeTex") return false;
+	if ($type=="VRayPluginNodeLightShape") return false;
+	if ($type=="VRayPluginNodeVolume") return false;
+
+
+
+	global int $expose_facade_nodes;
+	return ($expose_facade_nodes || 
+		(($type!="materialFacade") &&
+		 ($type!="AISEnvFacade") &&
+		 ($type!="adskMaterial") &&
+		 ($type!="renderedImageSource") &&
+		 ($type!="envFacade"))) &&
+         `getClassification -satisfies "hidden" $type` != 1;
+}

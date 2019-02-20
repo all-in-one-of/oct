@@ -1,0 +1,286 @@
+/////////////////////////////////////OCT set//////////////////////////////////////////////
+OCT_Set;
+global proc OCT_Set()
+{
+	int $width = 500; int $hight = 700; int $textH = 20;
+	int $buttonW = 500; int $buttonH = 50;
+
+	if(`window -q -ex "octSetWindow"`){deleteUI "octSetWindow";}
+
+	window -w $width -h $hight -s 0 -t "oct tool sets after year-2015" "octSetWindow";
+	columnLayout -w $width -h $hight "octSetColumn";
+
+	text -w $width -h $textH -l "please select light or light group first and geormetry group to operator this button" "readMeText";
+	button -w $buttonW -h $buttonH -bgc 0.1 0.2 0 -l "make Light Link" -c "oct_mLightLink"  -ann "make light link : select light grp first and then select obj" "mLightLink_button";
+
+	text -w $width -h $textH -l "this button will set the arnold proxy file link all lights in current scenes";
+	button  -w $buttonW -h $buttonH  -bgc 0.1 0.2 0  -l "make all arnold proxy link to all light" -c "oct_mArnoldLightLink" -ann "make light link : select light grp first and then select obj" "openAiLightLink_button";
+
+	text -w $width -h $textH -l "this button will delete the unsued arnold light decay nodes";
+	button -w $buttonW -h $buttonH  -bgc 0.1 0.2 0  -l "delete unused arnold light decay nodes" -c "oct_deleteUnusedAiLightDecayNode"  -ann "delete unused arnold light decay nodes" "delAiDecay_button";
+
+	text -w $width -h ($textH*1.5) -l "connect the arnold decay node to the selected lights\nselect decay node first and then select lights to operater this";
+	rowLayout -nc 2 -cw2 ($buttonW*0.5) ($buttonW*0.5) -h $buttonH "conDecayRow";
+		button -w ($buttonW*0.5) -h $buttonH  -bgc 0.1 0.2 0 -c "oct_addAiLightDecay" -l "add AiDecay To Lights" -ann "add decay node to light witch has no any decay node connected with it" "cAddDecay_button";
+		button -w ($buttonW*0.5) -h $buttonH  -bgc 0.2 0.2 0 -c "oct_replaceAiLightDecay" -l "replace AiDecay To Lights" -ann "replace decay node to light even if it has no any decay node connected with it" "cReplaceDecay_button";
+		setParent..;
+	text -w $width -h $textH -l "delete not actived dynGlobal nodes";
+	button -w $buttonW -h $buttonH  -bgc 0.3 0.1 0 -c "oct_delUnActiveDynGlobalNode" -l "delete unactived dynGlobal nodeds" -ann "delete not actived global nodeds" "delDynGlobal_button";
+
+	text -w $width -h $textH -l "delete shading engine with no any mat ball";
+	button -w $buttonW -h $buttonH  -bgc 0.3 0.1 0 -c "oct_deleteNoMatSG" -l "delete no mat SG" -ann "delete shading engine with no any mat ball" "delNoMatSG_button";
+
+	text -w $width -h $textH -l "del name space when it not using for reference in other file";
+	button -w $buttonW -h $buttonH  -bgc 0.1 0.1 0 -c "oct_delNameSpace" -l "del name space note: not using for reference" -ann "del name space when it not using for reference" "delNameSpace_button";
+
+	//reNormal
+	text -w $width -h $textH -l "select the one of the reversed normal mesh component";
+	button -w $buttonW -h $buttonH  -bgc 0.1 0.1 0 -c "OCT_reNomal" -l "reverse normal" -ann "reverse normal base the current select mesh component" "reNormal_button";
+
+	//kill partile with pKiller
+	text -w $width -h $textH -l "select the particles component and kill the instance with pKiller node";
+	button -w $buttonW -h $buttonH  -bgc 0.1 0.2 0  -c "OCT_killParticle" -l "kill particle instance with pKiller node" -ann "select the particles component and kill the instance with pKiller node" "pKiller_button";
+
+	//export Tool
+	text -w $width -h $textH -l "export selected obj with checking formats and tex";
+	button -w $buttonW -h ($buttonH+20)  -bgc 0.1 0.3 0  -c "OCT_exportToolUI" -l "OCT export tool" -ann "export selected obj with checking formats and tex" "octExport_button";
+
+
+	showWindow "octSetWindow";
+}
+
+//////////////delete name space//////////////////////////////
+global proc oct_delNameSpace()
+{
+	string $trName[] = `ls`;
+	string $trNameT;
+	int $cout = 0;
+	for($trNameT in $trName)
+	{
+		if(`gmatch $trNameT "*:*"`)
+		{
+			string $token[];
+			tokenize $trNameT ":" $token;
+			if(!catch(`rename $trNameT ($token[size($token)-1])`))
+			{
+				print("renamSpace ==> "+$token[size($token)-1]+"\n");
+				$cout++;
+			}
+		}
+	}
+	print(" renameSpace number is ==> " + $cout + "\n");
+}
+///////////////////////////reNormal////////////////////////////////////////////////
+////please select the reversed normal mesh and operator this tool//////////////////
+//OCT_reNomal;
+global proc OCT_reNomal()
+{
+	string $faceSL[] = `ls -sl`;
+	if(!size($faceSL) && nodeType($faceSL[0])!= "mesh")
+	{
+	confirmDialog -title "Confirm" -message "OCT : please select the invert mesh component"
+    -button "OK" -defaultButton "OK"
+    -cancelButton "OK" -dismissString "OK";
+	error("OCT : please select the invert mesh component");
+	}
+	string $faceT;
+	for($faceT in $faceSL)
+	{
+		string $token[]={};
+		tokenize $faceT "." $token;
+		polyNormal -normalMode 0 -userNormalMode 0 -ch 0 $faceT;
+		polyNormal -normalMode 1 -userNormalMode 0 -ch 0 $faceT;
+		polySetToFaceNormal -setUserNormal $token[0];
+	}
+}
+
+////////////////////delete no any mat engines////////////////////////////////////////
+global proc oct_deleteNoMatSG()
+{
+	string $sg[] = `ls -type "shadingEngine"`;
+	string $sgT;
+	int $delSG_cout = 0;
+	for($sgT in $sg)
+	{
+		int $stat = 0;
+		string $conSG[] = {};
+		$conSG = `listConnections ($sgT+".surfaceShader")`;
+		if(size($conSG)){$stat++;}
+		$conSG = `listConnections ($sgT+".volumeShader")`;
+		if(size($conSG)){$stat++;}
+		if(!catch($conSG = `listConnections ($sgT+".aiSurfaceShader")`)){if(size($conSG)){$stat++;}}
+
+		if(!catch($conSG = `listConnections ($sgT+".aiVolumeShader")`)){if(size($conSG)){$stat++;}}
+
+		if(!catch($conSG = `listConnections ($sgT+".miMaterialShader")`)){if(size($conSG)){$stat++;}}
+
+		if(!catch($conSG = `listConnections ($sgT+".miVolumeShader")`)){if(size($conSG)){$stat++;}}
+
+		if(!$stat)
+		{
+			print("deleting no anyMat sg ==> " + $sgT+"\n");
+			$delSG_cout++;
+			catch(`delete $sgT`);
+		}
+	}
+	print("deleted sg number is ==> "+ $delSG_cout+"\n");
+}
+
+//////////////////delete dynGlobal////////////////////////////////////////////
+global proc oct_delUnActiveDynGlobalNode()
+{
+	string $dynGlobal[] = `ls -type "dynGlobals"`;
+	string $T;
+	int $cout = 0;
+	for($T in $dynGlobal)
+	{
+		if(!catch(`delete $T`)){print("deleting ==> "+ $T+"\n"); $cout++;}
+	}
+	print("deleting dynGlobal number is ==> "+ $cout+"\n");
+}
+/////////////////////connectAttr aiLightDecay//////////////////////
+global proc oct_addAiLightDecay()
+{
+	string $sl[]  = `ls -sl`;
+	if(size($sl)<2)
+	{
+		confirmDialog -title "selection error" -message "please select aiDecay node and at least one lights"
+		-button "OK" -defaultButton "OK" -cancelButton "OK" -dismissString "OK";
+		error("please select at least one aiDecay node and lights\n");
+	}
+	string $TT;
+	for($TT in $sl)
+	{
+		if($TT != $sl[0])
+		{
+			string $con[] = `listConnections ($TT+".aiFilters[0]")`;
+			if(size($con)<1){connectAttr ($sl[0]+".message") ($TT+".aiFilters[0]");}
+
+		}
+	}
+}
+
+/////////////////////replace connection with aiLightDecay/////////////////
+global proc oct_replaceAiLightDecay()
+{
+	string $sl[]  = `ls -sl`;
+	if(size($sl)<2)
+	{
+		confirmDialog -title "selection error" -message "please select aiDecay node and at least one lights"
+		-button "OK" -defaultButton "OK" -cancelButton "OK" -dismissString "OK";
+		error("please select at least one aiDecay node and lights\n");
+	}
+	string $TT;
+	for($TT in $sl)
+	{
+		if($TT != $sl[0])
+		{
+			string $con[] = `listConnections -p 1 ($TT+".aiFilters[0]")`;
+			if(size($con)>0){disconnectAttr $con[0] ($TT+".aiFilters[0]");}
+			connectAttr ($sl[0]+".message") ($TT+".aiFilters[0]");
+		}
+	}
+}
+
+////////////////////make light link select////////////////////////////////////////
+global proc oct_mLightLink()
+{
+	string $sl[] = `ls -sl`;
+	//print("the OK set ==> ");
+	//print $sl;
+	if(size($sl)<2)
+	{
+		confirmDialog -title "selection error" -message "please select light(group) and eometry group"
+		-button "OK" -defaultButton "OK" -cancelButton "OK" -dismissString "OK";
+		error("please select at least two objects or groups\n");
+	}
+	string $listLight[] = `listRelatives  -type  "renderLight"  -type "THlocatorShape" -c -f -ad $sl[0]`;//
+	//print $listLight;
+	string $T;
+	int $cout = 0;
+	for($T in $listLight)
+	{
+		string $lightTr[] = `listRelatives -f -p $T`;
+		select -r $lightTr[0] $sl[1];
+		if(!catch(`lightlink -make -useActiveLights -useActiveObjects`)){$cout++;}
+	}
+	print("it is linked number of light is ==> "+$cout+"\n");
+}
+///////////////////make arnold light link//////////////////////////////////////////
+global proc oct_mArnoldLightLink()
+{
+	int  $overStat = 0;
+	string $ls[]  =`ls -type "aiStandIn"`;
+	string $T;
+	int $cout = 0;
+	for($T in $ls)
+	{
+		setAttr ($T+".overrideLightLinking") $overStat;
+		$cout ++;
+	}
+	print("set light on number is ==> "+$cout+"\n");
+}
+
+////////delete unused aiLight Decay Node///////////////////////////////
+global proc oct_deleteUnusedAiLightDecayNode()
+{
+	string $ls[] = `ls -type "aiLightDecay"`;
+	string $T;
+	int $cout = 0;
+	for($T in $ls)
+	{
+		string $con[] = `listConnections -s 0 $T`;
+		if(size($con)<2)
+		{
+			delete $T;
+			print("deleting node ==>"+$T+"\n");
+			$cout++;
+		 }
+
+	}
+	print("deleted aiLightDecay Node number is ==> "+$cout+"\n");
+}
+
+
+global proc OCT_killParticle()
+{
+	string $sl[] = `ls -sl`;
+	//string $slShape[] = `ls -sl -o`;
+
+	string $obj;
+	if(size($sl)<1){error("please select particlePP");}
+	for($obj in $sl)
+	{
+		string $token[] = {};
+		string $tokenObjP[] = {};
+		tokenize $obj "." $tokenObjP;
+		string $pObjName = $tokenObjP[0];
+		string $instanceName[] = `particleInstancer -q -name $pObjName`;
+		int $tailIndex = `getAttr ($instanceName[0]+".hierarchyCount")`;
+
+		tokenize $obj ".[:]" $token;
+		string $pName;
+		if(size($token)<2){error("please select the particlePP not the particle object \n");}
+		else if(size($token)==3)
+		{
+			$pName = $token[0];
+			int    $id    = $token[2];
+			particle -e -or $id -at "indexPP" -fv $tailIndex $pName;
+		}
+		else if(size($token)==4)
+		{
+			$pName 	= $token[0];
+			int $idStart 	= $token[2];
+			int $idEnd   	= $token[3];
+			int $j;
+			for($j = $idStart;$j<=$idEnd;$j++)
+			{
+				particle -e -or $j -at "indexPP" -fv $tailIndex $pName;
+			}
+		}
+
+		saveInitialState $pName;
+	}
+dgdirty -a;
+
+}

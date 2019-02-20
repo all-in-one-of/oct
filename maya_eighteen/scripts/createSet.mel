@@ -1,0 +1,12 @@
+string $sel[]=`ls -sl`;
+  if(`size$sel`>0)  {
+     if(`objExists "CACHE_OBJS"` ==1) {
+        delete "CACHE_OBJS";
+        sets -n "CACHE_OBJS";
+        sets -add "CACHE_OBJS";
+        }
+     else {
+        sets -n "CACHE_OBJS";
+        sets -add "CACHE_OBJS";
+        }
+}

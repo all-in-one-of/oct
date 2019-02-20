@@ -1,0 +1,22 @@
+// 前期文件分character, environment, prop等
+global proc string zwGetAssetType(string $path)
+{
+	string $asset_type = "";
+
+	$path = tolower($path);
+
+
+	if (`match "^[^_]+_ch" $path` != "")
+		$asset_type = "characters";
+	else if (`match "^[^_]+_pr" $path` != "")
+		$asset_type = "props";
+	else if (`match "^[^_]+_se" $path` != "")
+		$asset_type = "sets";
+	else if (`match "^[^_]+_cam" $path` != "")
+		$asset_type = "cameras";
+	/*else if(`match "_cam." $path` != ""){
+		$asset_type = "cameras";
+	}*/
+	
+	return $asset_type;
+}

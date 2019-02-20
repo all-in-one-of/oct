@@ -1,0 +1,1360 @@
+global int $__phx_templ_sim;
+global int $__phx_templ_grid;
+global int $__phx_templ_rend;
+global int $__phx_templ_prev;
+
+proc setAttribute0(){
+setAttr ".objectVoxels" 0;
+}
+proc setAttribute1(){
+setAttr ".objectVelocity" 0;
+}
+proc setAttribute2(){
+setAttr ".fieldsCalc" 0;
+}
+proc setAttribute3(){
+setAttr ".fieldsSkip" 0;
+}
+proc setAttribute4(){
+setAttr ".fieldsMT" no;
+}
+proc setAttribute5(){
+setAttr ".conservMethod" 1;
+}
+proc setAttribute6(){
+setAttr ".conservFlags" 0;
+}
+proc setAttribute7(){
+setAttr ".conservFilter" 0;
+}
+proc setAttribute8(){
+setAttr ".conservQuality" 50;
+}
+proc setAttribute9(){
+setAttr ".conservUniform" no;
+}
+proc setAttribute10(){
+setAttr ".advMethod" 2;
+}
+proc setAttribute11(){
+setAttr ".advMaxStep" 1;
+}
+proc setAttribute12(){
+setAttr ".advSPFU" 20;
+}
+proc setAttribute13(){
+setAttr ".advSPFL" 1;
+}
+proc setAttribute14(){
+setAttr ".autoSave" no;
+}
+proc setAttribute15(){
+setAttr ".rsWaitMode" no;
+}
+proc setAttribute16(){
+setAttr ".rsConservQ" 2;
+}
+proc setAttribute17(){
+setAttr ".rsInput" -type "string" "$(simoutput)";
+}
+proc setAttribute18(){
+setAttr ".rsOutput" -type "string" "$(implicit)";
+}
+proc setAttribute19(){
+setAttr ".rsAffect" 0;
+}
+proc setAttribute20(){
+setAttr ".rsResAmplify" 1;
+}
+proc setAttribute21(){
+setAttr ".rsResAmplifyMethod" 2;
+}
+proc setAttribute22(){
+setAttr ".rsTempChannels" 0;
+}
+proc setAttribute23(){
+setAttr ".waveletStrength" 3;
+}
+proc setAttribute24(){
+setAttr ".waveletCutoff" 0.001;
+}
+proc setAttribute25(){
+setAttr ".windFromMovement" yes;
+}
+proc setAttribute26(){
+setAttr ".gravityEnbl" yes;
+}
+proc setAttribute27(){
+setAttr ".gravity" 1;
+}
+proc setAttribute28(){
+setAttr ".gravityVecEnbl" no;
+}
+proc setAttribute29(){
+setAttr ".gravityVec" -type "float3" 0 -9.8 0;
+}
+proc setAttribute30(){
+setAttr ".timeScale" 1;
+}
+proc setAttribute31(){
+setAttr ".vorticity" 0;
+}
+proc setAttribute32(){
+setAttr ".pressureDecay" 0;
+}
+proc setAttribute33(){
+setAttr ".cooling" 0;
+}
+proc setAttribute34(){
+setAttr ".smokeBuoyancy" 0;
+}
+proc setAttribute35(){
+setAttr ".fuelBuoyancy" 0;
+}
+proc setAttribute36(){
+setAttr ".forcesMassMult" 0;
+}
+proc setAttribute37(){
+setAttr ".randAmount" 0;
+}
+proc setAttribute38(){
+setAttr ".randDynamics" 1;
+}
+proc setAttribute39(){
+setAttr ".randInject" no;
+}
+proc setAttribute40(){
+setAttr ".burning" no;
+}
+proc setAttribute41(){
+setAttr ".burnEnergy" 10;
+}
+proc setAttribute42(){
+setAttr ".burnIgnition" 600;
+}
+proc setAttribute43(){
+setAttr ".burnPropagation" 10;
+}
+proc setAttribute44(){
+setAttr ".liquids" 1;
+}
+proc setAttribute45(){
+setAttr ".liqAproachSteps" 1;
+}
+proc setAttribute46(){
+setAttr ".liqSharpness" 0.3;
+}
+proc setAttribute47(){
+setAttr ".liqActDistance" 10;
+}
+proc setAttribute48(){
+setAttr ".liqSurfTension" 0;
+}
+proc setAttribute49(){
+setAttr ".liqViscosity" 0.95;
+}
+proc setAttribute50(){
+setAttr ".liqDryTime" 0.01;
+}
+proc setAttribute51(){
+setAttr ".liqWetting" yes;
+}
+proc setAttribute52(){
+setAttr ".liqStaticSurfCor" no;
+}
+proc setAttribute53(){
+setAttr ".liqStrongSurf" yes;
+}
+proc setAttribute54(){
+setAttr ".foamEnbl" no;
+}
+proc setAttribute55(){
+setAttr ".foamBirthRate" 100;
+}
+proc setAttribute56(){
+setAttr ".foamBirthTresh" 50;
+}
+proc setAttribute57(){
+setAttr ".foamHalfLife" 10;
+}
+proc setAttribute58(){
+setAttr ".foamSize" 0.1;
+}
+proc setAttribute59(){
+setAttr ".foamSizeVar" 3;
+}
+proc setAttribute60(){
+setAttr ".foamSizeDistr" 200;
+}
+proc setAttribute61(){
+setAttr ".foamVolCycles" 3000;
+}
+proc setAttribute62(){
+setAttr ".foamRiseLimit" 10;
+}
+proc setAttribute63(){
+setAttr ".foamFallLimit" 1000;
+}
+proc setAttribute64(){
+setAttr ".foamSticky" 0;
+}
+proc setAttribute65(){
+setAttr ".splEnbl" no;
+}
+proc setAttribute66(){
+setAttr ".splBirthRate" 5;
+}
+proc setAttribute67(){
+setAttr ".splBirthTresh" 60;
+}
+proc setAttribute68(){
+setAttr ".splSize" 0.05;
+}
+proc setAttribute69(){
+setAttr ".splSizeVar" 5;
+}
+proc setAttribute70(){
+setAttr ".splSizeDistr" 100;
+}
+proc setAttribute71(){
+setAttr ".splAirFriction" 1;
+}
+proc setAttribute72(){
+setAttr ".splFoamOnHit" 0;
+}
+proc setAttribute73(){
+setAttr ".splAffectLiq" no;
+}
+proc setAttribute74(){
+setAttr ".storageQuality" 14;
+}
+proc setAttribute75(){
+setAttr ".backupInterval" 1;
+}
+proc setAttribute76(){
+setAttr ".cutInside" no;
+}
+proc setAttribute77(){
+setAttr ".outTemp" yes;
+}
+proc setAttribute78(){
+setAttr ".outSmoke" no;
+}
+proc setAttribute79(){
+setAttr ".outUVW" no;
+}
+proc setAttribute80(){
+setAttr ".outWavelet" no;
+}
+proc setAttribute81(){
+setAttr ".outSpeed" no;
+}
+proc setAttribute82(){
+setAttr ".outVel" no;
+}
+proc setAttribute83(){
+setAttr ".outFuel" no;
+}
+proc setAttribute84(){
+setAttr ".outPartId" no;
+}
+proc setAttribute85(){
+setAttr ".outPath" -type "string" "$(implicit)";
+}
+proc setAttribute86(){
+setAttr ".inPlaySpeed" 1;
+}
+proc setAttribute87(){
+setAttr ".inBlendMethod" 0;
+}
+proc setAttribute88(){
+setAttr ".inPath" -type "string" "$(simoutput)";
+}
+if ($__phx_templ_sim){
+catch(setAttribute0());
+catch(setAttribute1());
+catch(setAttribute2());
+catch(setAttribute3());
+catch(setAttribute4());
+catch(setAttribute5());
+catch(setAttribute6());
+catch(setAttribute7());
+catch(setAttribute8());
+catch(setAttribute9());
+catch(setAttribute10());
+catch(setAttribute11());
+catch(setAttribute12());
+catch(setAttribute13());
+catch(setAttribute14());
+catch(setAttribute15());
+catch(setAttribute16());
+catch(setAttribute17());
+catch(setAttribute18());
+catch(setAttribute19());
+catch(setAttribute20());
+catch(setAttribute21());
+catch(setAttribute22());
+catch(setAttribute23());
+catch(setAttribute24());
+catch(setAttribute25());
+catch(setAttribute26());
+catch(setAttribute27());
+catch(setAttribute28());
+catch(setAttribute29());
+catch(setAttribute30());
+catch(setAttribute31());
+catch(setAttribute32());
+catch(setAttribute33());
+catch(setAttribute34());
+catch(setAttribute35());
+catch(setAttribute36());
+catch(setAttribute37());
+catch(setAttribute38());
+catch(setAttribute39());
+catch(setAttribute40());
+catch(setAttribute41());
+catch(setAttribute42());
+catch(setAttribute43());
+catch(setAttribute44());
+catch(setAttribute45());
+catch(setAttribute46());
+catch(setAttribute47());
+catch(setAttribute48());
+catch(setAttribute49());
+catch(setAttribute50());
+catch(setAttribute51());
+catch(setAttribute52());
+catch(setAttribute53());
+catch(setAttribute54());
+catch(setAttribute55());
+catch(setAttribute56());
+catch(setAttribute57());
+catch(setAttribute58());
+catch(setAttribute59());
+catch(setAttribute60());
+catch(setAttribute61());
+catch(setAttribute62());
+catch(setAttribute63());
+catch(setAttribute64());
+catch(setAttribute65());
+catch(setAttribute66());
+catch(setAttribute67());
+catch(setAttribute68());
+catch(setAttribute69());
+catch(setAttribute70());
+catch(setAttribute71());
+catch(setAttribute72());
+catch(setAttribute73());
+catch(setAttribute74());
+catch(setAttribute75());
+catch(setAttribute76());
+catch(setAttribute77());
+catch(setAttribute78());
+catch(setAttribute79());
+catch(setAttribute80());
+catch(setAttribute81());
+catch(setAttribute82());
+catch(setAttribute83());
+catch(setAttribute84());
+catch(setAttribute85());
+catch(setAttribute86());
+catch(setAttribute87());
+catch(setAttribute88());
+}
+
+proc setAttribute89(){
+setAttr ".resimulate" no;
+}
+proc setAttribute90(){
+setAttr ".rsOutResolved" -type "string" "D:\PhoenixFD_cache\phx_viscosity.ma_Phoenix2_frames\@transform1@PhoenixFDSimulator1_resim";
+}
+proc setAttribute91(){
+setAttr ".rsInResolved" -type "string" "D:\PhoenixFD_cache\phx_viscosity.ma_Phoenix2_frames\@transform1@PhoenixFDSimulator1";
+}
+proc setAttribute92(){
+setAttr ".adaptLimitInfo" -type "string" "";
+}
+proc setAttribute93(){
+setAttr ".inFlipYZ" no;
+}
+proc setAttribute94(){
+setAttr ".render" yes;
+}
+proc setAttribute95(){
+setAttr ".rendJittering" yes;
+}
+proc setAttribute96(){
+setAttr ".rendStep" 40;
+}
+proc setAttribute97(){
+setAttr ".rendSoftBound" 0;
+}
+proc setAttribute98(){
+setAttr ".rendSamplerType" 2;
+}
+proc setAttribute99(){
+setAttr ".rendEffectChannel" 1;
+}
+proc setAttribute100(){
+setAttr ".rendEffectTex" -type "float3" 0 0 0;
+}
+proc setAttribute101(){
+setAttr ".rendWrapX" 2;
+}
+proc setAttribute102(){
+setAttr ".rendWrapY" 2;
+}
+proc setAttribute103(){
+setAttr ".rendWrapZ" 2;
+}
+proc setAttribute104(){
+setAttr ".rendSurfLevel_x" 0.5;
+}
+proc setAttribute105(){
+setAttr ".rendSurfLevel_t" 0.5;
+}
+proc setAttribute106(){
+setAttr ".rendSurfLevel_s" 0.5;
+}
+proc setAttribute107(){
+setAttr ".rendSurfLevel_v" 20;
+}
+proc setAttribute108(){
+setAttr ".rendSurfLevel_f" 0.1;
+}
+proc setAttribute109(){
+setAttr ".rendInvertNorm" no;
+}
+proc setAttribute110(){
+setAttr ".rendGeomMode" yes;
+}
+proc setAttribute111(){
+setAttr ".rendHeatHaze" 1;
+}
+proc setAttribute112(){
+setAttr ".rendHeatHazeEnbl" no;
+}
+proc setAttribute113(){
+setAttr ".rendSolidMode" yes;
+}
+proc setAttribute114(){
+setAttr ".rendUVWBias" 1;
+}
+proc setAttribute115(){
+setAttr ".rendUVWBiasEnbl" no;
+}
+proc setAttribute116(){
+setAttr ".rendDisplEnbl" no;
+}
+proc setAttribute117(){
+setAttr ".rendDispl" 1;
+}
+proc setAttribute118(){
+setAttr ".rendDispltSurf" yes;
+}
+proc setAttribute119(){
+setAttr ".rendDisplCoarse0" -type "float3" 0 0 0;
+}
+proc setAttribute120(){
+setAttr ".rendDisplCoarse1" -type "float3" 0 0 0;
+}
+proc setAttribute121(){
+setAttr ".rendDisplFine" -type "float3" 0 0 0;
+}
+proc setAttribute122(){
+setAttr ".emSource" 1;
+}
+proc setAttribute123(){
+setAttr ".emTexture" -type "float3" 0 0 0;
+}
+proc setAttribute124(){
+setAttr ".emModulate" no;
+}
+proc setAttribute125(){
+setAttr ".emIgnoreAlpha" no;
+}
+proc setAttribute126(){
+setAttr ".emLightsCount" 0;
+}
+proc setAttribute127(){
+setAttr ".emLightsPowerMult" 1;
+}
+proc setAttribute128(){
+setAttr ".emLightsRadiusMult" 1;
+}
+proc setAttribute129(){
+setAttr ".emLightsPersist" no;
+}
+proc setAttribute130(){
+setAttr ".emLightsSelfShadow" no;
+}
+proc setAttribute131(){
+setAttr ".emLightsPlacing" 0;
+}
+proc setAttribute132(){
+setAttr ".emLightsSampling" 0;
+}
+proc setAttribute133(){
+setAttr ".emLightsSubdivs" 8;
+}
+proc setAttribute134(){
+setAttr ".emLightsCaustSubdivs" 1000;
+}
+proc setAttribute135(){
+setAttr ".emLightsCutoff" 0.01;
+}
+proc setAttribute136(){
+setAttr ".emRampScale_t" 900;
+}
+proc setAttribute137(){
+setAttr ".emRampScale_s" 0.45;
+}
+proc setAttribute138(){
+setAttr ".emRampScale_v" 180;
+}
+proc setAttribute139(){
+setAttr ".emRampScale_f" 0.45;
+}
+proc setAttribute140(){
+setAttr ".emRampOffset_t" 1100;
+}
+proc setAttribute141(){
+setAttr ".emRampOffset_s" 0.55;
+}
+proc setAttribute142(){
+setAttr ".emRampOffset_v" 220;
+}
+proc setAttribute143(){
+setAttr ".emRampOffset_f" 0.55;
+}
+proc setAttribute144(){
+setAttr ".emRampMaxValue_t" 483977;
+}
+proc setAttribute145(){
+setAttr ".emRampMaxValue_s" 483977;
+}
+proc setAttribute146(){
+setAttr ".emRampMaxValue_v" 483977;
+}
+proc setAttribute147(){
+setAttr ".emRampMaxValue_f" 483977;
+}
+proc setAttribute148(){
+int $i, $size = `getAttr -size .emRampColor_t`;
+for ($i=$size-1; $i>0; --$i) removeMultiInstance -b true .emRampColor_t[$i];
+setAttr ".emRampColor_t[0].emRampColor_t_Position" 1100;
+setAttr ".emRampColor_t[0].emRampColor_t_Color" -type "float3" 1 0.197114 0.00116492;
+setAttr ".emRampColor_t[0].emRampColor_t_Interp" 3;
+setAttr ".emRampColor_t[1].emRampColor_t_Position" 2000.001099;
+setAttr ".emRampColor_t[1].emRampColor_t_Color" -type "float3" 1 0.398211 0.061486;
+setAttr ".emRampColor_t[1].emRampColor_t_Interp" 3;
+}
+proc setAttribute149(){
+int $i, $size = `getAttr -size .emRampColor_s`;
+for ($i=$size-1; $i>0; --$i) removeMultiInstance -b true .emRampColor_s[$i];
+setAttr ".emRampColor_s[0].emRampColor_s_Position" 0.55;
+setAttr ".emRampColor_s[0].emRampColor_s_Color" -type "float3" 1 0.197114 0.00116492;
+setAttr ".emRampColor_s[0].emRampColor_s_Interp" 3;
+setAttr ".emRampColor_s[1].emRampColor_s_Position" 1;
+setAttr ".emRampColor_s[1].emRampColor_s_Color" -type "float3" 1 0.398211 0.061486;
+setAttr ".emRampColor_s[1].emRampColor_s_Interp" 3;
+}
+proc setAttribute150(){
+int $i, $size = `getAttr -size .emRampColor_v`;
+for ($i=$size-1; $i>0; --$i) removeMultiInstance -b true .emRampColor_v[$i];
+setAttr ".emRampColor_v[0].emRampColor_v_Position" 220;
+setAttr ".emRampColor_v[0].emRampColor_v_Color" -type "float3" 1 0.197114 0.00116492;
+setAttr ".emRampColor_v[0].emRampColor_v_Interp" 3;
+setAttr ".emRampColor_v[1].emRampColor_v_Position" 400.000214;
+setAttr ".emRampColor_v[1].emRampColor_v_Color" -type "float3" 1 0.398211 0.061486;
+setAttr ".emRampColor_v[1].emRampColor_v_Interp" 3;
+}
+proc setAttribute151(){
+int $i, $size = `getAttr -size .emRampColor_f`;
+for ($i=$size-1; $i>0; --$i) removeMultiInstance -b true .emRampColor_f[$i];
+setAttr ".emRampColor_f[0].emRampColor_f_Position" 0.55;
+setAttr ".emRampColor_f[0].emRampColor_f_Color" -type "float3" 1 0.197114 0.00116492;
+setAttr ".emRampColor_f[0].emRampColor_f_Interp" 3;
+setAttr ".emRampColor_f[1].emRampColor_f_Position" 1;
+setAttr ".emRampColor_f[1].emRampColor_f_Color" -type "float3" 1 0.398211 0.061486;
+setAttr ".emRampColor_f[1].emRampColor_f_Interp" 3;
+}
+proc setAttribute152(){
+int $i, $size = `getAttr -size .emRampLuminance_t`;
+for ($i=$size-1; $i>0; --$i) removeMultiInstance -b true .emRampLuminance_t[$i];
+setAttr ".emRampLuminance_t[0].emRampLuminance_t_Position" 1100;
+setAttr ".emRampLuminance_t[0].emRampLuminance_t_Value" 25.515081;
+setAttr ".emRampLuminance_t[0].emRampLuminance_t_Interp" 3;
+setAttr ".emRampLuminance_t[1].emRampLuminance_t_Position" 1161.438232;
+setAttr ".emRampLuminance_t[1].emRampLuminance_t_Value" 79.38176;
+setAttr ".emRampLuminance_t[1].emRampLuminance_t_Interp" 3;
+setAttr ".emRampLuminance_t[2].emRampLuminance_t_Position" 1226.307861;
+setAttr ".emRampLuminance_t[2].emRampLuminance_t_Value" 233.791046;
+setAttr ".emRampLuminance_t[2].emRampLuminance_t_Interp" 3;
+setAttr ".emRampLuminance_t[3].emRampLuminance_t_Position" 1294.800781;
+setAttr ".emRampLuminance_t[3].emRampLuminance_t_Value" 653.461365;
+setAttr ".emRampLuminance_t[3].emRampLuminance_t_Interp" 3;
+setAttr ".emRampLuminance_t[4].emRampLuminance_t_Position" 1367.119019;
+setAttr ".emRampLuminance_t[4].emRampLuminance_t_Value" 1737.572388;
+setAttr ".emRampLuminance_t[4].emRampLuminance_t_Interp" 3;
+setAttr ".emRampLuminance_t[5].emRampLuminance_t_Position" 1443.476563;
+setAttr ".emRampLuminance_t[5].emRampLuminance_t_Value" 4405.529785;
+setAttr ".emRampLuminance_t[5].emRampLuminance_t_Interp" 3;
+setAttr ".emRampLuminance_t[6].emRampLuminance_t_Position" 1524.098999;
+setAttr ".emRampLuminance_t[6].emRampLuminance_t_Value" 10674.277344;
+setAttr ".emRampLuminance_t[6].emRampLuminance_t_Interp" 3;
+setAttr ".emRampLuminance_t[7].emRampLuminance_t_Position" 1609.224243;
+setAttr ".emRampLuminance_t[7].emRampLuminance_t_Value" 24767.058594;
+setAttr ".emRampLuminance_t[7].emRampLuminance_t_Interp" 3;
+setAttr ".emRampLuminance_t[8].emRampLuminance_t_Position" 1699.104126;
+setAttr ".emRampLuminance_t[8].emRampLuminance_t_Value" 55141.3125;
+setAttr ".emRampLuminance_t[8].emRampLuminance_t_Interp" 3;
+setAttr ".emRampLuminance_t[9].emRampLuminance_t_Position" 1794.003906;
+setAttr ".emRampLuminance_t[9].emRampLuminance_t_Value" 118026.078125;
+setAttr ".emRampLuminance_t[9].emRampLuminance_t_Interp" 3;
+setAttr ".emRampLuminance_t[10].emRampLuminance_t_Position" 1894.204346;
+setAttr ".emRampLuminance_t[10].emRampLuminance_t_Value" 243318.21875;
+setAttr ".emRampLuminance_t[10].emRampLuminance_t_Interp" 3;
+setAttr ".emRampLuminance_t[11].emRampLuminance_t_Position" 2000.001099;
+setAttr ".emRampLuminance_t[11].emRampLuminance_t_Value" 483980.125;
+setAttr ".emRampLuminance_t[11].emRampLuminance_t_Interp" 3;
+setAttr ".emRampLuminance_t[12].emRampLuminance_t_Position" 1974.286865;
+setAttr ".emRampLuminance_t[12].emRampLuminance_t_Value" 412181.71875;
+setAttr ".emRampLuminance_t[12].emRampLuminance_t_Interp" 3;
+setAttr ".emRampLuminance_t[13].emRampLuminance_t_Position" 1995.501099;
+setAttr ".emRampLuminance_t[13].emRampLuminance_t_Value" 470705.03125;
+setAttr ".emRampLuminance_t[13].emRampLuminance_t_Interp" 3;
+}
+proc setAttribute153(){
+int $i, $size = `getAttr -size .emRampLuminance_s`;
+for ($i=$size-1; $i>0; --$i) removeMultiInstance -b true .emRampLuminance_s[$i];
+setAttr ".emRampLuminance_s[0].emRampLuminance_s_Position" 0.55;
+setAttr ".emRampLuminance_s[0].emRampLuminance_s_Value" 25.515081;
+setAttr ".emRampLuminance_s[0].emRampLuminance_s_Interp" 3;
+setAttr ".emRampLuminance_s[1].emRampLuminance_s_Position" 0.580719;
+setAttr ".emRampLuminance_s[1].emRampLuminance_s_Value" 79.38176;
+setAttr ".emRampLuminance_s[1].emRampLuminance_s_Interp" 3;
+setAttr ".emRampLuminance_s[2].emRampLuminance_s_Position" 0.613154;
+setAttr ".emRampLuminance_s[2].emRampLuminance_s_Value" 233.791046;
+setAttr ".emRampLuminance_s[2].emRampLuminance_s_Interp" 3;
+setAttr ".emRampLuminance_s[3].emRampLuminance_s_Position" 0.6474;
+setAttr ".emRampLuminance_s[3].emRampLuminance_s_Value" 653.461365;
+setAttr ".emRampLuminance_s[3].emRampLuminance_s_Interp" 3;
+setAttr ".emRampLuminance_s[4].emRampLuminance_s_Position" 0.68356;
+setAttr ".emRampLuminance_s[4].emRampLuminance_s_Value" 1737.572388;
+setAttr ".emRampLuminance_s[4].emRampLuminance_s_Interp" 3;
+setAttr ".emRampLuminance_s[5].emRampLuminance_s_Position" 0.721738;
+setAttr ".emRampLuminance_s[5].emRampLuminance_s_Value" 4405.529785;
+setAttr ".emRampLuminance_s[5].emRampLuminance_s_Interp" 3;
+setAttr ".emRampLuminance_s[6].emRampLuminance_s_Position" 0.762049;
+setAttr ".emRampLuminance_s[6].emRampLuminance_s_Value" 10674.277344;
+setAttr ".emRampLuminance_s[6].emRampLuminance_s_Interp" 3;
+setAttr ".emRampLuminance_s[7].emRampLuminance_s_Position" 0.804612;
+setAttr ".emRampLuminance_s[7].emRampLuminance_s_Value" 24767.058594;
+setAttr ".emRampLuminance_s[7].emRampLuminance_s_Interp" 3;
+setAttr ".emRampLuminance_s[8].emRampLuminance_s_Position" 0.849552;
+setAttr ".emRampLuminance_s[8].emRampLuminance_s_Value" 55141.3125;
+setAttr ".emRampLuminance_s[8].emRampLuminance_s_Interp" 3;
+setAttr ".emRampLuminance_s[9].emRampLuminance_s_Position" 0.897002;
+setAttr ".emRampLuminance_s[9].emRampLuminance_s_Value" 118026.078125;
+setAttr ".emRampLuminance_s[9].emRampLuminance_s_Interp" 3;
+setAttr ".emRampLuminance_s[10].emRampLuminance_s_Position" 0.947102;
+setAttr ".emRampLuminance_s[10].emRampLuminance_s_Value" 243318.21875;
+setAttr ".emRampLuminance_s[10].emRampLuminance_s_Interp" 3;
+setAttr ".emRampLuminance_s[11].emRampLuminance_s_Position" 1;
+setAttr ".emRampLuminance_s[11].emRampLuminance_s_Value" 483980.125;
+setAttr ".emRampLuminance_s[11].emRampLuminance_s_Interp" 3;
+setAttr ".emRampLuminance_s[12].emRampLuminance_s_Position" 0.987143;
+setAttr ".emRampLuminance_s[12].emRampLuminance_s_Value" 412181.71875;
+setAttr ".emRampLuminance_s[12].emRampLuminance_s_Interp" 3;
+setAttr ".emRampLuminance_s[13].emRampLuminance_s_Position" 0.997751;
+setAttr ".emRampLuminance_s[13].emRampLuminance_s_Value" 470705.03125;
+setAttr ".emRampLuminance_s[13].emRampLuminance_s_Interp" 3;
+}
+proc setAttribute154(){
+int $i, $size = `getAttr -size .emRampLuminance_v`;
+for ($i=$size-1; $i>0; --$i) removeMultiInstance -b true .emRampLuminance_v[$i];
+setAttr ".emRampLuminance_v[0].emRampLuminance_v_Position" 220;
+setAttr ".emRampLuminance_v[0].emRampLuminance_v_Value" 25.515081;
+setAttr ".emRampLuminance_v[0].emRampLuminance_v_Interp" 3;
+setAttr ".emRampLuminance_v[1].emRampLuminance_v_Position" 232.287643;
+setAttr ".emRampLuminance_v[1].emRampLuminance_v_Value" 79.38176;
+setAttr ".emRampLuminance_v[1].emRampLuminance_v_Interp" 3;
+setAttr ".emRampLuminance_v[2].emRampLuminance_v_Position" 245.261566;
+setAttr ".emRampLuminance_v[2].emRampLuminance_v_Value" 233.791046;
+setAttr ".emRampLuminance_v[2].emRampLuminance_v_Interp" 3;
+setAttr ".emRampLuminance_v[3].emRampLuminance_v_Position" 258.960144;
+setAttr ".emRampLuminance_v[3].emRampLuminance_v_Value" 653.461365;
+setAttr ".emRampLuminance_v[3].emRampLuminance_v_Interp" 3;
+setAttr ".emRampLuminance_v[4].emRampLuminance_v_Position" 273.423798;
+setAttr ".emRampLuminance_v[4].emRampLuminance_v_Value" 1737.572388;
+setAttr ".emRampLuminance_v[4].emRampLuminance_v_Interp" 3;
+setAttr ".emRampLuminance_v[5].emRampLuminance_v_Position" 288.695313;
+setAttr ".emRampLuminance_v[5].emRampLuminance_v_Value" 4405.529785;
+setAttr ".emRampLuminance_v[5].emRampLuminance_v_Interp" 3;
+setAttr ".emRampLuminance_v[6].emRampLuminance_v_Position" 304.819794;
+setAttr ".emRampLuminance_v[6].emRampLuminance_v_Value" 10674.277344;
+setAttr ".emRampLuminance_v[6].emRampLuminance_v_Interp" 3;
+setAttr ".emRampLuminance_v[7].emRampLuminance_v_Position" 321.844849;
+setAttr ".emRampLuminance_v[7].emRampLuminance_v_Value" 24767.058594;
+setAttr ".emRampLuminance_v[7].emRampLuminance_v_Interp" 3;
+setAttr ".emRampLuminance_v[8].emRampLuminance_v_Position" 339.820831;
+setAttr ".emRampLuminance_v[8].emRampLuminance_v_Value" 55141.3125;
+setAttr ".emRampLuminance_v[8].emRampLuminance_v_Interp" 3;
+setAttr ".emRampLuminance_v[9].emRampLuminance_v_Position" 358.800781;
+setAttr ".emRampLuminance_v[9].emRampLuminance_v_Value" 118026.078125;
+setAttr ".emRampLuminance_v[9].emRampLuminance_v_Interp" 3;
+setAttr ".emRampLuminance_v[10].emRampLuminance_v_Position" 378.840881;
+setAttr ".emRampLuminance_v[10].emRampLuminance_v_Value" 243318.21875;
+setAttr ".emRampLuminance_v[10].emRampLuminance_v_Interp" 3;
+setAttr ".emRampLuminance_v[11].emRampLuminance_v_Position" 400.000214;
+setAttr ".emRampLuminance_v[11].emRampLuminance_v_Value" 483980.125;
+setAttr ".emRampLuminance_v[11].emRampLuminance_v_Interp" 3;
+setAttr ".emRampLuminance_v[12].emRampLuminance_v_Position" 394.857391;
+setAttr ".emRampLuminance_v[12].emRampLuminance_v_Value" 412181.71875;
+setAttr ".emRampLuminance_v[12].emRampLuminance_v_Interp" 3;
+setAttr ".emRampLuminance_v[13].emRampLuminance_v_Position" 399.10022;
+setAttr ".emRampLuminance_v[13].emRampLuminance_v_Value" 470705.03125;
+setAttr ".emRampLuminance_v[13].emRampLuminance_v_Interp" 3;
+}
+proc setAttribute155(){
+int $i, $size = `getAttr -size .emRampLuminance_f`;
+for ($i=$size-1; $i>0; --$i) removeMultiInstance -b true .emRampLuminance_f[$i];
+setAttr ".emRampLuminance_f[0].emRampLuminance_f_Position" 0.55;
+setAttr ".emRampLuminance_f[0].emRampLuminance_f_Value" 25.515081;
+setAttr ".emRampLuminance_f[0].emRampLuminance_f_Interp" 3;
+setAttr ".emRampLuminance_f[1].emRampLuminance_f_Position" 0.580719;
+setAttr ".emRampLuminance_f[1].emRampLuminance_f_Value" 79.38176;
+setAttr ".emRampLuminance_f[1].emRampLuminance_f_Interp" 3;
+setAttr ".emRampLuminance_f[2].emRampLuminance_f_Position" 0.613154;
+setAttr ".emRampLuminance_f[2].emRampLuminance_f_Value" 233.791046;
+setAttr ".emRampLuminance_f[2].emRampLuminance_f_Interp" 3;
+setAttr ".emRampLuminance_f[3].emRampLuminance_f_Position" 0.6474;
+setAttr ".emRampLuminance_f[3].emRampLuminance_f_Value" 653.461365;
+setAttr ".emRampLuminance_f[3].emRampLuminance_f_Interp" 3;
+setAttr ".emRampLuminance_f[4].emRampLuminance_f_Position" 0.68356;
+setAttr ".emRampLuminance_f[4].emRampLuminance_f_Value" 1737.572388;
+setAttr ".emRampLuminance_f[4].emRampLuminance_f_Interp" 3;
+setAttr ".emRampLuminance_f[5].emRampLuminance_f_Position" 0.721738;
+setAttr ".emRampLuminance_f[5].emRampLuminance_f_Value" 4405.529785;
+setAttr ".emRampLuminance_f[5].emRampLuminance_f_Interp" 3;
+setAttr ".emRampLuminance_f[6].emRampLuminance_f_Position" 0.762049;
+setAttr ".emRampLuminance_f[6].emRampLuminance_f_Value" 10674.277344;
+setAttr ".emRampLuminance_f[6].emRampLuminance_f_Interp" 3;
+setAttr ".emRampLuminance_f[7].emRampLuminance_f_Position" 0.804612;
+setAttr ".emRampLuminance_f[7].emRampLuminance_f_Value" 24767.058594;
+setAttr ".emRampLuminance_f[7].emRampLuminance_f_Interp" 3;
+setAttr ".emRampLuminance_f[8].emRampLuminance_f_Position" 0.849552;
+setAttr ".emRampLuminance_f[8].emRampLuminance_f_Value" 55141.3125;
+setAttr ".emRampLuminance_f[8].emRampLuminance_f_Interp" 3;
+setAttr ".emRampLuminance_f[9].emRampLuminance_f_Position" 0.897002;
+setAttr ".emRampLuminance_f[9].emRampLuminance_f_Value" 118026.078125;
+setAttr ".emRampLuminance_f[9].emRampLuminance_f_Interp" 3;
+setAttr ".emRampLuminance_f[10].emRampLuminance_f_Position" 0.947102;
+setAttr ".emRampLuminance_f[10].emRampLuminance_f_Value" 243318.21875;
+setAttr ".emRampLuminance_f[10].emRampLuminance_f_Interp" 3;
+setAttr ".emRampLuminance_f[11].emRampLuminance_f_Position" 1;
+setAttr ".emRampLuminance_f[11].emRampLuminance_f_Value" 483980.125;
+setAttr ".emRampLuminance_f[11].emRampLuminance_f_Interp" 3;
+setAttr ".emRampLuminance_f[12].emRampLuminance_f_Position" 0.987143;
+setAttr ".emRampLuminance_f[12].emRampLuminance_f_Value" 412181.71875;
+setAttr ".emRampLuminance_f[12].emRampLuminance_f_Interp" 3;
+setAttr ".emRampLuminance_f[13].emRampLuminance_f_Position" 0.997751;
+setAttr ".emRampLuminance_f[13].emRampLuminance_f_Value" 470705.03125;
+setAttr ".emRampLuminance_f[13].emRampLuminance_f_Interp" 3;
+}
+proc setAttribute156(){
+setAttr ".difSource" 6;
+}
+proc setAttribute157(){
+setAttr ".difTexture" -type "float3" 0 0 1;
+}
+proc setAttribute158(){
+setAttr ".difModulate" no;
+}
+proc setAttribute159(){
+setAttr ".difSimpleColor" -type "float3" 0.5 0.465 0.43;
+}
+proc setAttribute160(){
+setAttr ".difPartModeBounces" yes;
+}
+proc setAttribute161(){
+setAttr ".difLightCache" yes;
+}
+proc setAttribute162(){
+setAttr ".difLightCacheSR" 0;
+}
+proc setAttribute163(){
+setAttr ".difScattering" 2;
+}
+proc setAttribute164(){
+setAttr ".difMult" 1;
+}
+proc setAttribute165(){
+setAttr ".difRampScale_t" 4000;
+}
+proc setAttribute166(){
+setAttr ".difRampScale_s" 1;
+}
+proc setAttribute167(){
+setAttr ".difRampScale_v" 400;
+}
+proc setAttribute168(){
+setAttr ".difRampScale_f" 1;
+}
+proc setAttribute169(){
+setAttr ".difRampOffset_t" 0;
+}
+proc setAttribute170(){
+setAttr ".difRampOffset_s" 0;
+}
+proc setAttribute171(){
+setAttr ".difRampOffset_v" 0;
+}
+proc setAttribute172(){
+setAttr ".difRampOffset_f" 0;
+}
+proc setAttribute173(){
+int $i, $size = `getAttr -size .difRampColor_t`;
+for ($i=$size-1; $i>0; --$i) removeMultiInstance -b true .difRampColor_t[$i];
+setAttr ".difRampColor_t[0].difRampColor_t_Position" 0;
+setAttr ".difRampColor_t[0].difRampColor_t_Color" -type "float3" 1 1 1;
+setAttr ".difRampColor_t[0].difRampColor_t_Interp" 3;
+}
+proc setAttribute174(){
+int $i, $size = `getAttr -size .difRampColor_s`;
+for ($i=$size-1; $i>0; --$i) removeMultiInstance -b true .difRampColor_s[$i];
+setAttr ".difRampColor_s[0].difRampColor_s_Position" 0;
+setAttr ".difRampColor_s[0].difRampColor_s_Color" -type "float3" 1 1 1;
+setAttr ".difRampColor_s[0].difRampColor_s_Interp" 3;
+}
+proc setAttribute175(){
+int $i, $size = `getAttr -size .difRampColor_v`;
+for ($i=$size-1; $i>0; --$i) removeMultiInstance -b true .difRampColor_v[$i];
+setAttr ".difRampColor_v[0].difRampColor_v_Position" 0;
+setAttr ".difRampColor_v[0].difRampColor_v_Color" -type "float3" 1 1 1;
+setAttr ".difRampColor_v[0].difRampColor_v_Interp" 3;
+}
+proc setAttribute176(){
+int $i, $size = `getAttr -size .difRampColor_f`;
+for ($i=$size-1; $i>0; --$i) removeMultiInstance -b true .difRampColor_f[$i];
+setAttr ".difRampColor_f[0].difRampColor_f_Position" 0;
+setAttr ".difRampColor_f[0].difRampColor_f_Color" -type "float3" 1 1 1;
+setAttr ".difRampColor_f[0].difRampColor_f_Interp" 3;
+}
+proc setAttribute177(){
+setAttr ".trSource" 1;
+}
+proc setAttribute178(){
+setAttr ".trTexture" -type "float3" 0 0 0;
+}
+proc setAttribute179(){
+setAttr ".trModulate" no;
+}
+proc setAttribute180(){
+setAttr ".trMeaning" 1;
+}
+proc setAttribute181(){
+setAttr ".trExitShLevel" 0.99;
+}
+proc setAttribute182(){
+setAttr ".trSkipShLevel" 0.001;
+}
+proc setAttribute183(){
+setAttr ".trSimpleSmFactor" 0.5;
+}
+proc setAttribute184(){
+setAttr ".trRampScale_t" 1;
+}
+proc setAttribute185(){
+setAttr ".trRampScale_s" 0.8;
+}
+proc setAttribute186(){
+setAttr ".trRampScale_v" 510;
+}
+proc setAttribute187(){
+setAttr ".trRampScale_f" 0.8;
+}
+proc setAttribute188(){
+setAttr ".trRampOffset_t" 0;
+}
+proc setAttribute189(){
+setAttr ".trRampOffset_s" 0.14;
+}
+proc setAttribute190(){
+setAttr ".trRampOffset_v" 90;
+}
+proc setAttribute191(){
+setAttr ".trRampOffset_f" 0.14;
+}
+proc setAttribute192(){
+setAttr ".trRampMaxValue_t" 0.25;
+}
+proc setAttribute193(){
+setAttr ".trRampMaxValue_s" 0.1;
+}
+proc setAttribute194(){
+setAttr ".trRampMaxValue_v" 0.1;
+}
+proc setAttribute195(){
+setAttr ".trRampMaxValue_f" 0.1;
+}
+proc setAttribute196(){
+int $i, $size = `getAttr -size .trRampAlpha_t`;
+for ($i=$size-1; $i>0; --$i) removeMultiInstance -b true .trRampAlpha_t[$i];
+setAttr ".trRampAlpha_t[0].trRampAlpha_t_Position" 0;
+setAttr ".trRampAlpha_t[0].trRampAlpha_t_Value" 0;
+setAttr ".trRampAlpha_t[0].trRampAlpha_t_Interp" 0;
+setAttr ".trRampAlpha_t[1].trRampAlpha_t_Position" 0.4;
+setAttr ".trRampAlpha_t[1].trRampAlpha_t_Value" 0;
+setAttr ".trRampAlpha_t[1].trRampAlpha_t_Interp" 1;
+setAttr ".trRampAlpha_t[2].trRampAlpha_t_Position" 0.6;
+setAttr ".trRampAlpha_t[2].trRampAlpha_t_Value" 0.25;
+setAttr ".trRampAlpha_t[2].trRampAlpha_t_Interp" 0;
+}
+proc setAttribute197(){
+int $i, $size = `getAttr -size .trRampAlpha_s`;
+for ($i=$size-1; $i>0; --$i) removeMultiInstance -b true .trRampAlpha_s[$i];
+setAttr ".trRampAlpha_s[0].trRampAlpha_s_Position" 0.14;
+setAttr ".trRampAlpha_s[0].trRampAlpha_s_Value" 0;
+setAttr ".trRampAlpha_s[0].trRampAlpha_s_Interp" 3;
+setAttr ".trRampAlpha_s[1].trRampAlpha_s_Position" 0.436;
+setAttr ".trRampAlpha_s[1].trRampAlpha_s_Value" 0.025;
+setAttr ".trRampAlpha_s[1].trRampAlpha_s_Interp" 3;
+setAttr ".trRampAlpha_s[2].trRampAlpha_s_Position" 0.5032;
+setAttr ".trRampAlpha_s[2].trRampAlpha_s_Value" 0.054;
+setAttr ".trRampAlpha_s[2].trRampAlpha_s_Interp" 3;
+setAttr ".trRampAlpha_s[3].trRampAlpha_s_Position" 0.5192;
+setAttr ".trRampAlpha_s[3].trRampAlpha_s_Value" 0.1;
+setAttr ".trRampAlpha_s[3].trRampAlpha_s_Interp" 3;
+setAttr ".trRampAlpha_s[4].trRampAlpha_s_Position" 0.52;
+setAttr ".trRampAlpha_s[4].trRampAlpha_s_Value" 0.1;
+setAttr ".trRampAlpha_s[4].trRampAlpha_s_Interp" 1;
+setAttr ".trRampAlpha_s[5].trRampAlpha_s_Position" 0.538;
+setAttr ".trRampAlpha_s[5].trRampAlpha_s_Value" 0;
+setAttr ".trRampAlpha_s[5].trRampAlpha_s_Interp" 3;
+setAttr ".trRampAlpha_s[6].trRampAlpha_s_Position" 0.74;
+setAttr ".trRampAlpha_s[6].trRampAlpha_s_Value" 0;
+setAttr ".trRampAlpha_s[6].trRampAlpha_s_Interp" 3;
+setAttr ".trRampAlpha_s[7].trRampAlpha_s_Position" 0.82;
+setAttr ".trRampAlpha_s[7].trRampAlpha_s_Value" 0.05;
+setAttr ".trRampAlpha_s[7].trRampAlpha_s_Interp" 3;
+setAttr ".trRampAlpha_s[8].trRampAlpha_s_Position" 0.94;
+setAttr ".trRampAlpha_s[8].trRampAlpha_s_Value" 0;
+setAttr ".trRampAlpha_s[8].trRampAlpha_s_Interp" 3;
+}
+proc setAttribute198(){
+int $i, $size = `getAttr -size .trRampAlpha_v`;
+for ($i=$size-1; $i>0; --$i) removeMultiInstance -b true .trRampAlpha_v[$i];
+setAttr ".trRampAlpha_v[0].trRampAlpha_v_Position" 90;
+setAttr ".trRampAlpha_v[0].trRampAlpha_v_Value" 0;
+setAttr ".trRampAlpha_v[0].trRampAlpha_v_Interp" 3;
+setAttr ".trRampAlpha_v[1].trRampAlpha_v_Position" 278.700012;
+setAttr ".trRampAlpha_v[1].trRampAlpha_v_Value" 0.025;
+setAttr ".trRampAlpha_v[1].trRampAlpha_v_Interp" 3;
+setAttr ".trRampAlpha_v[2].trRampAlpha_v_Position" 321.540009;
+setAttr ".trRampAlpha_v[2].trRampAlpha_v_Value" 0.054;
+setAttr ".trRampAlpha_v[2].trRampAlpha_v_Interp" 3;
+setAttr ".trRampAlpha_v[3].trRampAlpha_v_Position" 331.73999;
+setAttr ".trRampAlpha_v[3].trRampAlpha_v_Value" 0.1;
+setAttr ".trRampAlpha_v[3].trRampAlpha_v_Interp" 3;
+setAttr ".trRampAlpha_v[4].trRampAlpha_v_Position" 332.25;
+setAttr ".trRampAlpha_v[4].trRampAlpha_v_Value" 0.1;
+setAttr ".trRampAlpha_v[4].trRampAlpha_v_Interp" 1;
+setAttr ".trRampAlpha_v[5].trRampAlpha_v_Position" 343.725006;
+setAttr ".trRampAlpha_v[5].trRampAlpha_v_Value" 0;
+setAttr ".trRampAlpha_v[5].trRampAlpha_v_Interp" 3;
+setAttr ".trRampAlpha_v[6].trRampAlpha_v_Position" 472.5;
+setAttr ".trRampAlpha_v[6].trRampAlpha_v_Value" 0;
+setAttr ".trRampAlpha_v[6].trRampAlpha_v_Interp" 3;
+setAttr ".trRampAlpha_v[7].trRampAlpha_v_Position" 523.5;
+setAttr ".trRampAlpha_v[7].trRampAlpha_v_Value" 0.05;
+setAttr ".trRampAlpha_v[7].trRampAlpha_v_Interp" 3;
+setAttr ".trRampAlpha_v[8].trRampAlpha_v_Position" 600;
+setAttr ".trRampAlpha_v[8].trRampAlpha_v_Value" 0;
+setAttr ".trRampAlpha_v[8].trRampAlpha_v_Interp" 3;
+}
+proc setAttribute199(){
+int $i, $size = `getAttr -size .trRampAlpha_f`;
+for ($i=$size-1; $i>0; --$i) removeMultiInstance -b true .trRampAlpha_f[$i];
+setAttr ".trRampAlpha_f[0].trRampAlpha_f_Position" 0.14;
+setAttr ".trRampAlpha_f[0].trRampAlpha_f_Value" 0;
+setAttr ".trRampAlpha_f[0].trRampAlpha_f_Interp" 3;
+setAttr ".trRampAlpha_f[1].trRampAlpha_f_Position" 0.436;
+setAttr ".trRampAlpha_f[1].trRampAlpha_f_Value" 0.025;
+setAttr ".trRampAlpha_f[1].trRampAlpha_f_Interp" 3;
+setAttr ".trRampAlpha_f[2].trRampAlpha_f_Position" 0.5032;
+setAttr ".trRampAlpha_f[2].trRampAlpha_f_Value" 0.054;
+setAttr ".trRampAlpha_f[2].trRampAlpha_f_Interp" 3;
+setAttr ".trRampAlpha_f[3].trRampAlpha_f_Position" 0.5192;
+setAttr ".trRampAlpha_f[3].trRampAlpha_f_Value" 0.1;
+setAttr ".trRampAlpha_f[3].trRampAlpha_f_Interp" 3;
+setAttr ".trRampAlpha_f[4].trRampAlpha_f_Position" 0.52;
+setAttr ".trRampAlpha_f[4].trRampAlpha_f_Value" 0.1;
+setAttr ".trRampAlpha_f[4].trRampAlpha_f_Interp" 1;
+setAttr ".trRampAlpha_f[5].trRampAlpha_f_Position" 0.538;
+setAttr ".trRampAlpha_f[5].trRampAlpha_f_Value" 0;
+setAttr ".trRampAlpha_f[5].trRampAlpha_f_Interp" 3;
+setAttr ".trRampAlpha_f[6].trRampAlpha_f_Position" 0.74;
+setAttr ".trRampAlpha_f[6].trRampAlpha_f_Value" 0;
+setAttr ".trRampAlpha_f[6].trRampAlpha_f_Interp" 3;
+setAttr ".trRampAlpha_f[7].trRampAlpha_f_Position" 0.82;
+setAttr ".trRampAlpha_f[7].trRampAlpha_f_Value" 0.05;
+setAttr ".trRampAlpha_f[7].trRampAlpha_f_Interp" 3;
+setAttr ".trRampAlpha_f[8].trRampAlpha_f_Position" 0.94;
+setAttr ".trRampAlpha_f[8].trRampAlpha_f_Value" 0;
+setAttr ".trRampAlpha_f[8].trRampAlpha_f_Interp" 3;
+}
+if ($__phx_templ_rend){
+catch(setAttribute89());
+catch(setAttribute90());
+catch(setAttribute91());
+catch(setAttribute92());
+catch(setAttribute93());
+catch(setAttribute94());
+catch(setAttribute95());
+catch(setAttribute96());
+catch(setAttribute97());
+catch(setAttribute98());
+catch(setAttribute99());
+catch(setAttribute100());
+catch(setAttribute101());
+catch(setAttribute102());
+catch(setAttribute103());
+catch(setAttribute104());
+catch(setAttribute105());
+catch(setAttribute106());
+catch(setAttribute107());
+catch(setAttribute108());
+catch(setAttribute109());
+catch(setAttribute110());
+catch(setAttribute111());
+catch(setAttribute112());
+catch(setAttribute113());
+catch(setAttribute114());
+catch(setAttribute115());
+catch(setAttribute116());
+catch(setAttribute117());
+catch(setAttribute118());
+catch(setAttribute119());
+catch(setAttribute120());
+catch(setAttribute121());
+catch(setAttribute122());
+catch(setAttribute123());
+catch(setAttribute124());
+catch(setAttribute125());
+catch(setAttribute126());
+catch(setAttribute127());
+catch(setAttribute128());
+catch(setAttribute129());
+catch(setAttribute130());
+catch(setAttribute131());
+catch(setAttribute132());
+catch(setAttribute133());
+catch(setAttribute134());
+catch(setAttribute135());
+catch(setAttribute136());
+catch(setAttribute137());
+catch(setAttribute138());
+catch(setAttribute139());
+catch(setAttribute140());
+catch(setAttribute141());
+catch(setAttribute142());
+catch(setAttribute143());
+catch(setAttribute144());
+catch(setAttribute145());
+catch(setAttribute146());
+catch(setAttribute147());
+catch(setAttribute148());
+catch(setAttribute149());
+catch(setAttribute150());
+catch(setAttribute151());
+catch(setAttribute152());
+catch(setAttribute153());
+catch(setAttribute154());
+catch(setAttribute155());
+catch(setAttribute156());
+catch(setAttribute157());
+catch(setAttribute158());
+catch(setAttribute159());
+catch(setAttribute160());
+catch(setAttribute161());
+catch(setAttribute162());
+catch(setAttribute163());
+catch(setAttribute164());
+catch(setAttribute165());
+catch(setAttribute166());
+catch(setAttribute167());
+catch(setAttribute168());
+catch(setAttribute169());
+catch(setAttribute170());
+catch(setAttribute171());
+catch(setAttribute172());
+catch(setAttribute173());
+catch(setAttribute174());
+catch(setAttribute175());
+catch(setAttribute176());
+catch(setAttribute177());
+catch(setAttribute178());
+catch(setAttribute179());
+catch(setAttribute180());
+catch(setAttribute181());
+catch(setAttribute182());
+catch(setAttribute183());
+catch(setAttribute184());
+catch(setAttribute185());
+catch(setAttribute186());
+catch(setAttribute187());
+catch(setAttribute188());
+catch(setAttribute189());
+catch(setAttribute190());
+catch(setAttribute191());
+catch(setAttribute192());
+catch(setAttribute193());
+catch(setAttribute194());
+catch(setAttribute195());
+catch(setAttribute196());
+catch(setAttribute197());
+catch(setAttribute198());
+catch(setAttribute199());
+}
+
+proc setAttribute200(){
+setAttr ".showGrid" yes;
+}
+proc setAttribute201(){
+setAttr ".showGridCells" no;
+}
+proc setAttribute202(){
+setAttr ".cellsReduction" 100;
+}
+proc setAttribute203(){
+setAttr ".onlyIfSelected" no;
+}
+proc setAttribute204(){
+setAttr ".activeViewOnly" yes;
+}
+proc setAttribute205(){
+setAttr ".andReduction" no;
+}
+proc setAttribute206(){
+setAttr ".viewTemp" yes;
+}
+proc setAttribute207(){
+setAttr ".viewTempNatural" no;
+}
+proc setAttribute208(){
+setAttr ".viewTempColor" -type "float3" 0 0 0;
+}
+proc setAttribute209(){
+setAttr ".viewTempColor2" -type "float3" 0 0 1;
+}
+proc setAttribute210(){
+setAttr ".viewTempThreshold" 0.5;
+}
+proc setAttribute211(){
+setAttr ".viewTempThreshold2" 1.5;
+}
+proc setAttribute212(){
+setAttr ".viewSmoke" no;
+}
+proc setAttribute213(){
+setAttr ".viewSmokeColor" -type "float3" 0.5 0.5 0.5;
+}
+proc setAttribute214(){
+setAttr ".viewSmokeColor2" -type "float3" 0 0 0;
+}
+proc setAttribute215(){
+setAttr ".viewSmokeThreshold" 0.01;
+}
+proc setAttribute216(){
+setAttr ".viewSmokeThreshold2" 1;
+}
+proc setAttribute217(){
+setAttr ".viewUVW" no;
+}
+proc setAttribute218(){
+setAttr ".viewUVWAsRGB" yes;
+}
+proc setAttribute219(){
+setAttr ".viewUVWColor" -type "float3" 0.45 0.55 0.45;
+}
+proc setAttribute220(){
+setAttr ".viewUVWColor2" -type "float3" 0 0.5 0;
+}
+proc setAttribute221(){
+setAttr ".viewUVWThreshold" 1;
+}
+proc setAttribute222(){
+setAttr ".viewUVWThreshold2" 100;
+}
+proc setAttribute223(){
+setAttr ".viewWavelet" no;
+}
+proc setAttribute224(){
+setAttr ".viewWColor" -type "float3" 0.3 0.3 0;
+}
+proc setAttribute225(){
+setAttr ".viewWColor2" -type "float3" 0.9 0.9 0;
+}
+proc setAttribute226(){
+setAttr ".viewWThreshold" 0.01;
+}
+proc setAttribute227(){
+setAttr ".viewWThreshold2" 1000;
+}
+proc setAttribute228(){
+setAttr ".viewFuel" no;
+}
+proc setAttribute229(){
+setAttr ".viewFuelColor" -type "float3" 0.45 0.55 0.55;
+}
+proc setAttribute230(){
+setAttr ".viewFuelColor2" -type "float3" 0 0.5 0.5;
+}
+proc setAttribute231(){
+setAttr ".viewFuelThreshold" 0.01;
+}
+proc setAttribute232(){
+setAttr ".viewFuelThreshold2" 1;
+}
+proc setAttribute233(){
+setAttr ".viewVel" no;
+}
+proc setAttribute234(){
+setAttr ".viewVelColor" -type "float3" 0.45 0.45 0.45;
+}
+proc setAttribute235(){
+setAttr ".viewVelColor2" -type "float3" 0 0 0.5;
+}
+proc setAttribute236(){
+setAttr ".viewVelThreshold" 10;
+}
+proc setAttribute237(){
+setAttr ".viewVelThreshold2" 100;
+}
+proc setAttribute238(){
+setAttr ".viewFoamColor" -type "float3" 1 1 1;
+}
+proc setAttribute239(){
+setAttr ".viewFoamColorEnbl" yes;
+}
+proc setAttribute240(){
+setAttr ".viewSplashesColor" -type "float3" 0 0 1;
+}
+proc setAttribute241(){
+setAttr ".viewSplashesColorEnbl" yes;
+}
+proc setAttribute242(){
+setAttr ".viewPartColor" -type "float3" 1 0 0;
+}
+proc setAttribute243(){
+setAttr ".viewPartColorEnbl" yes;
+}
+proc setAttribute244(){
+setAttr ".viewPartSize" 1;
+}
+proc setAttribute245(){
+setAttr ".gpuViewEnbl" no;
+}
+proc setAttribute246(){
+setAttr ".gpuViewDownsample" 1;
+}
+proc setAttribute247(){
+setAttr ".gpuViewLighting" yes;
+}
+proc setAttribute248(){
+setAttr ".gpuViewMaxLights" 1;
+}
+proc setAttribute249(){
+setAttr ".gpuViewAmbient" -type "float3" 0 0 0;
+}
+proc setAttribute250(){
+setAttr ".gpuViewStep" 50;
+}
+proc setAttribute251(){
+setAttr ".gpuViewStepEnbl" no;
+}
+proc setAttribute252(){
+setAttr ".gpuViewBlend" yes;
+}
+proc setAttribute253(){
+setAttr ".gpuViewBackground" -type "float3" 0 0 0;
+}
+proc setAttribute254(){
+setAttr ".gpuViewSaturate" no;
+}
+proc setAttribute255(){
+setAttr ".gpuViewPath" -type "string" "$(implicit)";
+}
+proc setAttribute256(){
+setAttr ".gpuViewSaveOnSim" no;
+}
+proc setAttribute257(){
+setAttr ".gpuViewMerge" no;
+}
+proc setAttribute258(){
+setAttr ".gpuImageFormat" 0;
+}
+if ($__phx_templ_prev){
+catch(setAttribute200());
+catch(setAttribute201());
+catch(setAttribute202());
+catch(setAttribute203());
+catch(setAttribute204());
+catch(setAttribute205());
+catch(setAttribute206());
+catch(setAttribute207());
+catch(setAttribute208());
+catch(setAttribute209());
+catch(setAttribute210());
+catch(setAttribute211());
+catch(setAttribute212());
+catch(setAttribute213());
+catch(setAttribute214());
+catch(setAttribute215());
+catch(setAttribute216());
+catch(setAttribute217());
+catch(setAttribute218());
+catch(setAttribute219());
+catch(setAttribute220());
+catch(setAttribute221());
+catch(setAttribute222());
+catch(setAttribute223());
+catch(setAttribute224());
+catch(setAttribute225());
+catch(setAttribute226());
+catch(setAttribute227());
+catch(setAttribute228());
+catch(setAttribute229());
+catch(setAttribute230());
+catch(setAttribute231());
+catch(setAttribute232());
+catch(setAttribute233());
+catch(setAttribute234());
+catch(setAttribute235());
+catch(setAttribute236());
+catch(setAttribute237());
+catch(setAttribute238());
+catch(setAttribute239());
+catch(setAttribute240());
+catch(setAttribute241());
+catch(setAttribute242());
+catch(setAttribute243());
+catch(setAttribute244());
+catch(setAttribute245());
+catch(setAttribute246());
+catch(setAttribute247());
+catch(setAttribute248());
+catch(setAttribute249());
+catch(setAttribute250());
+catch(setAttribute251());
+catch(setAttribute252());
+catch(setAttribute253());
+catch(setAttribute254());
+catch(setAttribute255());
+catch(setAttribute256());
+catch(setAttribute257());
+catch(setAttribute258());
+}
+

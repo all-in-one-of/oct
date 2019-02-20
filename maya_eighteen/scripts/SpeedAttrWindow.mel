@@ -1,0 +1,187 @@
+global proc KeyObjSpeedFrame(string $unit)
+{
+	int $start_frame = `playbackOptions -q -ast`;
+	int $current_frame = `currentTime -q`;
+	string $current_Obj[] = `ls -sl -l`;
+	float $obj_acc_speed=0.0;
+	float $obj_speed=0.0;
+
+	float $V_start_pos=0.0;
+	float $V_end_pos=0.0;
+	
+	float $obj_posX[];
+	float $obj_posY[];
+	float $obj_posZ[];
+	
+	float $fps;
+
+	if( $unit == "game" ) {
+	    $fps = 15;
+	} else if( $unit == "film" ) {
+	    $fps = 24;
+	} else if( $unit == "pal" ) {
+	    $fps = 25;
+	} else if( $unit == "ntsc" ) {
+	    $fps = 30;
+	} else if( $unit == "show" ) {
+	    $fps = 48;
+	} else if( $unit == "palf" ) {
+	    $fps = 50;
+	} else if( $unit == "ntscf" ) {
+	    $fps = 60;
+	}	
+
+	string $obj_name_tx;
+	string $obj_name_ty;
+	string $obj_name_tz;
+	string $obj_name_acc_speed;
+	string $obj_name_speed;
+
+	string $objName;
+	for ($objName in $current_Obj){
+		$obj_name_acc_speed = $objName + ".AccSpeed";
+		$obj_name_speed = $objName + ".Speed";
+
+		if (!`attributeExists "AccSpeed" $objName`){
+			addAttr -ln "AccSpeed"  -at double  -dv 0 $objName;
+			setAttr -e-keyable true $obj_name_acc_speed;
+		}
+		if (!`attributeExists "Speed" $objName`){
+			addAttr -ln "Speed"  -at double  -dv 0 $objName;
+			setAttr -e-keyable true $obj_name_speed;
+		}
+
+		$obj_name_tx = $objName + ".tx";
+		$obj_name_ty = $objName + ".ty";
+		$obj_name_tz = $objName + ".tz";
+
+		for($k=0;$k<3;$k++){
+			$obj_posX[$k] = `getAttr -time ($current_frame-$k) $obj_name_tx`;
+			$obj_posY[$k] = `getAttr -time ($current_frame-$k) $obj_name_ty`;
+			$obj_posZ[$k] = `getAttr -time ($current_frame-$k) $obj_name_tz`;
+		}
+
+		$V_start_pos = sqrt(pow(($obj_posX[0]-$obj_posX[1]),2)+pow(($obj_posY[0]-$obj_posY[1]),2)+pow(($obj_posZ[0]-$obj_posZ[1]),2));
+	    $V_end_pos = sqrt(pow(($obj_posX[1]-$obj_posX[2]),2)+pow(($obj_posY[1]-$obj_posY[2]),2)+pow(($obj_posZ[1]-$obj_posZ[2]),2));
+
+	    $obj_acc_speed = ($V_start_pos - $V_end_pos)*$fps;
+	    $obj_speed = $V_start_pos*$fps;
+
+		setAttr $obj_name_acc_speed $obj_acc_speed;
+	    setAttr $obj_name_speed $obj_speed;
+	    setKeyframe $obj_name_acc_speed;
+	    setKeyframe $obj_name_speed;
+	}
+}
+
+global proc CreateSpeedCurve(int $fast, int $faet, string $unit){
+	string $current_Obj[] = `ls -sl -l`;
+	string $connect_node[];
+
+	string $objName;
+	for ($objName in $current_Obj){
+		$obj_name_acc_speed = $objName + ".AccSpeed";
+		$obj_name_speed = $objName + ".Speed";
+
+		if (`attributeExists "AccSpeed" $objName`){
+			$connect_node = `listConnections $obj_name_acc_speed`;
+			delete $connect_node;
+		}
+		if (`attributeExists "Speed" $objName`){
+			$connect_node = `listConnections $obj_name_speed`;
+			delete $connect_node;
+		}
+	}
+
+	for($i=$fast;$i<($faet+1);$i++){
+	    currentTime $i;
+	    KeyObjSpeedFrame($unit);
+	}
+}
+
+global proc SpeedAttrWindow(){
+	global string $SpeedAttrWindow;
+	global string $startFrameField;
+	global string $endFrameField;
+	global string $r1;
+
+	int $fast = `playbackOptions -q -ast`;
+	int $faet = `playbackOptions -q -aet`;
+	string $unit = `currentUnit -q -time`;
+	if(`window -q -exists SpeedAttrWindow`){
+	    deleteUI SpeedAttrWindow;
+	}
+	$SpeedAttrWindow = `window -t "速度动画曲线" -w 160 -h 100 -sizeable false SpeedAttrWindow`;
+	string $form = `formLayout -numberOfDivisions 100`;
+
+	string $r1 = `optionMenu -label "  帧率: "`;
+	menuItem -label "game";
+	menuItem -label "film";
+	menuItem -label "pal";
+	menuItem -label "ntsc";
+	menuItem -label "show";
+	menuItem -label "palf";
+	menuItem -label "ntscf";
+
+	string $r2 = `rowLayout -numberOfColumns 2 -columnWidth2 40 120 -h 20`;
+	string $text_2 = `text -label "起始帧:" `;
+	$startFrameField = `intField  -w 120 -v $fast`;
+	setParent ..;
+
+	string $r3 = `rowLayout -numberOfColumns 2 -columnWidth2 40 120 -h 20`;
+	string $text_3 = `text -label "结束帧:"`;
+	$endFrameField = `intField -w 120 -v $faet`;
+	setParent ..;
+
+	string $r4 = `rowLayout -numberOfColumns 2 -columnWidth2 80 80 -h 40`;
+	string $b1 = `button -l "确定" -w 80 -c "SpeedAttrWindow_ok"`;
+	string $b2 = `button -l "取消" -w 80 -c "SpeedAttrWindow_close"`;
+	setParent ..;
+
+	optionMenu -e -v $unit $r1;
+
+	formLayout -edit
+	    -attachForm     $r1     "top"    5
+	    -attachForm     $r1     "left"   5
+	    -attachForm     $r1     "right"   5
+	    -attachControl  $r1     "bottom" 5 $r2
+	    
+	    -attachForm     $r2     "left"   5
+	    -attachForm     $r2     "right"   5
+	    -attachControl  $r2     "bottom" 5 $r3
+	    
+	    -attachForm     $r3     "left"   5
+	    -attachForm     $r3     "right"   5
+	    -attachControl  $r3     "bottom" 5 $r4
+	    
+	    -attachForm     $r4     "left"   5
+	    -attachForm     $r4     "right"   5
+	    -attachForm  $r4        "bottom" 5
+	$form;
+
+	showWindow $SpeedAttrWindow;
+}
+
+global proc SpeedAttrWindow_ok(){
+	global string $startFrameField;
+	global string $endFrameField;
+	global string $r1;
+
+	int $startFrame;
+	int $endFrame;
+	string $unit;
+
+	$startFrame = `intField -q -v $startFrameField`;
+	$endFrame = `intField -q -v $endFrameField`;
+	$unit = `optionMenu -q -v $r1`;
+
+	CreateSpeedCurve($startFrame, $endFrame, $unit);
+
+}
+
+global proc SpeedAttrWindow_close(){
+	global string $SpeedAttrWindow;
+	deleteUI -window $SpeedAttrWindow;
+}
+
+SpeedAttrWindow();

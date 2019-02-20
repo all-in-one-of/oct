@@ -1,0 +1,28 @@
+global proc CreateCamCurve_ZZF(){
+	global float $cam_speedZZF;
+	global float $cam_acc_speedZZF;
+	$fast = `playbackOptions -q -ast`;
+	$faet = `playbackOptions -q -aet`;
+
+	$modelPanelList = `getPanel -type "modelPanel"`;
+	for($modelPanel in $modelPanelList){
+	    modelEditor -e -alo 0 $modelPanel;
+	}
+
+	for($i=$fast;$i<($faet+1);$i++){
+	    currentTime $i;
+	    octvGetCamSpeed();
+	    octvGetCamAccSpeed();
+	    setAttr "camSpeed_Loc.camSpeed" $cam_speedZZF;
+	    setAttr "camSpeed_Loc.camAccSpeed" $cam_acc_speedZZF;
+	    setKeyframe "camSpeed_Loc.camSpeed";
+	    setKeyframe "camSpeed_Loc.camAccSpeed";
+	    currentTime $i;
+	    
+	    }
+	    
+	for($modelPanel in $modelPanelList){
+	    modelEditor -e -nc 1 -pm 1 -ca 1 -lc 1 $modelPanel;
+	}
+}
+

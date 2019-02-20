@@ -1,0 +1,73 @@
+//////////////////clear with not any vertex polygon///////////////////////////////////////////////
+global proc clearNoVertex_zqs()
+{
+	string $lsPoly[] = `ls -ni -type "mesh"`;
+	int $cout = 0;
+	int $delCout = 0;
+	string $obj;
+	for($obj in $lsPoly)
+	{
+		int $pNumB[] = `polyEvaluate -v $obj`;
+		if($pNumB[0]<3)
+		{
+			$cout++;
+			string $transName[] = `listRelatives -f -type "transform" -p $obj`;
+			if(size($transName)==1)
+			{
+				string $delShape[] = `listRelatives -s $transName[0]`;
+				if(size($delShape)<2)
+				{
+					print("has no any vetex poly is :\t\t"+$transName[0]+"\n");
+					delete $transName[0];
+				 }
+				else{
+						print("delete shape ==>"+$obj+"\n");
+						delete $obj;
+					}
+
+				$delCout++;
+			}
+		}
+	}
+	print("it has"+$cout+"polygons has less than three vertexes\n");
+	print("deleted "+$delCout+"no vertex polygon\n");
+
+
+	//////////////////////////////clear selected point group with no vertex polygons///////////////////////////////////////////////
+	string $lsPoly[] = `ls -ni -type "mesh"`;
+	int $cout = 0;
+	int $delCout = 0;
+	string $obj;
+	int $minVtexNumber = 4;
+	string $slGrp[] = `ls -sl`;
+
+	for($obj in $lsPoly)
+	{
+		int $pNumB[] = `polyEvaluate -v $obj`;
+		if($pNumB[0]<$minVtexNumber)
+		{
+			$cout++;
+			string $transName[] = `listRelatives -f -type "transform" -p $obj`;
+			if(size($transName)==1)
+			{
+				string $delShape[] = `listRelatives -s $transName[0]`;
+				if(size($delShape)<2)
+				{
+					print("has no any vetex poly is B :\t\t"+$transName[0]+"\n");
+					if(isParentOf($slGrp[0],$transName[0])){delete $transName[0];}
+				 }
+				else{
+						print("delete shape B ==>"+$obj+"\n");
+						 if(isParentOf($slGrp[0],$transName[0])){delete $obj;}
+					}
+
+				$delCout++;
+			}
+		}
+	}
+	print("it has"+$cout+"polygons has less than three vertexes\n");
+	print("deleted "+$delCout+"no vertex polygon\n");
+}
+
+
+clearNoVertex_zqs();

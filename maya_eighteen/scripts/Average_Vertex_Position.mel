@@ -1,0 +1,28 @@
+global proc Average_Vertex_Position()
+{
+    ConvertSelectionToVertices;
+
+    string $vertices[] = `ls -selection -flatten`;
+
+    int $totalVertices = size($vertices);
+
+    float $xPosSum = 0;
+    float $yPosSum = 0;
+    float $zPosSum = 0;
+
+    for ($vertex in $vertices)
+    {
+            float $worldSpacePos[] = `xform -q -worldSpace -translation $vertex`;
+
+            $xPosSum += $worldSpacePos[0];
+            $yPosSum += $worldSpacePos[1];
+            $zPosSum += $worldSpacePos[2];
+    }
+
+    float $xAvgPos = $xPosSum / $totalVertices;
+    float $yAvgPos = $yPosSum / $totalVertices;
+    float $zAvgPos = $zPosSum / $totalVertices;
+
+    spaceLocator -position $xAvgPos $yAvgPos $zAvgPos;
+    CenterPivot;
+}

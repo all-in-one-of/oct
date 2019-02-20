@@ -1,0 +1,27 @@
+// 检查是否存在点面数为零的mesh 物体
+// 如果有点面数为零的mesh 物体，返回具体信息；否则返回空字符串
+global proc string tazz_CheckEmptyMesh()
+{
+	string $garbage;
+
+	print "Check empty mesh\n";
+	print "----------------\n";
+
+	string $buf[] = `ls -long -type "mesh" -noIntermediate`;
+	for ($obj in $buf)
+	{
+		string $cmd1 = "int $zwCheckinCheckGarbageV[] = `polyEvaluate -vertex " + $obj + "`";
+		string $cmd2 = "int $zwCheckinCheckGarbageF[] = `polyEvaluate -face " + $obj + "`";
+		if (catch(`eval $cmd1`) || catch(`eval $cmd2`))
+		{
+			if ($garbage != "")
+				$garbage += "\n";
+			$garbage += $obj;
+		}
+	}
+
+	print "\n";
+
+	return $garbage;
+}
+

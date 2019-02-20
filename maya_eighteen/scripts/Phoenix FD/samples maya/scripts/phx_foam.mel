@@ -1,0 +1,11 @@
+global proc OnSimulationBegin(string $node, float $t, float $dt) {
+	int $sizex = getAttr ($node + ".xSize");
+	int $sizey = getAttr ($node + ".ySize");
+	int $sizez = getAttr ($node + ".zSize");
+	int $x, $y, $z;
+	for ($x=0; $x<128; $x++)
+		for ($y=0; $y<128; $y++)
+			for ($z=0; $z<34; $z++) {
+					phxfdSet -pos $x $y $z -t 1.0;
+			}
+}

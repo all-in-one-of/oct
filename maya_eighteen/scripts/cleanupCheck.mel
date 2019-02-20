@@ -1,0 +1,892 @@
+//source "cleanupCheck.mel";
+//After you have put the line pointed above in userSetup.mel please add following command to your shelf:
+//cleanupCheck;
+
+//Feel free to contact me if you have any question or suggestion about the script work.
+//nivalidea@mail.ru                
+
+global proc cleanupCheck(){
+string $initname[]=`ls -sl`;
+if (size($initname)==0){
+confirmDialog -message "WARNING! \n Please Select any Mesh first" -bgc 1.0 0.75 0.75 -button "ok" -defaultButton "ok";
+} 	else if (size($initname)==1){
+	createiDWindow;
+	} 	else if (size($initname)>1){
+		confirmDialog -message "WARNING! \n Script can't check few Meshes at once, \n Please select one mesh per script start" -bgc 0.75 0.75 1.0 -button "ok" -defaultButton "ok";
+		}
+
+}
+
+//----------------------------------------------------------------------------------------------
+//||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+//|||||||||||||||||||||||||||||||{START} OF BLOCK - (WINDOW PROC)||||||||||||||||||||||||||BLOCK
+//||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+//--A-------------------------------------------------------------------------------------------
+
+global proc createiDWindow(){
+//----------------------------------------------------------------------------------------------
+//||||||||||(CREATE WINDOW)||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||START
+//--1-------------------------------------------------------------------------------------------
+string $idwindow = "iDWindow";
+if (`window -exists $idwindow`)
+	{
+		deleteUI $idwindow;
+	}
+	window -rtf true -title "CleaunUp Check Ligth 1.01" $idwindow;
+ 	string $form = `formLayout`;
+//--1-------------------------------------------------------------------------------------------
+//||||||||||(CREATE WINDOW)||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||END
+//----------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
+//||||||||||(CREATE UI ELEMENTS)|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||START
+//--2-------------------------------------------------------------------------------------------
+	//Texts
+	string $nsidedtext=`text -label "Default Text"`;
+	string $concavetext=`text -label "Default Text"`;
+	string $nonplanartext=`text -label "Default Text"`;
+	string $nonmanifoldtext=`text -label "Default Text"`;
+	string $zeroedgetext=`text -label "Default Text"`;
+	string $zerogeometrytext=`text -label "Default Text"`;
+	string $zeromaptext=`text -label "Default Text"`;
+	string $laminatext=`text -label "Default Text"`;
+	string $openedgetext=`text -label "Default Text"`;
+	string $vtxpostext=`text -label "Default Text"`;
+	string $uvpostext=`text -label "Default Text"`;
+	string $backfacetext=`text -label "Default Text"`;
+	string $oppositetext=`text -label "Default Text"`;
+	string $doublesidetext=`text -label "Default Text"`;
+	string $histnodestext=`text -label "Default Text"`;
+	string $outlinertext=`text -label "Default Text"`;
+	string $garbagetext=`text -label ""`;
+
+
+	//Show Buttons
+
+	string $showzerovertbut= `button -label "show/select" -height 16`;
+	button -edit -command  showNvertexProc $showzerovertbut;
+	string $shownsidedbut= `button -label "show/select" -height 16`;
+	button -edit -command  showNSidedProc $shownsidedbut;
+	string $showconcavebut= `button -label "show/select" -height 16`;
+	button -edit -command  showConcaveProc $showconcavebut;
+	string $shownonplanarbut= `button -label "show/select" -height 16`;
+	button -edit -command  showNonPlanarProc $shownonplanarbut;
+	string $shownonmanifoldbut= `button -label "show/select" -height 16`;
+	button -edit -command  showNonManifoldProc $shownonmanifoldbut;
+	string $showzeroedgebut= `button -label "show/select" -height 16`;
+	button -edit -command  showZeroEdgesProc $showzeroedgebut;
+	string $showzerogeometrybut= `button -label "show/select" -height 16`;
+	button -edit -command  showZeroGeometryProc $showzerogeometrybut;
+
+	string $showoutsideuvbut= `button -label "show/select" -height 16`;
+	button -edit -command  showOutsideUVProc $showoutsideuvbut;
+
+	string $showzeromapbut= `button -label "show/select" -height 16`;
+	button -edit -command  showZeroMapProc $showzeromapbut;
+	string $showlaminabut= `button -label "show/select" -height 16`;
+	button -edit -command  showLaminaProc $showlaminabut;
+	
+
+/*
+	//Fix Buttons
+
+	string $zerovertbut= `button -label "show/select"`;
+	button -edit -command  showNvertexProc $zerovertbut;
+*/
+
+	//Sliders
+/*
+	intSliderGrp 
+		-label "Default Slider"
+		-field true
+		-minValue 1 -maxValue 20
+		-fieldMinValue 1 -fieldMaxValue 100
+		-value 0
+		-changeCommand "defslider_cm"
+		-dragCommand "defslider_cm"
+             defslider;
+*/
+//--2-------------------------------------------------------------------------------------------
+//||||||||||(CREATE UI ELEMENTS)|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||END
+//----------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
+//||||||||||(UI ELEMENTS LAYOUT)|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||START
+//--3-------------------------------------------------------------------------------------------
+ 	string $column = `columnLayout -adjustableColumn true`;
+	
+ 	formLayout -edit
+// 		-attachForm     defslider	"top"    5
+// 		-attachForm     defslider	"left"   5
+//		-attachForm     $defbut	"top"    5
+// 		-attachForm     $defbut	"left"   5
+		
+//TEXTS
+ 		-attachForm     $nsidedtext		"top"    5
+ 		-attachForm     $nsidedtext		"left"   5
+ 		-attachForm     $concavetext	"top"    5
+ 		-attachForm     $concavetext	"left"   5
+ 		-attachControl  $concavetext	"top"    5 $nsidedtext
+ 		-attachForm     $nonplanartext	"top"    5
+ 		-attachForm     $nonplanartext	"left"   5
+ 		-attachControl  $nonplanartext	"top"    5 $concavetext
+ 		-attachForm     $nonmanifoldtext	"top"    5
+ 		-attachForm     $nonmanifoldtext	"left"   5
+ 		-attachControl  $nonmanifoldtext	"top"    5 $nonplanartext
+ 		-attachForm     $zeroedgetext	"top"    5
+ 		-attachForm     $zeroedgetext	"left"   5
+ 		-attachControl  $zeroedgetext	"top"    5 $nonmanifoldtext
+ 		-attachForm     $zerogeometrytext	"top"    5
+ 		-attachForm     $zerogeometrytext	"left"   5
+ 		-attachControl  $zerogeometrytext	"top"    5 $zeroedgetext
+ 		-attachForm     $zeromaptext	"top"    5
+ 		-attachForm     $zeromaptext	"left"   5
+ 		-attachControl  $zeromaptext	"top"    5 $zerogeometrytext
+ 		-attachForm     $laminatext		"top"    5
+ 		-attachForm     $laminatext		"left"   5
+ 		-attachControl  $laminatext		"top"    5 $zeromaptext
+ 		-attachForm     $openedgetext	"top"    5
+ 		-attachForm     $openedgetext	"left"   5
+ 		-attachControl  $openedgetext	"top"    5 $laminatext
+ 		-attachForm     $vtxpostext		"top"    5
+ 		-attachForm     $vtxpostext		"left"   5
+ 		-attachControl  $vtxpostext		"top"    5 $openedgetext
+
+ 		-attachForm     $uvpostext		"top"    5
+ 		-attachForm     $uvpostext		"left"   5
+ 		-attachControl  $uvpostext		"top"    5 $vtxpostext	
+
+ 		-attachForm     $histnodestext	"top"    5
+ 		-attachForm     $histnodestext	"left"   5
+ 		-attachControl  $histnodestext	"top"    5 $uvpostext	
+
+ 		-attachForm     $backfacetext	"top"    5
+ 		-attachForm     $backfacetext	"left"   5
+ 		-attachControl  $backfacetext	"top"    5 $histnodestext
+ 		-attachForm     $oppositetext	"top"    5
+ 		-attachForm     $oppositetext	"left"   5
+ 		-attachControl  $oppositetext	"top"    5 $backfacetext
+ 		-attachForm     $doublesidetext	"top"    5
+ 		-attachForm     $doublesidetext	"left"   5
+ 		-attachControl  $doublesidetext	"top"    5 $oppositetext
+ 		-attachForm     $outlinertext	"top"    5
+ 		-attachForm     $outlinertext	"left"   5
+ 		-attachControl  $outlinertext	"top"    5 $doublesidetext
+ 		-attachForm     $garbagetext	"top"    5
+ 		-attachForm     $garbagetext	"left"   5
+ 		-attachControl  $garbagetext	"top"    5 $outlinertext
+
+//SHOW BUTTONS
+		-attachForm     $shownsidedbut	"top"    5
+ 		-attachForm     $shownsidedbut	"left"   5
+ 		-attachControl  $shownsidedbut	"left"	  5 $nsidedtext
+		-attachForm     $showconcavebut	"top"    5 
+ 		-attachForm     $showconcavebut	"left"   5 
+ 		-attachControl  $showconcavebut	"top"    5 $nsidedtext
+ 		-attachControl  $showconcavebut	"left"	  5 $concavetext
+		-attachForm     $showzerovertbut	"top"    5
+ 		-attachForm     $showzerovertbut	"left"   5
+ 		-attachControl  $showzerovertbut	"top"    5 $openedgetext
+ 		-attachControl  $showzerovertbut	"left"	  5 $vtxpostext
+		-attachForm     $shownonplanarbut		"top"    5
+ 		-attachForm     $shownonplanarbut		"left"   5
+ 		-attachControl  $shownonplanarbut		"top"    5 $concavetext
+ 		-attachControl  $shownonplanarbut		"left"	  5 $nonplanartext
+		-attachForm     $shownonmanifoldbut	"top"    5
+ 		-attachForm     $shownonmanifoldbut	"left"   5
+ 		-attachControl  $shownonmanifoldbut	"top"    5 $nonplanartext
+ 		-attachControl  $shownonmanifoldbut	"left"	  5 $nonmanifoldtext
+		-attachForm     $showzeroedgebut		"top"    5
+ 		-attachForm     $showzeroedgebut		"left"   5
+ 		-attachControl  $showzeroedgebut		"top"    5 $nonmanifoldtext
+ 		-attachControl  $showzeroedgebut		"left"	  5 $zeroedgetext
+		-attachForm     $showzerogeometrybut	"top"    5
+ 		-attachForm     $showzerogeometrybut	"left"   5
+ 		-attachControl  $showzerogeometrybut	"top"    5 $zeroedgetext
+ 		-attachControl  $showzerogeometrybut	"left"	  5 $zerogeometrytext
+
+		-attachForm     $showoutsideuvbut	"top"    5
+ 		-attachForm     $showoutsideuvbut	"left"   5
+ 		-attachControl  $showoutsideuvbut	"top"    5 $vtxpostext
+ 		-attachControl  $showoutsideuvbut	"left"	  5 $uvpostext
+
+		-attachForm     $showzeromapbut		"top"    5
+ 		-attachForm     $showzeromapbut		"left"   5
+ 		-attachControl  $showzeromapbut		"top"    5 $zerogeometrytext
+ 		-attachControl  $showzeromapbut		"left"	  5 $zeromaptext
+		-attachForm     $showlaminabut		"top"    5
+ 		-attachForm     $showlaminabut		"left"   5
+ 		-attachControl  $showlaminabut		"top"    5 $zeromaptext
+ 		-attachControl  $showlaminabut		"left"	  5 $laminatext
+
+ $form;
+
+	showWindow $idwindow;
+//--3-------------------------------------------------------------------------------------------
+//||||||||||(UI ELEMENTS LAYOUT)|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||END
+//----------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
+//||||||||||(STARTUP ANALYS)|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||START
+//--4-------------------------------------------------------------------------------------------
+
+
+	string $objName[]=`ls -sl`;
+
+//NSided
+	polyCleanupArgList 3 { "0","2","1","0","1","0","0","0","0","1e-005","0","1e-005","0","1e-005","0","-1","0" };
+	string $nfaceslist[]=`ls -sl -fl`;
+		if (size($nfaceslist)>0){
+		text -edit -bgc 1.0 0.5 0.5 -label ("("+size($nfaceslist)+") - NSided") $nsidedtext;
+		}else{
+		text -edit -bgc 0.5 1.0 0.5 -label ("(-None-)" + " - NSided") $nsidedtext;
+		}
+	clear ($nfaceslist);
+	select -r $objName;
+
+//Concave
+	polyCleanupArgList 3 { "0","2","1","0","0","1","0","0","0","1e-005","0","1e-005","0","1e-005","0","-1","0" };
+	$nfaceslist=`ls -sl -fl`;
+		if (size($nfaceslist)>0){
+		text -edit -bgc 1.0 0.5 0.5 -label ("("+size($nfaceslist)+") - Concave") $concavetext;
+		}else{
+		text -edit -bgc 0.5 1.0 0.5 -label ("(-None-)" + " - Concave") $concavetext;
+		}
+	clear ($nfaceslist);
+	select -r $objName;
+
+//Non-Planar
+	polyCleanupArgList 3 { "0","2","1","0","0","0","0","1","0","1e-005","0","1e-005","0","1e-005","0","-1","0" };
+	$nfaceslist=`ls -sl -fl`;
+		if (size($nfaceslist)>0){
+		text -edit -bgc 1.0 0.5 0.5 -label ("("+size($nfaceslist)+") - NonPlanar") $nonplanartext;
+		}else{
+		text -edit -bgc 0.5 1.0 0.5 -label ("(-None-)" + " - NonPlanar") $nonplanartext;
+		}
+	clear ($nfaceslist);
+	select -r $objName;
+	
+//Non-Manifold
+	polyCleanupArgList 3 { "0","2","1","0","0","0","0","0","0","1e-005","0","1e-005","0","1e-005","0","1","0" };
+	$nfaceslist=`ls -sl -fl`;
+		if (size($nfaceslist)>0){
+		text -edit -bgc 1.0 0.5 0.5 -label ("("+size($nfaceslist)+") - Nonmanifold geometry") $nonmanifoldtext;
+		}else{
+		text -edit -bgc 0.5 1.0 0.5 -label ("(-None-)" + " - Nonmanifold geometry") $nonmanifoldtext;
+		}
+	clear ($nfaceslist);
+	select -r $objName;
+	
+//Zero Edge
+	polyCleanupArgList 3 { "0","2","1","0","0","0","0","0","0","1e-005","1","1e-005","0","1e-005","0","-1","0" };
+	$nfaceslist=`ls -sl -fl`;
+		if (size($nfaceslist)>0){
+		text -edit -bgc 1.0 0.5 0.5 -label ("("+size($nfaceslist)+") - Edges with zero lenght") $zeroedgetext;
+		}else{
+		text -edit -bgc 0.5 1.0 0.5 -label ("(-None-)" + " - Edges with zero lenght") $zeroedgetext;
+		}
+	clear ($nfaceslist);
+	select -r $objName;
+	
+//Zero Geometry
+	polyCleanupArgList 3 { "0","2","1","0","0","0","0","0","1","1e-005","0","1e-005","0","1e-005","0","-1","0" };
+	$nfaceslist=`ls -sl -fl`;
+		if (size($nfaceslist)>0){
+		text -edit -bgc 1.0 0.5 0.5 -label ("("+size($nfaceslist)+") - Faces with zero geometry area") $zerogeometrytext;
+		}else{
+		text -edit -bgc 0.5 1.0 0.5 -label ("(-None-)" + " - Faces with zero geometry area") $zerogeometrytext;
+		}
+	clear ($nfaceslist);
+	select -r $objName;
+	
+//Zero Map
+	polyCleanupArgList 3 { "0","2","1","0","0","0","0","0","0","1e-005","0","1e-005","1","1e-005","0","-1","0" };
+	$nfaceslist=`ls -sl -fl`;
+		if (size($nfaceslist)>0){
+		text -edit -bgc 1.0 0.5 0.5 -label ("("+size($nfaceslist)+") - zero Map area") $zeromaptext;
+		}else{
+		text -edit -bgc 0.5 1.0 0.5 -label ("(-None-)" + " - zero Map area") $zeromaptext;
+		}
+	clear ($nfaceslist);
+	select -r $objName;
+	
+//Lamina Faces
+	polyCleanupArgList 3 { "0","2","1","0","0","0","0","0","0","1e-005","0","1e-005","0","1e-005","0","-1","1" };
+	$nfaceslist=`ls -sl -fl`;
+		if (size($nfaceslist)>0){
+		text -edit -bgc 1.0 0.5 0.5 -label ("("+size($nfaceslist)+") - Lamina Faces") $laminatext;
+		}else{
+		text -edit -bgc 0.5 1.0 0.5 -label ("(-None-)" + " - Lamina Faces") $laminatext;
+		}
+	clear ($nfaceslist);
+	select -r $objName;
+
+//Open Edges/Flip Faces
+	PolygonSelectionConstraints;
+	openSelectionConstraintWindow;
+//	doMenuComponentSelection($objName[0], "edge");
+
+	updateComponentSelectionMasks;
+	updateObjectSelectionMasks;
+	SelectEdgeMask;
+	setSelectMode components Components; selectType -smp 0 -sme 1 -smf 0 -smu 0 -pv 0 -pe 1 -pf 0 -puv 0; select -cl;
+	updateComponentSelectionMasks;
+	updateObjectSelectionMasks;
+
+	polygonConstraintUpdate("polySelectionConstraintPanel1");
+	updateObjectSelectionMasks;
+	updateComponentSelectionMasks;
+	polySelectConstraint -m 1;
+	polySelectConstraint -w 1;
+	polySelectConstraint -m 3;
+	polySelectConstraint -m 0;
+	polySelectConstraint -w 0;
+		if (`window -exists polySelectionConstraintPanel1Window`) deleteUI -window polySelectionConstraintPanel1Window;
+	$nfaceslist=`ls -sl -fl`;
+		if (size($nfaceslist)>0){
+		text -edit -bgc 1.0 0.5 0.5 -label ("("+size($nfaceslist)+") - Open Edges") $openedgetext;
+		}else{
+		text -edit -bgc 0.5 1.0 0.5 -label ("(-None-)" + " - Open Edges") $openedgetext;
+		}
+	clear ($nfaceslist);
+	select -r $objName;
+	changeSelectMode -object;
+
+
+string $current_axis = `upAxis -q -axis`;
+
+if ($current_axis=="z"){
+
+//Vertex Under Zero Area
+	float $currentVtx[];
+	int $intcounter=0;
+	int $selVtxCount[]=`polyEvaluate -v`;
+	int $k=0;
+	for ($k=0; $k<$selVtxCount[0]; $k++){
+		$currentVtx=`pointPosition ($objName[0]+".vtx["+$k+"]")`;
+		if ($currentVtx[2]<0){
+			$nfaceslist[$intcounter]=($objName[0]+".vtx["+$k+"]");
+			$intcounter=$intcounter+1;
+			}
+		clear ($currentVtx);
+	}
+
+	if (size($nfaceslist)>0){
+	text -edit -bgc 1.0 0.5 0.5 -label ("("+size($nfaceslist)+") - Vertexes in (-Z) Area") $vtxpostext;
+	}else{
+	text -edit -bgc 0.5 1.0 0.5 -label ("(-None-)" + " - Vertexes in (-Z) Area") $vtxpostext;
+	}
+	clear ($nfaceslist);
+	select -r $objName;
+
+} else if ($current_axis=="y"){
+	float $currentVtx[];
+	int $intcounter=0;
+	int $selVtxCount[]=`polyEvaluate -v`;
+	int $k=0;
+	for ($k=0; $k<$selVtxCount[0]; $k++){
+		$currentVtx=`pointPosition ($objName[0]+".vtx["+$k+"]")`;
+		if ($currentVtx[1]<0){
+			$nfaceslist[$intcounter]=($objName[0]+".vtx["+$k+"]");
+			$intcounter=$intcounter+1;
+			}
+		clear ($currentVtx);
+	}
+
+	if (size($nfaceslist)>0){
+	text -edit -bgc 1.0 0.5 0.5 -label ("("+size($nfaceslist)+") - Vertexes in (-Y) Area") $vtxpostext;
+	}else{
+	text -edit -bgc 0.5 1.0 0.5 -label ("(-None-)" + " - Vertexes in (-Y) Area") $vtxpostext;
+	}
+	clear ($nfaceslist);
+	select -r $objName;
+}
+
+
+//Outside 0-1 UV Space
+	string $curSelection[]=`ls -sl`;
+	float $currentUV[];
+	int $uvCount[]=`polyEvaluate -uvcoord`;
+	int $errorCount=0;
+	int $k=0;
+		for ($k=0; $k<$uvCount[0]; $k++){
+			$currentUV=`polyEditUV -query ($curSelection[0]+".map["+$k+"]")`;
+		
+			if (($currentUV[0]<0) || ($currentUV[1]<0)||($currentUV[0]>1) ||($currentUV[1]>1)){
+			$errorCount=$errorCount+1;
+			} 
+		}
+		if ($errorCount>0){
+			text -edit -bgc 1.0 0.5 0.5 -label ("("+$errorCount+") - UVs Outside 0-1 Space") $uvpostext;
+		}else{
+			text -edit -bgc 0.5 1.0 0.5 -label ("(-None-)" + " - UVs Outside 0-1 Space") $uvpostext;
+		}
+		clear ($currentUV);
+
+
+
+
+
+
+//Backface Check
+	string $currentPanel = `getPanel -withFocus`;
+	int $tglbcfc=`modelEditor -q -backfaceCulling $currentPanel`;
+	if ($tglbcfc=="1"){
+	text -edit -bgc 1.0 0.5 0.5 -label ("[On]" + " - Backfaces Enabled") $backfacetext;
+	}else{
+	text -edit -bgc 0.5 1.0 0.5 -label ("[Off]" + " - Backfaces Disabled") $backfacetext;
+	}
+	select -r $objName;
+
+//Opposite Check
+	string $oppAttribute=`getAttr ($objName[0]+".opposite")`;
+	if ($oppAttribute=="1"){
+	text -edit -bgc 1.0 0.5 0.5 -label ("[On]" + " - Opposite Enabled") $oppositetext;
+	}else{
+	text -edit -bgc 0.5 1.0 0.5 -label ("[Off]" + " - Opposite Disabled") $oppositetext;
+	}
+	select -r $objName;
+
+//DoubleSide Check
+	string $oppAttribute=`getAttr ($objName[0]+".doubleSided")`;
+	if ($oppAttribute=="1"){
+	text -edit -bgc 0.5 1.0 0.5 -label ("[On]" + " - DoubleSided Enabled") $doublesidetext;
+	}else{
+	text -edit -bgc 1.0 0.5 0.5 -label ("[Off]" + " - DoubleSided Disabled") $doublesidetext;
+	}
+	select -r $objName;
+
+//HistoryNodes Check
+	string $curSelection[]=`ls -sl`;
+	string $historyList[];
+	string $historyNice;
+	$historyList=`listHistory -historyAttr $curSelection`;
+	
+	int $k=1;
+	for ($k=1; $k<size($historyList); $k++){
+	$historyNice=($historyNice+", "+$historyList[$k]);
+	}
+
+
+	if ((size($historyList)>1) && (size($historyList)<=5)) {
+		text -edit -bgc 1.0 0.5 0.5 -label ($historyNice + " - undeleted history nodes found") $histnodestext;
+	} else if(size($historyList)<=1) {
+		text -edit -bgc 0.5 1.0 0.5 -label ("(-None-)" + " - Undeleted History Nodes") $histnodestext;
+	} else if(size($historyList)>5){
+		text -edit -bgc 1.0 0.5 0.5 -label ("("+(size($historyList)-1) + ")" + " - Undeleted History Nodes found") $histnodestext;
+	}
+	select -r $objName;
+
+//Outliner DAG check
+	string $outDAGcheck=`outlinerEditor -q -dag outlinerPanel1`;
+	if ($outDAGcheck=="0"){
+	text -edit -bgc 1.0 0.5 0.5 -label ("[Off]" + " - DAG in Outliner - Disabled") $outlinertext;
+	}else{
+	text -edit -bgc 0.5 1.0 0.5 -label ("[On]" + " - DAG in Outliner - Enabled") $outlinertext;
+	}
+	select -r $objName;
+
+//Garbage Search
+	string $outlinercheck[]=`ls -dependencyNodes`;
+	int $i=0;
+	int $outsearchresult=0;
+		for ($i = 0; $i < size($outlinercheck); $i++) { 
+			int $f=0;
+			for ($f = 0; $f < 51; $f++) {
+				if ($outlinercheck[$i]==("brush"+$f)){
+				text -edit -bgc 1.0 0.5 0.5 -label (`text -q -label $garbagetext` +"brush"+$f) $garbagetext;
+				$outsearchresult=1;
+				}
+			}
+			if ($outlinercheck[$i]=="ikRPsolver"){
+			text -edit -bgc 1.0 0.5 0.5 -label (`text -q -label $garbagetext` +"ikRPsolver, ") $garbagetext;
+			$outsearchresult=1;
+			}
+			if ($outlinercheck[$i]=="ikSCsolver"){
+			text -edit -bgc 1.0 0.5 0.5 -label (`text -q -label $garbagetext` +"ikSCsolver, ") $garbagetext;
+			$outsearchresult=1;
+			}
+			if ($outlinercheck[$i]=="ikSplineSolver"){
+			text -edit -bgc 1.0 0.5 0.5 -label (`text -q -label $garbagetext` +"ikSplineSolver, ") $garbagetext;
+			$outsearchresult=1;
+			}
+		} 
+		if ($outsearchresult==1){
+		text -edit -bgc 1.0 0.5 0.5 -label (`text -q -label $garbagetext` + " - found in Outliner") $garbagetext;
+		}else{
+		text -edit -bgc 0.5 1.0 0.5 -label ("No garbage in Outliner") $garbagetext;
+		}
+		select -r $objName;
+//--4-------------------------------------------------------------------------------------------
+//||||||||||(STARTUP ANALYS)|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||END
+//----------------------------------------------------------------------------------------------
+
+}
+
+//--A-------------------------------------------------------------------------------------------
+//||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+//|||||||||||||||||||||||||||||||{END} OF BLOCK - (WINDOW PROC)||||||||||||||||||||||||||||BLOCK
+//||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+//----------------------------------------------------------------------------------------------
+
+
+//----------------------------------------------------------------------------------------------
+//||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+//|||||||||||||||||||||||||||||||{START} - (PROCEDURE CALL)||||||||||||||||||||||||||||||||BLOCK
+//||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+//--B-------------------------------------------------------------------------------------------
+//
+//--B-------------------------------------------------------------------------------------------
+//||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+//|||||||||||||||||||||||||||||||{END} - (PROCEDURE CALL)||||||||||||||||||||||||||||||||||BLOCK
+//||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+//----------------------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------------------------
+//||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+//|||||||||||||||||||||||||||||||{START} - (BUTTON PROCEDURES)|||||||||||||||||||||||||||||BLOCK
+//||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+//--C-------------------------------------------------------------------------------------------
+global proc sceneAnalyseProc(){
+	string $objName[]=`ls -sl`;
+	polyCleanupArgList 3 { "0","2","1","0","1","0","0","0","0","1e-005","0","1e-005","0","1e-005","0","-1","0" };
+	string $nfaceslist[]=`ls -sl -fl`;
+	hilite -unHilite $objName;
+	string $selection[] = `ls -sl`;
+	changeSelectMode -object;
+	select -r $selection;
+}
+
+//----------------------------------------------------------------------------------------------
+//||||||||||(SHOW PROCEDURE Vertex Under Zero)|||||||||||||||||||||||||||||||||||||||||||||START
+//--1-------------------------------------------------------------------------------------------
+global proc showNvertexProc(){
+	
+	string $current_axis = `upAxis -q -axis`;	
+	changeSelectMode -object;	
+	string $objName[]=`ls -sl`;
+	if ($current_axis=="z"){
+	if (size($objName)==1){
+		string $nfaceslist[];
+		float $currentVtx[];
+		int $intcounter=0;
+		int $selVtxCount[]=`polyEvaluate -v`;
+		int $k=0;
+		for ($k=0; $k<$selVtxCount[0]; $k++){
+			$currentVtx=`pointPosition ($objName[0]+".vtx["+$k+"]")`;
+
+			if ($currentVtx[2]<0){
+				$nfaceslist[$intcounter]=($objName[0]+".vtx["+$k+"]");
+				$intcounter=$intcounter+1;
+				}
+			clear ($currentVtx);
+		}
+		if (size($nfaceslist)>0){
+		select $objName;
+
+//	doMenuComponentSelection($objName[0], "edge");
+
+	updateComponentSelectionMasks;
+	updateObjectSelectionMasks;
+	SelectEdgeMask;
+	setSelectMode components Components; selectType -smp 0 -sme 1 -smf 0 -smu 0 -pv 0 -pe 1 -pf 0 -puv 0; select -cl;
+	updateComponentSelectionMasks;
+	updateObjectSelectionMasks;
+
+		select $nfaceslist;
+		}else{
+		confirmDialog -message "[0] in Negative direction by Z-Axis" -button "ok" -defaultButton "ok";
+		select $objName;
+		}
+		//clear ($nfaceslist);
+	}else{
+	confirmDialog -message "WARNING!\n Please select one Mesh per check" -button "ok" -defaultButton "ok";
+	}
+	}
+	if ($current_axis=="y"){
+	if (size($objName)==1){
+		string $nfaceslist[];
+		float $currentVtx[];
+		int $intcounter=0;
+		int $selVtxCount[]=`polyEvaluate -v`;
+		int $k=0;
+		for ($k=0; $k<$selVtxCount[0]; $k++){
+			$currentVtx=`pointPosition ($objName[0]+".vtx["+$k+"]")`;
+
+			if ($currentVtx[1]<0){
+				$nfaceslist[$intcounter]=($objName[0]+".vtx["+$k+"]");
+				$intcounter=$intcounter+1;
+				}
+			clear ($currentVtx);
+		}
+		if (size($nfaceslist)>0){
+		select $objName;
+
+//	doMenuComponentSelection($objName[0], "edge");
+
+	updateComponentSelectionMasks;
+	updateObjectSelectionMasks;
+	SelectEdgeMask;
+	setSelectMode components Components; selectType -smp 0 -sme 1 -smf 0 -smu 0 -pv 0 -pe 1 -pf 0 -puv 0; select -cl;
+	updateComponentSelectionMasks;
+	updateObjectSelectionMasks;
+
+		select $nfaceslist;
+		}else{
+		confirmDialog -message "[0] in Negative direction by Y-Axis" -button "ok" -defaultButton "ok";
+		select $objName;
+		}
+		//clear ($nfaceslist);
+	}else{
+	confirmDialog -message "WARNING!\n Please select one Mesh per check" -button "ok" -defaultButton "ok";
+	}
+	}
+}
+//--1-------------------------------------------------------------------------------------------
+//||||||||||(SHOW PROCEDURE Vertex Under Zero)|||||||||||||||||||||||||||||||||||||||||||||||END
+//----------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
+//||||||||||(SHOW PROCEDURE NSided)||||||||||||||||||||||||||||||||||||||||||||||||||||||||START
+//--2-------------------------------------------------------------------------------------------
+global proc showNSidedProc(){
+	changeSelectMode -object;
+	string $objName[]=`ls -sl`;
+	if (size($objName)==1){
+	polyCleanupArgList 3 { "0","2","1","0","1","0","0","0","0","1e-005","0","1e-005","0","1e-005","0","-1","0" };
+	string $nfaceslist[]=`ls -sl -fl`;
+		if (size($nfaceslist)>0){
+		select $nfaceslist;
+		}else{
+		confirmDialog -message "[0] Faces with more than 4 sides Found" -button "ok" -defaultButton "ok";
+		select $objName;
+		}
+	clear ($nfaceslist);
+	}else{
+	confirmDialog -message "WARNING!\n Please select one Mesh per check" -button "ok" -defaultButton "ok";
+	}
+}
+//--2-------------------------------------------------------------------------------------------
+//||||||||||(SHOW PROCEDURE NSided)||||||||||||||||||||||||||||||||||||||||||||||||||||||||||END
+//----------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
+//||||||||||(SHOW PROCEDURE Concave)|||||||||||||||||||||||||||||||||||||||||||||||||||||||START
+//--3-------------------------------------------------------------------------------------------
+global proc showConcaveProc(){
+	changeSelectMode -object;
+	string $objName[]=`ls -sl`;
+	if (size($objName)==1){
+	polyCleanupArgList 3 { "0","2","1","0","0","1","0","0","0","1e-005","0","1e-005","0","1e-005","0","-1","0" };
+	string $nfaceslist[]=`ls -sl -fl`;
+		if (size($nfaceslist)>0){
+		select $nfaceslist;
+		}else{
+		confirmDialog -message "[0] Concave Faces Found" -button "ok" -defaultButton "ok";
+		select $objName;
+		}
+	clear ($nfaceslist);
+	}else{
+	confirmDialog -message "WARNING!\n Please select one Mesh per check" -button "ok" -defaultButton "ok";
+	}
+}
+//--3-------------------------------------------------------------------------------------------
+//||||||||||(SHOW PROCEDURE Concave)|||||||||||||||||||||||||||||||||||||||||||||||||||||||||END
+//----------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
+//||||||||||(SHOW PROCEDURE Non-Planar)||||||||||||||||||||||||||||||||||||||||||||||||||||START
+//--4-------------------------------------------------------------------------------------------
+global proc showNonPlanarProc(){
+	changeSelectMode -object;
+	string $objName[]=`ls -sl`;
+	if (size($objName)==1){
+	polyCleanupArgList 3 { "0","2","1","0","0","0","0","1","0","1e-005","0","1e-005","0","1e-005","0","-1","0" };
+	string $nfaceslist[]=`ls -sl -fl`;
+		if (size($nfaceslist)>0){
+		select $nfaceslist;
+		}else{
+		confirmDialog -message "[0] Non-Planar Faces Found" -button "ok" -defaultButton "ok";
+		select $objName;
+		}
+	clear ($nfaceslist);
+	}else{
+	confirmDialog -message "WARNING!\n Please select one Mesh per check" -button "ok" -defaultButton "ok";
+	}
+}
+//--4-------------------------------------------------------------------------------------------
+//||||||||||(SHOW PROCEDURE Non-Planar)||||||||||||||||||||||||||||||||||||||||||||||||||||||END
+//----------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
+//||||||||||(SHOW PROCEDURE Non-Manifold)||||||||||||||||||||||||||||||||||||||||||||||||||START
+//--5-------------------------------------------------------------------------------------------
+global proc showNonManifoldProc(){
+	changeSelectMode -object;
+	string $objName[]=`ls -sl`;
+	if (size($objName)==1){
+	polyCleanupArgList 3 { "0","2","1","0","0","0","0","0","0","1e-005","0","1e-005","0","1e-005","0","1","0" };
+	string $nfaceslist[]=`ls -sl -fl`;
+		if (size($nfaceslist)>0){
+		select $nfaceslist;
+		}else{
+		confirmDialog -message "[0] Non-Manifold Vertixes Found" -button "ok" -defaultButton "ok";
+		select $objName;
+		}
+	clear ($nfaceslist);
+	}else{
+	confirmDialog -message "WARNING!\n Please select one Mesh per check" -button "ok" -defaultButton "ok";
+	}
+}
+//--5-------------------------------------------------------------------------------------------
+//||||||||||(SHOW PROCEDURE Non-Manifold)||||||||||||||||||||||||||||||||||||||||||||||||||||END
+//----------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
+//||||||||||(SHOW PROCEDURE Zero Edges)||||||||||||||||||||||||||||||||||||||||||||||||||||START
+//--6-------------------------------------------------------------------------------------------
+global proc showZeroEdgesProc(){
+	changeSelectMode -object;
+	string $objName[]=`ls -sl`;
+	if (size($objName)==1){
+	polyCleanupArgList 3 { "0","2","1","0","0","0","0","0","0","1e-005","1","1e-005","0","1e-005","0","-1","0" };
+	string $nfaceslist[]=`ls -sl -fl`;
+		if (size($nfaceslist)>0){
+		select $nfaceslist;
+		}else{
+		confirmDialog -message "[0] Zero Edges Found" -button "ok" -defaultButton "ok";
+		select $objName;
+		}
+	clear ($nfaceslist);
+	}else{
+	confirmDialog -message "WARNING!\n Please select one Mesh per check" -button "ok" -defaultButton "ok";
+	}
+}
+//--6-------------------------------------------------------------------------------------------
+//||||||||||(SHOW PROCEDURE Zero Edges)||||||||||||||||||||||||||||||||||||||||||||||||||||||END
+//----------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
+//||||||||||(SHOW PROCEDURE Zero Geometry)|||||||||||||||||||||||||||||||||||||||||||||||||START
+//--7-------------------------------------------------------------------------------------------
+global proc showZeroGeometryProc(){
+	changeSelectMode -object;
+	string $objName[]=`ls -sl`;
+	if (size($objName)==1){
+	polyCleanupArgList 3 { "0","2","1","0","0","0","0","0","1","1e-005","0","1e-005","0","1e-005","0","-1","0" };
+	string $nfaceslist[]=`ls -sl -fl`;
+		if (size($nfaceslist)>0){
+		select $objName;
+
+//	doMenuComponentSelection($objName[0], "edge");
+	updateComponentSelectionMasks;
+	updateObjectSelectionMasks;
+	SelectEdgeMask;
+	setSelectMode components Components; selectType -smp 0 -sme 1 -smf 0 -smu 0 -pv 0 -pe 1 -pf 0 -puv 0; select -cl;
+	updateComponentSelectionMasks;
+	updateObjectSelectionMasks;
+
+		select $nfaceslist;
+		}else{
+		confirmDialog -message "[0] Zero Geometry Found" -button "ok" -defaultButton "ok";
+		select $objName;
+		}
+	clear ($nfaceslist);
+	}else{
+	confirmDialog -message "WARNING!\n Please select one Mesh per check" -button "ok" -defaultButton "ok";
+	}
+}
+//--7-------------------------------------------------------------------------------------------
+//||||||||||(SHOW PROCEDURE Zero Geometry)|||||||||||||||||||||||||||||||||||||||||||||||||||END
+//----------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
+//||||||||||(SHOW PROCEDURE Zero Map)||||||||||||||||||||||||||||||||||||||||||||||||||||||START
+//--8-------------------------------------------------------------------------------------------
+global proc showZeroMapProc(){
+	changeSelectMode -object;
+	string $objName[]=`ls -sl`;
+	if (size($objName)==1){
+	polyCleanupArgList 3 { "0","2","1","0","0","0","0","0","0","1e-005","0","1e-005","1","1e-005","0","-1","0" };
+	string $nfaceslist[]=`ls -sl -fl`;
+		if (size($nfaceslist)>0){
+		select $objName;
+
+//	doMenuComponentSelection($objName[0], "edge");
+	updateComponentSelectionMasks;
+	updateObjectSelectionMasks;
+	SelectEdgeMask;
+	setSelectMode components Components; selectType -smp 0 -sme 1 -smf 0 -smu 0 -pv 0 -pe 1 -pf 0 -puv 0; select -cl;
+	updateComponentSelectionMasks;
+	updateObjectSelectionMasks;
+
+		select $nfaceslist;
+		}else{
+		confirmDialog -message "[0] Zero Map Faces Found" -button "ok" -defaultButton "ok";
+		select $objName;
+		}
+	clear ($nfaceslist);
+	}else{
+	confirmDialog -message "WARNING!\n Please select one Mesh per check" -button "ok" -defaultButton "ok";
+	}
+}
+//--8-------------------------------------------------------------------------------------------
+//||||||||||(SHOW PROCEDURE Zero Map)||||||||||||||||||||||||||||||||||||||||||||||||||||||||END
+//----------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
+//||||||||||(SHOW PROCEDURE Lamina)||||||||||||||||||||||||||||||||||||||||||||||||||||||||START
+//--9-------------------------------------------------------------------------------------------
+global proc showLaminaProc(){
+	changeSelectMode -object;
+	string $objName[]=`ls -sl`;
+	if (size($objName)==1){
+	polyCleanupArgList 3 { "0","2","1","0","0","0","0","0","0","1e-005","0","1e-005","0","1e-005","0","-1","1" };
+	string $nfaceslist[]=`ls -sl -fl`;
+		if (size($nfaceslist)>0){
+		select $nfaceslist;
+		}else{
+		confirmDialog -message "[0] Lamina Faces Found" -button "ok" -defaultButton "ok";
+		select $objName;
+		}
+	clear ($nfaceslist);
+	}else{
+	confirmDialog -message "WARNING!\n Please select one Mesh per check" -button "ok" -defaultButton "ok";
+	}
+}
+//--9-------------------------------------------------------------------------------------------
+//||||||||||(SHOW PROCEDURE Lamina)||||||||||||||||||||||||||||||||||||||||||||||||||||||||||END
+//----------------------------------------------------------------------------------------------
+global proc showOutsideUVProc(){
+	changeSelectMode -object;
+	string $objName[]=`ls -sl`;
+	if (size($objName)==1){
+		int $uvCount[]=`polyEvaluate -uvcoord`;
+		int $errorCount=0;
+		string $errorList[];
+		int $k=0;
+			for ($k=0; $k<$uvCount[0]; $k++){
+				$currentUV=`polyEditUV -query ($objName[0]+".map["+$k+"]")`;
+			if (($currentUV[0]<0) || ($currentUV[1]<0)||($currentUV[0]>1) ||($currentUV[1]>1)){
+				$errorList[$errorCount]=$objName[0]+".map["+$k+"]";
+				$errorCount=$errorCount+1;
+				print($errorList[$errorCount]+"\n");
+			} 
+			clear ($currentUV);
+			}
+		
+		if (size($errorList)>0){
+		select $objName;
+
+		updateComponentSelectionMasks;
+		updateObjectSelectionMasks;
+		SelectEdgeMask;
+		setSelectMode components Components; selectType -smp 0 -sme 0 -smf 0 -smu 0 -pv 0 -pe 1 -pf 0 -puv 1; select -cl;
+		updateComponentSelectionMasks;
+		updateObjectSelectionMasks;
+		select $errorList;
+		}	else{
+			confirmDialog -message "[0] UVs Outside 0-1 Space Found" -button "ok" -defaultButton "ok";
+			select $objName;
+			}
+	}	else{
+		confirmDialog -message "WARNING!\n Please select one Mesh per check" -button "ok" -defaultButton "ok";
+		}
+}
+global proc showOpenEdgesProc(){
+
+}
+//--C-------------------------------------------------------------------------------------------
+//||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+//|||||||||||||||||||||||||||||||{END} - (BUTTON PROCEDURES)|||||||||||||||||||||||||||||||BLOCK
+//||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+//----------------------------------------------------------------------------------------------

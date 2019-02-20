@@ -1,0 +1,89 @@
+global proc IC_calIso() {
+    if (`window -exists "IC_calIsoUI"`) {
+		deleteUI "IC_calIsoUI";
+	}
+	
+	window -title "IC_calIso" -wh 160 110 -resizeToFitChildren 1 -sizeable 0 -maximizeButton 0 IC_calIsoUI;
+	    columnLayout -rowSpacing 10 -columnWidth 150 -columnAlign "center";
+            rowLayout -numberOfColumns 4 -columnWidth4 25 50 25 50;
+	            text -l "   U";
+	            intField -w 50 uNum;
+	            text -l "   V";
+	            intField -w 50 vNum;
+	        setParent..;
+	        
+	        rowLayout -numberOfColumns 4 -columnWidth4 25 50 50 25 -columnAlign2 "center" "center";
+	            text -l " ";
+	            button -l "OK" -w 50 -c "calIso";
+	            button -l "Close" -w 50 -c ("deleteUI -window IC_calIsoUI");
+	            text -l " ";
+	        setParent..;
+	showWindow IC_calIsoUI;
+}
+
+global proc calIso() {
+	if (!(`isTrue SomethingSelected`)) {
+		warning "Please selected one nurbs object...\n";
+		return;
+	}
+	
+	string $check[] = `ls -head 1 -sl`;
+	
+	string $shape[];
+	if (`nodeType $check[0]` == "transform") {
+		string $temp[] = `listRelatives -s $check[0]`;
+		if (`nodeType $temp[0]` == "nurbsSurface") {
+			$shape[size($shape)] = $temp[0];
+		}
+		else {
+			warning "Please selected one nurbs object...\n";
+		}
+	}
+	else if (`nodeType $check[0]` == "nurbsSurface") {
+		$shape[size($shape)] = $check[0];
+	}
+	else {
+		warning "Please selected one nurbs object...\n";
+	}
+	
+	float $rangeU[2] = `getAttr ($shape[0] + ".minMaxRangeU")`;
+	float $rangeV[2] = `getAttr ($shape[0] + ".minMaxRangeV")`;
+	int $uvMax[] = {int($rangeU[1]),int($rangeV[1])};
+	int $span[] = `getAttr ($shape[0] + ".spansUV")`;
+	
+	float $uNum = `intField -q -v uNum`;
+	float $vNum = `intField -q -v vNum`;
+	float $insertNum[2] = {$uNum,$vNum};
+	select -d;
+	string $selectUName[];
+	string $selectVName[];
+    
+	int $k;
+	for ($k=0;$k<2;$k++) {
+		float $length = $uvMax[$k]/($insertNum[$k] + 1);
+	
+		float $insertPos[];
+		for ($i=1;$i<($insertNum[$k]+1);$i++) {
+			$insertPos[size($insertPos)] = $length * $i;
+		}
+	    
+		if ($uNum > 0) {
+			$selectUName[0] = (" " + $check[0] + ".u\[0\]");
+		}
+		if ($vNum > 0) {
+			$selectVName[0] = (" " + $check[0] + ".v\[0\]");
+		}
+		for ($eachPos in $insertPos) {
+			if ($k == 0) {
+				$selectUName[size($selectUName)] =  (" " + $check[0] + ".u\[" + ($eachPos) + "\]");
+			}
+			else if ($k == 1) {
+				$selectVName[size($selectVName)] = (" " + $check[0] + ".v\[" + ($eachPos) + "\]");
+			}
+		}
+		clear($insertPos);
+	}
+	select -r $selectUName $selectVName;
+	//        print $selectVName;
+}
+

@@ -1,0 +1,34 @@
+global proc tazz_ToggleReference()
+{
+	global string $gReferenceEditorPanel;
+	string $buf[] = `sceneEditor -query -selectItem $gReferenceEditorPanel`;
+	for ($file in $buf)
+	{
+		string $filename = `match "[^/\\]+$" $file`;
+		if (`gmatch $filename "*_msNoTex.*"`)
+		{
+			string $folder = `substring $file 1 (size($file) - size($filename))`;
+			$filename = `match "^[^{}]+" $filename`;
+
+			$filename = `substitute "_msNoTex." $filename "_msTex."`;
+			if (`filetest -f ($folder + $filename)`)
+			{
+				string $node = `file -query -referenceNode $file`;
+				file -loadReference $node ($folder + $filename);
+			}
+		}
+		
+		if (`gmatch $filename "*_msTex.*"`)
+		{
+			string $folder = `substring $file 1 (size($file) - size($filename))`;
+			$filename = `match "^[^{}]+" $filename`;
+
+			$filename = `substitute "_msTex." $filename "_msNoTex."`;
+			if (`filetest -f ($folder + $filename)`)
+			{
+				string $node = `file -query -referenceNode $file`;
+				file -loadReference $node ($folder + $filename);
+			}
+		}
+	}
+}

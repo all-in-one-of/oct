@@ -1,0 +1,201 @@
+//制作人：曾志福 2018.3.15
+//版本：6.0  
+//计算输出每隔几帧物体的旋转属性值，以列的方式输出。
+//================================================================================
+	
+global proc LXY_setFilePath()
+{
+	string $LXY_printFilePath;
+	$LXY_printFilePath=`fileDialog -mode 1 -directoryMask "txt"`;
+	if($LXY_printFilePath!="")
+		textField -e -tx ($LXY_printFilePath) LXY_FilePath_tf;
+	}
+
+//==================================================================================
+global proc LXY_expX(){
+
+	string $LXYobjs[] = `ls -sl`;
+	string $objAttrs[];
+	string $customObjAttrs[];
+	float $LXY_obj_Tx[];
+	float $LXY_obj_Ty[];
+	float $LXY_obj_Tz[];
+	float $LXY_obj_Rx[];
+	float $LXY_obj_Ry[];
+	float $LXY_obj_Rz[];
+	float $LXY_obj_Sx[];
+	float $LXY_obj_Sy[];
+	float $LXY_obj_Sz[];
+	float $customDates[];
+	int $farmeF[];
+	int $fnumCustm = 0;
+	int $LXY_space = `textField -q -text LXY_textField`;
+	int $LXY_firsttime = `playbackOptions -q -minTime`; 
+	int $LXY_lasttime = `playbackOptions -q -maxTime`;
+	int $curtime[] ;
+	int $i=$LXY_firsttime;
+
+	for($LXYobj in $LXYobjs){
+	
+		$sel = `checkBoxGrp -q -va4 LXY_checkBoxGrp`;
+		clear $customDates;
+		for($j=$LXY_firsttime;$j<=$LXY_lasttime;$j+=$LXY_space){
+			currentTime $j;
+			clear $objAttrs;
+			clear $customObjAttrs;		
+			$farmeF[$j-1] = $j;
+			if ($sel[0] == 1){
+				$objPos = `xform -q -ws -t $LXYobj`;
+				$LXY_obj_Tx[$j-1] = $objPos[0];
+				$LXY_obj_Ty[$j-1] = $objPos[1];
+				$LXY_obj_Tz[$j-1] = $objPos[2];
+			}
+
+			if ($sel[1] == 1){
+				$objRot = `xform -q -ws -ro $LXYobj`;
+				$LXY_obj_Rx[$j-1] = $objRot[0];
+				$LXY_obj_Ry[$j-1] = $objRot[1];
+				$LXY_obj_Rz[$j-1] = $objRot[2];
+			}
+			if ($sel[2] == 1){
+				$objSca = `xform -q -ws -s $LXYobj`;
+				$LXY_obj_Sx[$j-1] = $objSca[0];
+				$LXY_obj_Sy[$j-1] = $objSca[1];
+				$LXY_obj_Sz[$j-1] = $objSca[2];
+			}
+			
+			if ($sel[3] == 1){
+				$objAttrs = `listAttr -k $LXYobj`;
+				int $numCustm = 1;
+				for($i=0;$i<(size($objAttrs));$i++){
+					if ((`attributeQuery -node $LXYobj -at $objAttrs[$i]`) != "double3"){
+						$customObjAttrs[$numCustm-1] = $objAttrs[$i];
+						$numCustm += 1;
+					}
+				$fnumCustm = $numCustm-1;	
+		    	}
+		    	$fffff = 0;
+		    	for ($customObjAttr in $customObjAttrs){
+		    		$customAttr = `getAttr  ($LXYobj + "." + $customObjAttr)`;
+					$customDates[(($j-1)*$fnumCustm+$fffff)] = string($customAttr);
+					$fffff += 1;
+		    	}
+			}
+			
+		}
+		string $oldFilePath=`textField -q -tx LXY_FilePath_tf`;
+		
+		$fileId=`fopen $oldFilePath "a"`;
+		fprint $fileId ($LXYobj + ";\n");
+		fprint $fileId ("frame\t");
+		if ($sel[0] == 1){
+			fprint $fileId ("translateX\ttranslateY\ttranslateZ\t");
+		}
+		if ($sel[1] == 1){
+			fprint $fileId ("rotateX\trotateY\trotateZ\t");
+		}
+		if ($sel[2] == 1){
+			fprint $fileId ("scaleX\tscaleY\tscaleZ\t");
+		}
+		if ($sel[3] == 1){
+			print (size($customObjAttrs));
+			for ($customObjAttr2 in $customObjAttrs){
+				fprint $fileId ($customObjAttr2 + "\t");
+			}
+		}
+		fprint $fileId ("\n");
+
+		for($l=0;$l<(size($farmeF));$l+=$LXY_space){
+			string $tmp1="",$tmp2="",$tmp3="",$tmp4="";
+			if ($sel[0] == 1){
+				$tmp1 = ($LXY_obj_Tx[$l] + "\t" + $LXY_obj_Ty[$l] + "\t" + $LXY_obj_Tz[$l] + "\t");
+			}
+			if ($sel[1] == 1){
+				$tmp2 = ($LXY_obj_Rx[$l] + "\t" + $LXY_obj_Ry[$l] + "\t" + $LXY_obj_Rz[$l] + "\t");
+			}
+			if ($sel[2] == 1){
+				$tmp3 = ($LXY_obj_Sx[$l] + "\t" + $LXY_obj_Sy[$l] + "\t" + $LXY_obj_Sz[$l] + "\t");
+			}
+
+			if ($sel[3] == 1){
+				$fff = 0;
+				for ($customObjAttr in $customObjAttrs){
+					$tmp4 += ($customDates[$l*$fnumCustm+$fff] + "\t");
+					$fff += 1;
+				}
+			fprint $fileId ($farmeF[$l]+"\t"+$tmp1+$tmp2+$tmp3+$tmp4+"\n");	
+			}
+		}
+
+		fclose $fileId;
+
+		clear $LXY_obj_Tx $LXY_obj_Ty $LXY_obj_Tz;
+		clear $LXY_obj_Rx $LXY_obj_Ry $LXY_obj_Rz; 
+		clear $LXY_obj_Sx $LXY_obj_Sy $LXY_obj_Sz;
+		clear $customDates $farmeF;
+		clear $customObjAttrs $objAttrs;
+	}
+}
+	
+//=================================================================================
+
+global proc LXYRotateWin(){
+	if(`window -ex LxyRotateWin`)
+		deleteUI LxyRotateWin;
+	window -t "outputObjsAttributeDate by zengzhf"
+				-s 1
+				-w 394
+				-h 176
+				LxyRotateWin;
+		
+	formLayout -numberOfDivisions 100  myform;
+		
+	text -l "Step" LXY_textC;
+	textField  -tx 1 LXY_textField;
+	text -l "Frame" LXY_textD;
+	text -l "Path: " mytextD;
+	textField LXY_FilePath_tf;
+	button -l "<<" -c LXY_setFilePath PathButton;
+	button -l "Output" -c LXY_expX mybutton;
+	checkBoxGrp -numberOfCheckBoxes 4 
+	-label "Attribute: " -labelArray4 "Translate" "Rotate" "Scale" "Custom" LXY_checkBoxGrp ;
+	
+	formLayout -edit
+		
+		-af LXY_textC left 20
+		-af LXY_textC top 10
+		-ap LXY_textC right 0 20	
+		
+		-ac LXY_textField left 10 LXY_textC
+		-af LXY_textField top 10
+		-ap LXY_textField right 0 50	
+		
+		-ac LXY_textD left 10 LXY_textField
+		-af LXY_textD top 10
+		-ap LXY_textD right 0 60
+
+		-af LXY_checkBoxGrp left 0
+		-ac LXY_checkBoxGrp top 10 LXY_textC
+		-ap LXY_checkBoxGrp right 0 95
+		
+		-af mytextD left 20
+		-ac mytextD top 20 LXY_checkBoxGrp
+		-ap mytextD right 0 20
+		
+		-ac LXY_FilePath_tf left 10 mytextD
+		-ac LXY_FilePath_tf top 15 LXY_checkBoxGrp
+		-ap LXY_FilePath_tf right 0 80
+		
+		-ac PathButton left 10 LXY_FilePath_tf
+		-ac PathButton top 15 LXY_checkBoxGrp
+		-ap PathButton right 0 95
+		
+		-af mybutton left 20
+		-ac mybutton top 20 mytextD
+		-ap mybutton right 0 95
+		
+	myform;
+	showWindow LxyRotateWin;		
+}
+
+LXYRotateWin;

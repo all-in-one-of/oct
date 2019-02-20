@@ -1,0 +1,214 @@
+// Sets Yeti Guide attributes for all shapes of all selected curves.
+// written by Yuriy Dulich (C) yuriy.n.dulich@gmail.com
+// default windows
+
+
+//winGDMain();
+global proc winGDMain(){
+
+// Guides Attr
+global float $r_weight;    					$r_weight=-1;
+global float $r_lengthWeight;  		        $r_lengthWeight=-1;
+global float $r_innerRadius; 					$r_innerRadius=-1;
+global float $r_outerRadius;  				$r_outerRadius=-1;
+global float $r_density;          		    $r_density=-1;
+global float $r_baseAttraction;     			$r_baseAttraction=-1;
+global float $r_tipAttraction; 				$r_tipAttraction=-1;
+global float $r_attractionBias;    		    $r_attractionBias=-1;
+global float $r_randomAttraction;             $r_randomAttraction=-1;
+global float $r_twist; 						$r_twist=-1;
+global float $r_surfaceDirectionLimit;   		$r_surfaceDirectionLimit=-1;
+global float $r_surfaceDirectionLimitFalloff; $r_surfaceDirectionLimitFalloff=-1;
+
+
+//////////////////////////////////////////////////////////////
+if ( `window -exists GuideAttrWindow` ) {
+ deleteUI GuideAttrWindow;
+}
+
+string $window = `window -w 284 -h 404 -title "Yeti Guide Manager" -sizeable 0 GuideAttrWindow`;
+columnLayout; 
+
+
+ReadALL();
+
+/////////////////////////////////////////////
+    string $FORM = `formLayout`;
+    
+    rowColumnLayout -numberOfColumns 2;
+
+  rowColumnLayout -numberOfColumns 3;
+  text -l "\n";
+  button -l "Refresh" -w 100 -bgc 0.242 0.823 0.362 -c "winGDMain;";
+  text -l "\n ";
+  text -l "\n";setParent ..;
+  button -l "SET ALL" -w 50 -bgc 0.0 0.873 0.941 -c "SetALL1;";
+  text -l "\n";  text -l "\n";
+  rowColumnLayout -numberOfColumns 2; text -l "Weigth: ";
+  floatField -v $r_weight -w 70 -cc ("$r_weight=#1;") fld_weight; 
+  if($r_weight==-2){floatField -e -bgc 0.873 0.518 0.297 fld_weight;}        setParent ..;
+  button -l "Set" -w 50 -c "dFloat(\"weight\", $r_weight);winGDMain;";
+  
+  rowColumnLayout -numberOfColumns 2; text -l "Length Weight: ";
+  floatField -v $r_lengthWeight -w 70 -cc ("$r_lengthWeight=#1;") fld_lengthWeight; 
+  if($r_lengthWeight==-2){floatField -e -bgc 0.873 0.518 0.297 fld_lengthWeight;}        setParent ..;
+  button -l "Set" -w 50 -c "dFloat(\"lengthWeight\", $r_lengthWeight);winGDMain;";
+  
+  rowColumnLayout -numberOfColumns 2; text -l "Inner Radius: ";
+  floatField -v $r_innerRadius -w 70 -cc ("$r_innerRadius=#1;") fld_innerRadius; 
+  if($r_innerRadius==-2){floatField -e -bgc 0.873 0.518 0.297  fld_innerRadius;}        setParent ..;
+  button -l "Set" -w 50 -c "dFloat(\"innerRadius\", $r_innerRadius);winGDMain;";
+  
+  rowColumnLayout -numberOfColumns 2; text -l "Outer Radius: ";
+  floatField -v $r_outerRadius -w 70 -cc ("$r_outerRadius=#1;") fld_outerRadius; if($r_outerRadius==-2){floatField -e -bgc 0.873 0.518 0.297  fld_outerRadius;}        setParent ..;
+  button -l "Set" -w 50 -c "dFloat(\"outerRadius\", $r_outerRadius);winGDMain;";
+  
+  rowColumnLayout -numberOfColumns 2; text -l "Density: ";  
+  floatField -v $r_density -w 70 -cc ("$r_density=#1;") fld_density; if($r_density==-2){floatField -e -bgc 0.873 0.518 0.297  fld_density;}        setParent ..;
+  button -l "Set" -w 50 -c "dFloat(\"density\", $r_density);winGDMain;";
+  
+  rowColumnLayout -numberOfColumns 2; text -l "Base Attraction: ";
+  floatField -v $r_baseAttraction -w 70 -cc ("$r_baseAttraction=#1;") fld_basefokdhdsfgjifeAttraction; if($r_baseAttraction==-2){floatField -e -bgc 0.873 0.518 0.297  fld_baseAttraction;}        setParent ..;
+  button -l "Set" -w 50 -c "dFloat(\"baseAttraction\", $r_baseAttraction);winGDMain;";
+  
+  rowColumnLayout -numberOfColumns 2; text -l "Tip Attraction: ";  
+  floatField -v $r_tipAttraction -w 70 -cc ("$r_tipAttraction=#1;") fld_tipAttraction; if($r_tipAttraction==-2){floatField -e -bgc 0.873 0.518 0.297  fld_tipAttraction;}        setParent ..;
+  button -l "Set" -w 50 -c "dFloat(\"tipAttraction\", $r_tipAttraction);winGDMain;";
+  
+  rowColumnLayout -numberOfColumns 2; text -l "Attraction Bias: ";  
+  floatField -v $r_attractionBias -w 70 -cc ("$r_attractionBias=#1;") fld_attractionBias; if($r_attractionBias==-2){floatField -e -bgc 0.873 0.518 0.297   fld_attractionBias;}        setParent ..;
+  button -l "Set" -w 50 -c "dFloat(\"attractionBias\", $r_attractionBias);winGDMain;";
+  
+  rowColumnLayout -numberOfColumns 2; text -l "Random Attraction: ";  
+  floatField -v $r_randomAttraction -w 70 -cc ("$r_randomAttraction=#1;") fld_randomAttraction; if($r_randomAttraction==-2){floatField -e -bgc 0.873 0.518 0.297    fld_randomAttraction;}        setParent ..;
+  button -l "Set" -w 50 -c "dFloat(\"randomAttraction\", $r_randomAttraction);winGDMain;";
+  
+  rowColumnLayout -numberOfColumns 2; text -l "Twist: ";  
+  floatField -v $r_twist -w 70 -cc ("$r_twist=#1;") fld_twist; if($r_twist==-2){floatField -e -bgc 0.873 0.518 0.297  fld_twist;}        setParent ..;
+  button -l "Set" -w 50 -c "dFloat(\"twist\", $r_twist);winGDMain;";
+  
+  rowColumnLayout -numberOfColumns 2; text -l "Surface Direction Limit: ";  
+  floatField -v $r_surfaceDirectionLimit -w 70 -cc ("$r_surfaceDirectionLimit=#1;") fld_surfaceDirectionLimit; if($r_surfaceDirectionLimit==-2){floatField -e -bgc 0.873 0.518 0.297  fld_surfaceDirectionLimit;}        setParent ..;
+  button -l "Set" -w 50 -c "dFloat(\"surfaceDirectionLimit\", $r_surfaceDirectionLimit);winGDMain;";
+  
+  rowColumnLayout -numberOfColumns 2; text -l "Surface Direction Limit Falloff: ";  
+  floatField -v $r_surfaceDirectionLimitFalloff -w 70 -cc ("$r_surfaceDirectionLimitFalloff=#1;") fld_surfaceDirectionLimitFalloff; if($r_surfaceDirectionLimitFalloff==-2){floatField -e -bgc 0.873 0.518 0.297  fld_surfaceDirectionLimitFalloff;}        setParent ..;
+  button -l "Set" -w 50 -c "dFloat(\"surfaceDirectionLimitFalloff\", $r_surfaceDirectionLimitFalloff);winGDMain;";
+ 
+separator  -height 20  -style "in"; 
+text -l "\n ";
+    rowColumnLayout -nc 1 -cal 1 "left"; 
+    text -label "Number of selected Guides:" txtCount;
+//text -l "\n ";  
+    setParent ..;
+   
+    
+    showWindow GuideAttrWindow;
+    showCount;
+}
+
+
+global proc showCount()
+{
+ string $SeL[] = `ls -sl`;
+ text -e -label ("Number of selected Guides: "+ (size($SeL))) txtCount;
+}
+ 
+global proc SAttr(string $PRM, float $VAL){
+   string $SEL[]=`ls -sl -l`;   string $OBJ;   
+   if (size($SEL)>0){
+    for($OBJ in $SEL){
+      string $SHAPES[]=`listRelatives -s $OBJ`;     string $SHa;
+	  for($SHa in $SHAPES){
+         if(`objExists ($OBJ+"|"+$SHa+"."+$PRM)`!=0){
+           setAttr ($OBJ+"|"+$SHa+"."+$PRM) ($VAL);
+		 }
+	  }
+    }//for
+   }else{print "NONONONONONO";}
+} //proc
+global proc dFloat(string $PRM, float $VAL){  print (" val="+$VAL);
+   string $SEL[]=`ls -sl -l`;   string $OBJ;   
+   if (size($SEL)>0){
+    for($OBJ in $SEL){
+      string $SHAPES[]=`listRelatives -s $OBJ`;     string $SHa;
+	  for($SHa in $SHAPES){
+         if(`objExists ($OBJ+"|"+$SHa+"."+$PRM)`!=0){
+           setAttr ($OBJ+"|"+$SHa+"."+$PRM) (abs($VAL));
+		 }
+	  }
+    }//for
+   }else{print "NONONONONONO";}
+} //proc
+
+
+global proc SetALL1(){
+global float $r_weight;
+global float $r_lengthWeight;
+global float $r_innerRadius;
+global float $r_outerRadius;
+global float $r_density;
+global float $r_baseAttraction;
+global float $r_tipAttraction;
+global float $r_attractionBias;
+global float $r_randomAttraction;
+global float $r_twist; 						
+global float $r_surfaceDirectionLimit;   		
+global float $r_surfaceDirectionLimitFalloff; 
+
+  SAttr("weight", $r_weight);
+  SAttr("lengthWeight", $r_lengthWeight);
+  SAttr("innerRadius", $r_innerRadius);
+  SAttr("outerRadius", $r_outerRadius);
+  SAttr("density", $r_density);
+  SAttr("baseAttraction", $r_baseAttraction);
+  SAttr("tipAttraction", $r_tipAttraction);
+  SAttr("attractionBias", $r_attractionBias);
+  SAttr("randomAttraction", $r_randomAttraction);
+  SAttr("twist", $r_twist);
+  SAttr("surfaceDirectionLimit", $r_surfaceDirectionLimit);
+  SAttr("surfaceDirectionLimitFalloff", $r_surfaceDirectionLimitFalloff);
+
+  winGDMain;
+}
+
+
+global proc ReadALL(){
+global float $r_weight;
+global float $r_lengthWeight;
+global float $r_innerRadius;
+global float $r_outerRadius;
+global float $r_density;
+global float $r_baseAttraction;
+global float $r_tipAttraction;
+global float $r_attractionBias;
+global float $r_randomAttraction;
+global float $r_twist; 						
+global float $r_surfaceDirectionLimit;   		
+global float $r_surfaceDirectionLimitFalloff; 
+
+
+
+   string $SEL[]=`ls -sl -l`;   string $OBJ;   float $VAL;
+   if (size($SEL)>0){
+    for($OBJ in $SEL){
+      string $SHAPES[]=`listRelatives -s $OBJ`;     string $SHa;
+	  for($SHa in $SHAPES){  $SHa=$OBJ+"|"+$SHa;
+        if(`objExists ($SHa+".randomAttraction")`!=0){
+         $VAL=`getAttr ($SHa+".weight")`;        if ($r_weight==-1)         {$r_weight=$VAL;}else{if         ($r_weight!=$VAL)         {$r_weight=-2;};}
+         $VAL=`getAttr ($SHa+".lengthWeight")`;      if ($r_lengthWeight==-1)       {$r_lengthWeight=$VAL;}else{if       ($r_lengthWeight!=$VAL)       {$r_lengthWeight=-2;};}
+         $VAL=`getAttr ($SHa+".innerRadius")`;          if ($r_innerRadius==-1)           {$r_innerRadius=$VAL;}else{if           ($r_innerRadius!=$VAL)           {$r_outerRadius=-2;};}
+         $VAL=`getAttr ($SHa+".outerRadius")`;   if ($r_outerRadius==-1)    {$r_outerRadius=$VAL;}else{if    ($r_outerRadius!=$VAL)    {$r_outerRadius=-2;};}
+         $VAL=`getAttr ($SHa+".density")`;       if ($r_density==-1)        {$r_density=$VAL;}else{if        ($r_density!=$VAL)        {$r_density=-2;};}
+         $VAL=`getAttr ($SHa+".baseAttraction")`;if ($r_baseAttraction==-1) {$r_baseAttraction=$VAL;}else{if ($r_baseAttraction!=$VAL) {$r_baseAttraction=-2;};}
+         $VAL=`getAttr ($SHa+".tipAttraction")`;if ($r_tipAttraction==-1) {$r_tipAttraction=$VAL;}else{if ($r_tipAttraction!=$VAL) {$r_tipAttraction=-2;};}
+         $VAL=`getAttr ($SHa+".attractionBias")`;         if ($r_attractionBias==-1)          {$r_attractionBias=$VAL;}else{if          ($r_attractionBias!=$VAL)          {$r_attractionBias=-2;};}
+         $VAL=`getAttr ($SHa+".randomAttraction")`;            if ($r_randomAttraction==-1)             {$r_randomAttraction=$VAL;}else{if             ($r_randomAttraction!=$VAL)             {$r_randomAttraction=-2;};}
+		 $VAL=`getAttr ($SHa+".twist")`;            if ($r_twist==-1)             {$r_twist=$VAL;}else{if             ($r_twist!=$VAL)             {$r_rtwist=-2;};}
+		 $VAL=`getAttr ($SHa+".surfaceDirectionLimit")`;            if ($r_surfaceDirectionLimit==-1)             {$r_surfaceDirectionLimit=$VAL;}else{if             ($r_surfaceDirectionLimit!=$VAL)             {$r_surfaceDirectionLimit=-2;};}
+		 $VAL=`getAttr ($SHa+".surfaceDirectionLimitFalloff")`;            if ($r_surfaceDirectionLimitFalloff==-1)             {$r_surfaceDirectionLimitFalloff=$VAL;}else{if             ($r_surfaceDirectionLimitFalloff!=$VAL)             {$r_surfaceDirectionLimitFalloff=-2;};}
+        }
+	  } //for shape
+    }//for obj
+   }else{print "NONONONONONO";}
+} //proc

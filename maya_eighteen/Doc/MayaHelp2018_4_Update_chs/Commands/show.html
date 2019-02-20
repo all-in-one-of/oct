@@ -1,0 +1,19 @@
+<!-- saved from url=(0024)http://docs.autodesk.com -->
+<script>
+		
+var searchString = unescape(location.search.substring(1));
+var split = searchString.indexOf("&cat=");
+var newURL = searchString.substring(0, split);
+var catName = searchString.substring(split + 5);
+		
+document.write("<html><head><title>Show Command</title></head>");
+
+document.write("<frameset cols=\"25%,*\">");
+document.write("<frame name=\"leftFrame\" src=\"nav_" + catName + ".html\">");
+document.write("<frame name=\"rightFrame\" src=\"" + newURL + "\">");
+document.write("</frameset>");
+
+document.write("</html>");
+
+</script>
+

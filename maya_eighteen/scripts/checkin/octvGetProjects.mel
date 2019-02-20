@@ -1,0 +1,11 @@
+global proc string[] octvGetProjects()
+{
+	string $octvProjects[] = {};
+	string $OFFICE_LOCATION = `getenv "STUDIO_LOCATION"`;
+	string $OCTV_PROJECTS = `getenv "OCTV_PROJECTS"`;
+
+	if ($OFFICE_LOCATION != "")
+		$octvProjects = `getFileList -folder ($OCTV_PROJECTS+"/")`;
+
+	return $octvProjects;
+}

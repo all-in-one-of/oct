@@ -1,0 +1,20 @@
+global proc deleteMidMeshSafe_zqs()
+{
+	string $interMad[] = `ls -ap -io -type "mesh"`;
+	string $inter;
+	int $cout = 0;
+	for($inter in $interMad)
+	{
+		string $midCon[] = `listConnections $inter`;
+		if(!size($midCon))
+		{
+			if(!catch(`delete $inter`))
+			{
+				$cout ++;
+				print("delete number of mid mesh is ==> "+$inter+"\n");
+			}
+		}
+	}
+	print("delete number of mid mesh is ==> "+$cout+"\n");
+}
+deleteMidMeshSafe_zqs();

@@ -1,0 +1,63 @@
+//global proc myTest()
+global proc CVToYeti()
+{
+    if(`window -ex myTestWin`)
+        deleteUI myTestWin;
+
+    window -t "pgYetiGroom转换工具 V_10000" -wh 500 600 myTestWin ;
+    columnLayout -adj 1; 
+
+        text -w 500 -h 50 -l "";
+        text -w 500 -h 20 -l  "请选择毛发生长物体的Shape节点，再选择创建好的Set节点";
+        button -w 500 -h 100 -l "将maya曲线转换Groom" -c "wds()";
+
+        text -w 500 -h 50 -l "";
+        text -w 500 -h 20 -l "注意：yeit的安装文件在C:\Yeti1.3.5Maya2012";
+        button -w 500 -h 50 -l "设置Procedural Search Path " -c "psp";
+
+        text -w 500 -h 50 -l "";
+        text -w 500 -h 20 -l "选择 aihair 材质节点后执行 ";
+        button -w 500 -h 50 -l "设置《老虎皮》" -c "UV";
+        
+        text -w 500 -h 50 -l "";
+        text -w 500 -h 20 -l "请先选择Groom下的Shape节点，再选择要替换的生长Groom的模型 ";
+        button -w 500 -h 50 -l "为Groom节点替换模型" -c "wds_TH";
+        
+    showWindow myTestWin;
+        
+}
+//myTest;
+
+global proc wds()
+
+{
+string $s[]=`ls -sl`;
+pgYetiConvertGuideSetToGroom ($s[1], $s[0],0.1);
+
+}
+
+global proc psp()
+
+{
+setAttr -type "string" defaultArnoldRenderOptions.procedural_searchpath "C:\\Yeti1.3.5Maya2013\\bin";   
+}
+
+global proc UV()
+{
+string $s[]=`ls -sl`;
+for($a in $s)
+  {
+    setAttr -type "string" ($a + ".uparam") "uparamcoord";
+    setAttr -type "string" ($a + ".vparam") "vparamcoord";
+  }
+}
+
+
+global proc wds_TH()
+
+{
+string $G_MD[]=`ls -sl`;
+
+
+connectAttr -f ($G_MD[1]+".worldMesh[0]") ($G_MD[0]+".inputGeometry");
+};

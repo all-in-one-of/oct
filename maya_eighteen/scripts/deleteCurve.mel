@@ -1,0 +1,27 @@
+global proc delete_curve(int $num){
+    string $curs[] = `ls -sl`;
+    int $d_n = 0;
+    int $i = 0;
+    for($i=0;$i<size($curs);$i++){
+        if($i%$num == 0){
+            delete($curs[$i]);
+            $d_n += 1;
+        }  
+    }
+    print $d_n;
+}
+
+global proc deleteCurve(){
+    string $window = `window -title "Delete Curve Tool" -w 250 -h 160`;
+    columnLayout -adjustableColumn true;
+    button  -label "Delete all" -command "delete_curve(1)";
+    button  -label "Delete 1/2" -command "delete_curve(2)";
+    button  -label "Delete 1/3" -command "delete_curve(3)";
+    button  -label "Delete 1/4" -command "delete_curve(4)";
+    button  -label "Delete 1/5" -command "delete_curve(5)";
+    button  -label "Undo" -command "undo";
+    button -label "Close" -command ("deleteUI -window " + $window);
+    showWindow;
+}
+
+//deleteCurve;

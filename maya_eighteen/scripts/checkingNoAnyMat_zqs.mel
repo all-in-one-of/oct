@@ -1,0 +1,49 @@
+global proc checkingNoAnyMat_zqs()
+{
+	string $lsShape[] = `ls -ap -type "mesh" -ni`;
+	string $shapeTemp;
+	int $enCount	= 0;
+	int $isHiden   	= 1;
+
+	string $noSGLayer = "layer_noShader";
+	string $noShaderList[]={};
+	//listAttr "layer1";
+
+	for($shapeTemp in $lsShape)
+	{
+
+		string $NG[] =`listConnections  -type "shadingEngine" $shapeTemp`;
+		if(size($NG)<1)//has connecting to the shader engine
+		{
+			string $parent[]  = `listRelatives -type "transform" $shapeTemp`;
+			$noShaderList[$enCount] = $shapeTemp;
+			$enCount++;
+			if(size($parent)==1)
+			{
+				print("this obj has no any Shader==>\t"+$parent[0]+"\n");
+			}
+			else
+			{
+				print("this mesh shape has no any Shader==>\t"+$shapeTemp+"\n");
+			}
+		}
+	}
+
+	if(size($noShaderList))
+	{
+		//create noshader display layer
+		if(!`objExists $noSGLayer`)
+		{
+			createDisplayLayer -name $noSGLayer -number 1 -empty;
+		}
+		//add to noShader display layer
+		string $noSGTemp;
+		for($noSGTemp in $noShaderList)
+		{editDisplayLayerMembers -noRecurse $noSGLayer $noSGTemp;}
+		if($isHiden)
+		{
+			setAttr ($noSGLayer+".visibility") 0;
+		}
+	}
+	print("it has ==>"+$enCount+" meshs has no any engin");
+}

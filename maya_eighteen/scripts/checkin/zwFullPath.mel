@@ -1,0 +1,13 @@
+
+global proc string zwFullPath(string $path)
+{
+	string $str = `workspace -expandName $path`;
+	$str = `encodeString $str`;
+
+	$path = `substituteAllString $path "\\" "/"`;
+
+	//$path = `substitute "Z:/Themes" $path "${OCTV_PROJECTS}"`;
+	$path = `substitute "Z:" $path "//octvision.com/cg"`;
+
+	return $path;
+}

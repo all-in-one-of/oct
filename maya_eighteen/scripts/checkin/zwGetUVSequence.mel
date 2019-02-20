@@ -1,0 +1,29 @@
+global proc string[] zwGetUVSequence(string $path)
+{
+	string $filenames[];
+	clear $filenames;
+
+	string $pattern;
+	string $filename = `match "[^/\\]+$" $path`;
+	
+	string $folder = `substring $path 1 (size($path) - size($filename))`;
+
+	string $buffer[];
+	int $num = `tokenize $filename "_" $buffer`;
+	int $i = 0;
+	string $name = "";
+	while($i<$num-2){
+		if($name == ""){
+			$name = $buffer[$i];
+		}else{
+			$name = $name +"_" +$buffer[$i];
+		}
+		$i = $i + 1;
+	}
+    if ($name == "")
+	{
+	  return {$filename};
+	}
+	$filenames = `getFileList -folder ($folder + "/") -filespec ($name + "*")`;
+	return $filenames;
+}

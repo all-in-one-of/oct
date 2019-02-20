@@ -1,0 +1,38 @@
+global proc tazz_intensity()
+{
+	string $selected[] = `ls -sl`;
+	string $str;
+	for ($item in $selected)
+	{
+		/*if(!objExists($item+".time")){
+			addAttr -ln "time"  -min 0 -max 100 -dv 5  -at double  $item;
+			setAttr -e -keyable true ($item+".time");
+		}
+		
+		print $item;
+		string $parent[]=`listRelatives -c $item`;
+		
+		if(`objectType($parent[0])`=="VRayLightSphereShape" || `objectType($parent[0])`=="VRayLightDomeShape" || `objectType($parent[0])`=="VRayLightDomeShape" || `objectType($parent[0])`=="VRayLightIESShape"){
+			string $attr_Value=`getAttr($parent[0]+".intensityMult")`;
+			print $attr_Value;
+
+			$str += "\r\n" + $item + ".intensityMult = ((sin("+$item+".time)+1)*1)+rand(0.8*"+int($attr_Value)+",1.2*"+int($attr_Value)+");\r\n";
+		}else{
+			string $attr_Value=`getAttr($parent[0]+".intensity")`;
+			$str += "\r\n" + $item + ".intensity = ((sin("+$item+".time)+1)*1)+rand(0.8*"+int($attr_Value)+",1.2*"+int($attr_Value)+");\r\n";
+		}*/
+
+	    string $parent[]=`listRelatives -c $item`;
+	    int $rands = int(rand(1,360));
+	    if(`objectType($parent[0])`=="VRayLightSphereShape" || `objectType($parent[0])`=="VRayLightDomeShape" || `objectType($parent[0])`=="VRayLightRectShape" || `objectType($parent[0])`=="VRayLightIESShape"){
+
+	    	$str += "\r\n" + $item + ".intensityMult = noise(time*.8 + "+$rands+")*2.65 + 7;\r\n";
+
+	    }else{
+	    	$str += "\r\n" + $item + ".intensity = noise(time*.8 + "+$rands+")*2.65 + 7;\r\n";
+	    }
+	}
+	//print $str;
+	expression  -s  $str  -o $selected[0]  -ae 1 -uc all ;
+}
+

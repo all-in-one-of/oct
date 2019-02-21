@@ -342,6 +342,7 @@ def makeMenu():
     mc.menuItem("changeShaderIMP", label=u"imp连接各种材质(选择物体)", ann=u'imp连接各种材质', c="OCT_render.changeShaderIMP()", parent="OCT_Render")
     mc.menuItem(d=1, parent= "OCT_Render")
     mc.menuItem("OCT_materialChange", label=u"材质转换...", ann=u'材质转换...', c="OCT_render.OCT_materialChanges()", parent="OCT_Render")
+    mc.menuItem("OCT_aiMaterialChange", label=u"arnold Standard 转换成 Utility", ann=u'arnold Standard 转换成 Utility', c="OCT_render.aiMatModification()", parent="OCT_Render")
     mc.menuItem(d=1, parent= "OCT_Render")
     mc.menuItem("deldefaultRenderLayer", l=u"清楚多余的DefaultRenderLayer", ann=u'清楚多余的DefaultRenderLayer', c="OCT_generel.delDefaultRenderLayer()", parent="OCT_Render")
     mc.menuItem(d=1, parent= "OCT_Render")

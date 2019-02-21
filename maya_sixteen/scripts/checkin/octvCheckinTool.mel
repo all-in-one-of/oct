@@ -226,7 +226,11 @@ global proc octvCheckinTool()
 		$db = "asset";
 		string $upUser = `getenv username`;
 		python("import octvDB");
+		print("==============================================================");
+		print("line 230 ||||||||||||||||||||||||||||| what is octvDB")
 		python("print(octvDB)");
+		print("=========================================================================");
+
 		string $dbreturn[] = `python("octvDB.queryCheckUserDB('" + $db + "','" + $upfilename +"')")`;
 		if($dbreturn[0] != ""){
 			string $checkUser = $dbreturn[0];

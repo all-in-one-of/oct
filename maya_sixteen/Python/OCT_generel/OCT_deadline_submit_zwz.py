@@ -1345,11 +1345,11 @@ class CopyProject(QtGui.QDialog):
                                     ArnoldTxFileName = ''               #  add by zhangben 2019 02 19   copy jpg tx  copyType = 2 的时候，没有添加原贴图进入copy列表
                                     if LowerPathType != ".tx":  # 如果贴图不是.tx 则，添加原贴图jpg  和  相应的tx 到copydata
                                         ArnoldTxFileName = PathSplitT[0]+'.tx'
-                                        if texFirstFileName not in texFileNameGroup:
+                                        if texFirstFileName not in texFileNameGroup and self.copyType == 2:
                                             texFileNameGroup.append(texFirstFileName)
                                     else: # 如果使用了 .tx 贴图  因为提交模式 没有把原帖图放入copy列表，所以要判断添加
                                         ArnoldTxFileName = PathSplitT[0]+'.jpg'
-                                        if texFirstFileName not in texFileNameGroup:
+                                        if texFirstFileName not in texFileNameGroup and self.copyType == 2:
                                             texFileNameGroup.append(texFirstFileName)
                                     if os.path.isfile(ArnoldTxFileName):
                                         texFileNameGroup.append(ArnoldTxFileName)
@@ -2734,6 +2734,8 @@ class CopyProject(QtGui.QDialog):
                 # else:
                 #     mc.setAttr("defaultArnoldRenderOptions.procedural_searchpath", self.serveProject+'sourceimages;', type="string")
         #运行主程序
+        # self.myCopyType_Files()
+        # raise Exception("td check")
         if self.serveProject:
             mc.progressWindow(title=u'提交文件', status=u'即将开始', isInterruptable=True)
             if copyType == 1 or copyType == 2 or copyType == 4 or copyType == 5:

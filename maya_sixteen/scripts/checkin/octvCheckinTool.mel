@@ -448,8 +448,8 @@ global proc octvCheckinMain(string $project,string $filename,string $destFolder,
 	if ($val)
 	{
 		//source "\\\\octvision.com\\cg\\Tech\\maya_sixteen\\scripts\\checkin\\octvCheckinCleanup.mel";
-		//string $path = "//octvision.com/cg/Tech/maya_sixteen/scripts/checkin/octvCheckinCleanup.mel";
-		string $path = "F:/Development/OCT/scripts/checkin/octvCheckinCleanup.mel";
+		string $path = "//octvision.com/cg/Tech/maya_sixteen/scripts/checkin/octvCheckinCleanup.mel";
+//		string $path = "F:/Development/OCT/scripts/checkin/octvCheckinCleanup.mel";
 
 		eval ("source \"" + $path + "\"");
 

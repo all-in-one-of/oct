@@ -30,7 +30,7 @@ global proc octvCheckinTool()
 	string $mode = zwGetMode($shortName);
 	string $renname=`getenv username`;
 
-	string $nameArray[]={"jiangc","tanyj","liangb","yangh","kuangyh","weiwy","tanjun","wangwk","pangcx","zhoujj","zhangyl","liuling","yangxp","huangwl","yuanyu","dul","zhouzq","hezhj","rentm","liangdj","zhouk","chenhx","pengrw","maoww","caijianjia","weiwy","pengrw","caoxf","jingsb","zhumq"
+	string $nameArray[]={"jiangc","tanyj","liangb","yangh","kuangyh","weiwy","tanjun","wangwk","pangcx","zhoujj","zhangyl","liuling","yangxp","huangwl","yuanyu","dul","zhouzq","hezhj","rentm","liangdj","zhouk","chenhx","pengrw","maoww","caijianjia","weiwy","pengrw","caoxf","jingsb","zhumq","zhangben"
 };
 	int $found = stringArrayContains($renname, $nameArray);
 
@@ -226,7 +226,7 @@ global proc octvCheckinTool()
 		$db = "asset";
 		string $upUser = `getenv username`;
 		python("import octvDB");
-		
+		python("print(octvDB)")
 		string $dbreturn[] = `python("octvDB.queryCheckUserDB('" + $db + "','" + $upfilename +"')")`;
 		if($dbreturn[0] != ""){
 			string $checkUser = $dbreturn[0];

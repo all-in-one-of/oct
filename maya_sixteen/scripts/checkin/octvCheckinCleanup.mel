@@ -1490,7 +1490,9 @@ global proc octvCheckinCleanup(string $args[])
 		}
 
 		python("import octvDB");
-		
+//		python("print(octvDB)");
+//		python("raise Exception("td check")
+
 		python("octvDB.delDB('" + $db + "','" + $filename + "')");
 		print ("\nlastVerfile:" + $desc);
 		python("octvDB.insertDB('" + $db + "','" + $filename + "','" + $fstate + "','" + $ftype + "','" + $upUser + "','" + $fpath + "','" + $checkState + "','" + $checkUser  + "','" + $desc + "')");

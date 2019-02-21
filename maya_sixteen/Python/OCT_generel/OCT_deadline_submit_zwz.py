@@ -1334,20 +1334,26 @@ class CopyProject(QtGui.QDialog):
                             if self.copyType == 1 or self.copyType == 5:
                                 texFileNameGroup.append(texFirstFileName)
                                 CopyHdrFlag = True
+                            # print("line 1340  now texFileNameGroup is ::::")
+                            # print(texFileNameGroup)
                             PathSplitT = os.path.splitext(texFirstFileName)
                             # print(PathSplitT)
                             if len(PathSplitT) > 1:
                                 LowerPathType = PathSplitT[1].lower()
                                 #当不是hdr贴图时，需要拷贝tx贴图
                                 if LowerPathType != '.hdr':
-                                    ArnoldTxFileName = ''               #  add by zhangben 2019 02 19   copy jpg
-                                    if LowerPathType != ".tx":
+                                    ArnoldTxFileName = ''               #  add by zhangben 2019 02 19   copy jpg tx  copyType = 2 的时候，没有添加原贴图进入copy列表
+                                    if LowerPathType != ".tx":  # 如果贴图不是.tx 则，添加原贴图jpg  和  相应的tx 到copydata
                                         ArnoldTxFileName = PathSplitT[0]+'.tx'
-                                    else:
+                                        if texFirstFileName not in texFileNameGroup:
+                                            texFileNameGroup.append(texFirstFileName)
+                                    else: # 如果使用了 .tx 贴图  因为提交模式 没有把原帖图放入copy列表，所以要判断添加
                                         ArnoldTxFileName = PathSplitT[0]+'.jpg'
+                                        if texFirstFileName not in texFileNameGroup:
+                                            texFileNameGroup.append(texFirstFileName)
                                     if os.path.isfile(ArnoldTxFileName):
                                         texFileNameGroup.append(ArnoldTxFileName)
-                                #     # print("line 1349 {}".format(ArnoldTxFileName))
+
                                 # if LowerPathType != '.hdr':
                                 #     ArnoldTxFileName = PathSplitT[0]+'.tx'
                                 #     if os.path.isfile(ArnoldTxFileName):
@@ -1486,7 +1492,6 @@ class CopyProject(QtGui.QDialog):
 
                     # print texFileNameGroup
                     if texFileNameGroup:
-                        print texFileNameGroup
                         for texFileName in texFileNameGroup:
                             # print texFileName
                             texFileName = os.path.normpath(texFileName)
@@ -1503,6 +1508,7 @@ class CopyProject(QtGui.QDialog):
                                 copyFinalTexFilePath = os.path.dirname(serFinalTexFileName)
                             serFinalTexFileName = os.path.normpath(serFinalTexFileName)
                             copyFinalTexFilePath = os.path.normpath(copyFinalTexFilePath)
+                            # print("line 1515:::::: texFile name : {}\n   ====copyFinal path : {}".format(texFileName,copyFinalTexFilePath))
                             if texFileName != serFinalTexFileName:
                                 #加入拷贝字典
                                 #设置拷贝标帜
@@ -1515,6 +1521,7 @@ class CopyProject(QtGui.QDialog):
                                             tmpCopyFlag = False
                             else:
                                 tmpCopyFlag = False
+                            # print("line 1527 tempCopyFlag = {}".format(tmpCopyFlag))
                             if tmpCopyFlag:
                                 copyData.update({texFileName: copyFinalTexFilePath})
                         #加入设置字典，只设置第一帧
@@ -1958,8 +1965,8 @@ class CopyProject(QtGui.QDialog):
                 setData = {}
                 type_file = 'sourceimages'
                 serFileName = os.path.join(self.serveProject, type_file)
-                print serFileName
-                print "\\n"
+                # print serFileName
+                # print "\\n"
                 for shapeEach in allTypeShapes:
                     try:
                         myFilepath = mc.getAttr('%s.dso' % shapeEach)
@@ -1991,7 +1998,7 @@ class CopyProject(QtGui.QDialog):
                                 #服务器地址
                                 copyFinalTexFilePath = os.path.dirname(myFinalName)
                                 copyFinalTexFilePath = os.path.normpath(copyFinalTexFilePath)
-                                print copyFinalTexFilePath
+                                # print copyFinalTexFilePath
                                 if myFilepath != myFinalName:
                                     #加入拷贝文件
                                     #设置拷贝标帜
@@ -2079,7 +2086,7 @@ class CopyProject(QtGui.QDialog):
                                     copyData.update({myArFilePaths: myFinalImageFolder})
 
                 if copyData:
-                    print("line 2076 ：：： now ready to copy  aiStandin")
+                    # print("line 2076 ：：： now ready to copy  aiStandin")
                     mc.progressWindow(edit=True, progress=0, min=0, max=len(copyData), status=u"正在拷贝相应的 aiStandIn 文件!")
                     #拷贝文件
                     if not self.CopyDataJob(copyData, True):
@@ -2361,7 +2368,7 @@ class CopyProject(QtGui.QDialog):
                 if self.copyType != 5:
                     os.remove(locaoFileName)
             else:
-                print fileserName
+                # print fileserName
                 mc.file(rename=fileserName)
                 mc.file(force=True, save=True, options='v=1;p=17', type=myTyprName)
                 time.sleep(1)

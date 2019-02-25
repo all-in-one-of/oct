@@ -13,6 +13,10 @@ import OCT_SuperFixFram_zwz
 from zxy_resizeImage import ReSizeDialog
 from OCT_ChangeNodePath_Tool import File_Tools
 
+#maya 2018会无效
+def aiMatModification():
+    import AiStandardToAiUtility
+    AiStandardToAiUtility.aiStandardToAiUtility()
 
 def replaceViewportProxyPath():
     import ReplaceVRayViewport

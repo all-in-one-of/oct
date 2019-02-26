@@ -52,7 +52,7 @@ def submitMayaToDeadline_zwz(type):
     #检查、拷贝、上传模式
     elif type == 3:
         usename = os.environ['USERNAME']
-        fPath = r'\\octvision.com\cg\Tech\maya\2013\Python\OCT_generel\Deadline\Deadline_User.cfg'
+        fPath = r'\\octvision.com\cg\Tech\maya_sixteen\Python\OCT_generel\Deadline\Deadline_User.cfg'
         f = file(fPath, 'r')
         infoStr = f.readlines()
         f.close()
@@ -67,7 +67,7 @@ def submitMayaToDeadline_zwz(type):
             sys.stderr.write(u'提交功能仅支持灯光组和后期组使用本工具！')
     elif type == 4:
         usename = os.environ['USERNAME']
-        fPath = r'\\octvision.com\cg\Tech\maya\2013\Python\OCT_generel\Deadline\Deadline_RenderUser.cfg'
+        fPath = r'\\octvision.com\cg\Tech\maya_sixteen\Python\OCT_generel\Deadline\Deadline_User.cfg'
         f = file(fPath, 'r')
         infoStr = f.readlines()
         f.close()

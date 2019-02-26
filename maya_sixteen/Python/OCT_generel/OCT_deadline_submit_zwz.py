@@ -1302,6 +1302,7 @@ class CopyProject(QtGui.QDialog):
     def myCopyType_Files(self):
         tmpCopyFlag = True
         #判断是否有使用Arnold层
+        WARNmsg = None
         type_file = 'sourceimages'
         serFileName = os.path.join(self.serveProject, type_file)
         allfiles = mc.ls(type='file')
@@ -1322,10 +1323,12 @@ class CopyProject(QtGui.QDialog):
 
                     #获取选择uvTilingMode的模式
                     UvSeqFlag = mc.getAttr('%s.uvTilingMode' % eachfile)
-
+                    # print("line 1325")
+                    # print("use sequence：".format(UseSeqFlag))
+                    # print("use uvtiling: ".format(UvSeqFlag))
                     if not UseSeqFlag and UvSeqFlag != 2 and UvSeqFlag != 3:
                         #当存在Arnold渲染器时
-                        # print ("1328")
+                        print ("1328 Arnold renderer ")
                         # if self.ArnoldFlag:
                         if mc.getAttr('defaultRenderGlobals.currentRenderer') == u"arnold":
                             # print("1330")
@@ -1394,13 +1397,14 @@ class CopyProject(QtGui.QDialog):
                     #             else:
                     #                 texFileNameGroup.append(IndexTexName)
                     elif UseSeqFlag or UvSeqFlag == 3 and UvSeqFlag != 2: # add by Ben  20190115
-                        #print("HHHHH")
+                        print("HHHHH")
                         myTexDirName = os.path.dirname(texFirstFileName)
                         myTexBaseName = os.path.basename(texFirstFileName)
                         myTexBaseNameSpl = os.path.splitext(myTexBaseName)
                         re_isSeq = re.search('_\d+$|\.\d+$|_u\d+$|\.u\d+$', myTexBaseNameSpl[0])
                         if not re_isSeq:
                             texFileNameGroup.append(texFirstFileName)
+                            WARNmsg = u"==========没有找到序列信息，建议检查序列贴图命名，确保最后是数字序号+贴图格式(\"name.####.ext\"或\"name_####.ext\")=========="
                         else:
                             myTexFileTopName = re.sub('_\d+$|\.\d+$|_u\d+$|\.u\d+$', '', myTexBaseNameSpl[0])
                             myAllFileName = os.listdir(myTexDirName)
@@ -1437,6 +1441,7 @@ class CopyProject(QtGui.QDialog):
                                         print("append at ======4===========".format(IndexTexName))
                     #elif not UseSeqFlag and (UvSeqFlag == 2 or UvSeqFlag == 3):
                     elif not UseSeqFlag and UvSeqFlag == 2:
+                        print("line 1440")
                         myTexDirName = os.path.dirname(texFirstFileName)
                         myTexBaseName = os.path.basename(texFirstFileName)
                         myTexFileTopName = myTexBaseName.split('_u')[0]
@@ -1539,7 +1544,10 @@ class CopyProject(QtGui.QDialog):
                                 setData.update({eachfile: serFinalSetTexFileName})
                             else:
                                 setData.update({eachfile: serFinalSetTexFileName})
+
             if copyData:
+                self.CopyDataJob(copyData, True)
+                # raise Exception("TD check")
                 mc.progressWindow(edit=True, progress=0, min=0, max=len(copyData)+1, status=u"正在拷贝相应的 file 贴图!")
                 #拷贝文件
                 if not self.CopyDataJob(copyData, True):
@@ -1559,7 +1567,8 @@ class CopyProject(QtGui.QDialog):
             #         #拷贝文件
             #         if not self.CopyDataJob(ArnoldProxyCopyData, True):
             #             return False
-        return True
+        if WARNmsg: return mc.warning(WARNmsg)
+        else: return True
 
     def myCopy_Data(self):
         #type_file = 'data'

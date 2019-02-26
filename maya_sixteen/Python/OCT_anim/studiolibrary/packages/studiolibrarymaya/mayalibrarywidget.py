@@ -117,7 +117,7 @@ class MayaLibraryWidget(MayaQWidgetDockableMixin, studiolibrary.LibraryWidget):
         """        
         Override method to remove the grey border when the parent has changed.
 
-        Only supported/triggered in Maya 2018 
+        Only supported/triggered in Maya2018 
 
         :rtype: None
         """

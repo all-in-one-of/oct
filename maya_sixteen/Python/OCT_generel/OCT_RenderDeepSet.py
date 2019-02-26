@@ -133,7 +133,7 @@ class OCT_RenderDeepSet():
         if result=='submit dealine':
             import OCT_deadline_submit_zwz 
             usename = os.environ['USERNAME']
-            fPath = r'\\octvision.com\cg\Tech\maya\2016\Python\OCT_generel\Deadline\Deadline_User.cfg'
+            fPath = r'\\octvision.com\cg\Tech\maya_sixteen\Python\OCT_generel\Deadline\Deadline_User.cfg'
             f = file(fPath, 'r')
             infoStr = f.readlines()
             f.close()

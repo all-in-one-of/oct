@@ -1080,9 +1080,13 @@ class CopyProject(QtGui.QDialog):
             myDestFile = myDict[key]
             if OpenDoubleCopyFlag:
                 if i == 0:
+                    print (" line 1083 ready copy file {} to ::: {}".format(mySourceFile,myDestFile))
                     self.worker1.ready(self.CpauLocalPath, self.CopyLocalPath, mySourceFile, myDestFile)
+                    print("line 0185  copy  DONE !!!!!!!!")
                 elif i == 1:
+                    print (" line 1086 ready copy file {} to ::: {}".format(mySourceFile,myDestFile))
                     self.worker2.ready(self.CpauLocalPath, self.CopyLocalPath, mySourceFile, myDestFile)
+                    print("line 0186  copy  DONE !!!!!!!!")
                 else:
                     while True:
                         if self.worker1.isFinished():
@@ -1092,6 +1096,7 @@ class CopyProject(QtGui.QDialog):
                             self.worker2.ready(self.CpauLocalPath, self.CopyLocalPath, mySourceFile, myDestFile)
                             break
             else:
+                print("line 1099 === ready copy file {} to {} ".format(mySourceFile,myDestFile))
                 self.worker1.ready(self.CpauLocalPath, self.CopyLocalPath, mySourceFile, myDestFile)
                 while True:
                     if self.worker1.isFinished():
@@ -1404,7 +1409,8 @@ class CopyProject(QtGui.QDialog):
                         re_isSeq = re.search('_\d+$|\.\d+$|_u\d+$|\.u\d+$', myTexBaseNameSpl[0])
                         if not re_isSeq:
                             texFileNameGroup.append(texFirstFileName)
-                            WARNmsg = u"==========没有找到序列信息，建议检查序列贴图命名，确保最后是数字序号+贴图格式(\"name.####.ext\"或\"name_####.ext\")=========="
+                            WARNmsg = u"==========没有找到序列信息，建议检查序列贴图命名，确保最后是数字序号+贴图格式(\"name.####.ext\"或\"name_####.ext\")==========\n" \
+                                      u"IFFY TEXTURE :    {}".format(texFirstFileName)
                         else:
                             myTexFileTopName = re.sub('_\d+$|\.\d+$|_u\d+$|\.u\d+$', '', myTexBaseNameSpl[0])
                             myAllFileName = os.listdir(myTexDirName)
@@ -1524,8 +1530,13 @@ class CopyProject(QtGui.QDialog):
                                         tmpMtime = os.path.getmtime(serFinalTexFileName)
                                         if int(tmpMtime) >= int(testMtime):
                                             tmpCopyFlag = False
+                                            print("target file texture {} alread exists and it not old relative to the source file !!!!! ".format(serFinalTexFileName))
                             else:
                                 tmpCopyFlag = False
+                            print("line 1534 copy flag {} ".format(tmpCopyFlag))
+                            # rst_inf = mc.confirmDialog(title='Confirm', message='go on?', button=['Yes', 'No'],defaultButton='Yes', cancelButton='No',dismissString='No')
+                            # if not rst_inf:
+                            #     return None
                             # print("line 1527 tempCopyFlag = {}".format(tmpCopyFlag))
                             if tmpCopyFlag:
                                 copyData.update({texFileName: copyFinalTexFilePath})
@@ -1567,7 +1578,9 @@ class CopyProject(QtGui.QDialog):
             #         #拷贝文件
             #         if not self.CopyDataJob(ArnoldProxyCopyData, True):
             #             return False
-        if WARNmsg: return mc.warning(WARNmsg)
+        if WARNmsg:
+            mc.warning(WARNmsg)
+            return True
         else: return True
 
     def myCopy_Data(self):

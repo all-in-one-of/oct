@@ -391,9 +391,9 @@ global proc octvCheckinCleanup(string $args[])
 	$desc			= `strip $args[12]`;
 	
 // add by zhangben  20190305  check file name use chinese character
-    string $chines = match("[^\u4e00-\u9faf]+","as大dfasdf");
+    string $chines = match("[^\u4e00-\u9faf]+",$filename);
     if (size($chines) >0){
-        error("文件名有中文");
+        error("文件名有中文字符，请检查");
     }
 	string $fileExt = fileExtension($filename);
 	

@@ -390,7 +390,11 @@ global proc octvCheckinCleanup(string $args[])
 	$attached		= $args[11];
 	$desc			= `strip $args[12]`;
 	
-
+// add by zhangben  20190305  check file name use chinese character
+    string $chines = match("[^\u4e00-\u9faf]+","as大dfasdf");
+    if (size($chines) >0){
+        error("文件名有中文");
+    }
 	string $fileExt = fileExtension($filename);
 	
 	//判断是否有"D:/octvTemp"目录，无就创建此目录
@@ -1850,7 +1854,7 @@ global proc  zwCheckArnoldTx(){
 			string $buffer1=`substring $fileTextureName 1 (size($fileTextureName) - size($ext))`;
 			if($ext=="JPG" || $ext=="jpg"){
 				if(!(`filetest -f ($buffer1+"tx")` || `filetest -f ($buffer1+"TX")`)){
-					$info=$info+("file node:::" + $file + ":::" + $fileTextureName+"缺少相应的tx贴图，因为场景中含有arnold代理文件或者当前渲染器为arnold\n");
+					$info=$info+($fileTextureName+"缺少相应的tx贴图，因为场景中含有arnold代理文件或者当前渲染器为arnold\n");
 					//confirmDialog -title "tx贴图" -message ($fileTextureName+"当前层为arnold渲染器,缺少tx贴图");
 					//error ($fileTextureName+"当前层为arnold渲染器,缺少tx贴图");	
 				} 

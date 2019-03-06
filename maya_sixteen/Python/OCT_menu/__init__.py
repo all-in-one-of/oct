@@ -362,7 +362,8 @@ def makeMenu():
     mc.menuItem('CopyYeti', l=u'拷贝yeti缓存和贴图到工程目录下...', ann=u'拷贝yeti缓存和贴图到工程目录下...', c='OCT_generel.CopyYeti()', parent='OCT_Render')
     mc.menuItem(d=1, parent= "OCT_Render")
     mc.menuItem('ClearUseAndDefer', l=u'清理节点和arnold代理延迟加载...', ann=u'清理节点和arnold代理延迟加载...', c='OCT_render.ClearUseRanderDefer()', parent='OCT_Render')
-    
+    mc.menuItem('xyzDpthTool', l=u'xyz depth tools..arnold', ann=u'arnold aov 摄像机xyz 深度RGB贴图工具..', c='OCT_render.xyzDpTools()', parent='OCT_Render')
+
     #VR工具
     mc.menuItem(d=1, parent="OCT_ToolSetMN")
     mc.menuItem("OCT_VR", label=u"VR工具", ann=u'VR工具', subMenu=True, to=True, parent="OCT_ToolSetMN")

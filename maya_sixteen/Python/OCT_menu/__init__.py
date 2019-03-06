@@ -206,6 +206,7 @@ def makeMenu():
     mc.menuItem('Bake_Camera_all', label=u'Bake选择的摄像机(选选择相机,拷贝相机,Bake相机属性)', ann=u'Bake选择的摄像机...', c='OCT_anim.OCT_BakeCamera()', parent='OCT_Animation')
     mc.menuItem(d=1, parent="OCT_Animation")
     mc.menuItem("changeFrameRate", label=u'48帧装换24帧率...', ann=u'48帧装换24帧率...', c='OCT_lgt.changeFrameRate()', parent="OCT_Animation")
+    mc.menuItem("DisplayCurrentFrame", label=u'修复HeadUpDisplay无法显示当前帧', ann=u'修复HeadUpDisplay无法显示当前帧', c='OCT_anim.resetHeadsUpCurrentFrame()', parent="OCT_Animation")
     mc.menuItem(d=1, parent="OCT_Animation")
     mc.menuItem('tazz_rollrocks', label=u'滚石动画(选择物体,为物体创建旋转X的动画)', ann=u'滚石动画', c='mm.eval("tazz_rollrocks;")', parent='OCT_Animation')
     mc.menuItem('ReferenceToInstance', label=u'参考转成替换(导入替换物体,先选择被替换的参考物体,再选择替换导入的物体)', ann=u'参考转成替换', c='mm.eval("ReferenceToInstance_YH;")', parent='OCT_Animation')
@@ -363,7 +364,6 @@ def makeMenu():
     mc.menuItem(d=1, parent= "OCT_Render")
     mc.menuItem('ClearUseAndDefer', l=u'清理节点和arnold代理延迟加载...', ann=u'清理节点和arnold代理延迟加载...', c='OCT_render.ClearUseRanderDefer()', parent='OCT_Render')
     mc.menuItem('xyzDpthTool', l=u'xyz depth tools..arnold', ann=u'arnold aov 摄像机xyz 深度RGB贴图工具..', c='OCT_render.xyzDpTools()', parent='OCT_Render')
-
     #VR工具
     mc.menuItem(d=1, parent="OCT_ToolSetMN")
     mc.menuItem("OCT_VR", label=u"VR工具", ann=u'VR工具', subMenu=True, to=True, parent="OCT_ToolSetMN")

@@ -142,12 +142,17 @@ def changeShaderIMP():
 
 
 def deleteSGNode_YH():
-	mm.eval('''
-		global proc deleteSGNode(){
-			string $allShading[]=`ls -type shadingEngine`;
-			for($i in $allShading){
-				catch(`delete $i`);
-			}
-    	}
-    	deleteSGNode();
-    ''')
+    mm.eval('''
+        global proc deleteSGNode(){
+            string $allShading[]=`ls -type shadingEngine`;
+            for($i in $allShading){
+                catch(`delete $i`);
+            }
+        }
+        deleteSGNode();
+''')
+
+def xyzDpTools():
+    import XYZ_tool_v001 as xyzt
+    ins_xyzt = xyzt.xyzDepthTool()
+    ins_xyzt.main()

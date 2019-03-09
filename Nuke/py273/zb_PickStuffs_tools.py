@@ -9,7 +9,15 @@ import os, re, sys
 import subprocess
 import nuke
 def modifyReadNode(eaRd, targDir, allFrms):
+    """
+    #copy 指定的read node 的 指定帧数的 素材 到 目标目录 修改read节点的 素材属性值
+    :param eaRd: read node
+    :param targDir: destination directory
+    :param allFrms: specify want frams
+    :return:
+    """
 #targDir = copy2Dri
+    warnMesg = "The Following stuff not exist:"
     src_stuff = eaRd['file'].getValue()
     #src_stuff = r'//192.168.80.221/Images/MSS/sc15/sh01/chenshuh/MSS_sc15_sh01_LG_DY_15_L_v301/masterLayer/sc15_camL_L/beauty/sc15_camL_L.%04d.exr'
     #src_stuff2 = r"M:/COMP/MSS/DY/render/sc15/MSS_sc15_sh01_LG_DY_bg_A_v309/masterLayer/sc15_camL_L/beauty/sc15_camL_L.%04d.exr"
@@ -53,18 +61,34 @@ def modifyReadNode(eaRd, targDir, allFrms):
             print("file copped FAILED ------------{}".format(new_stf_full))
         else:
             print("file copyed frome :{}  \nto   \n{}".format(src_stfnm_full,new_stf_full))
-    eaRd['file'].setValue(new_stuff_value)
-    print("value reset")
-    eaRd['on_error'].setValue('checkerboard')
-    print("set if missing  of node {}".format(eaRd.name()))
+    if not os.path.isdir(targDir):
+        warnMesg += "node :{}   needs  stuffs {}".format(eaRd.name(),os.linesep)
+    else:
+        eaRd['file'].setValue(new_stuff_value)
+        print("value reset")
+        eaRd['on_error'].setValue('checkerboard')
+        print("set if missing  of node {}".format(eaRd.name()))
+    if warnMesg != "The Following stuff not exist:": return warnMesg
 def compile_path(src_stuff):
+    """
+    :param src_stuff: stuffs path
+    :return: a dictionary , include two elements : the target path  and replace path strings
+    """
     #src_stuff = src_stuff_splpth
     src_stuff_splpth = os.path.split(src_stuff)
     stuf_dir = src_stuff_splpth[0]
     dir_splt = stuf_dir.split('/')
+    """
+    because the directory of stuffs are very complicated, mainly for the  following there cases ,i use regular expression filter the folders that
+    need to maintain the folder levels 
+    # src_stuff = r'//192.168.80.221/Images/MSS/sc15/sh01/chenshuh/MSS_sc15_sh01_LG_DY_15_L_v301/masterLayer/sc15_camL_L/beauty/sc15_camL_L.%04d.exr'
+    # src_stuff2 = r"M:/COMP/MSS/DY/render/sc15/MSS_sc15_sh01_LG_DY_bg_A_v309/masterLayer/sc15_camL_L/beauty/sc15_camL_L.%04d.exr"
+    # src_stuff3 = r"M:/COMP/CDFKBS/DY/render/SC05_sh01/CDFKBS_sc05_sh01_lg_DY_lgt_v013_0213_waifa/CDFKBS_sc05_sh01_lg_DY_lgt_v013_0213_waifa/masterLayer/cameraL/ID_shitou/cameraL.ID_shitou.%04d.png"
+    # idex = sc_foder_index[-1]
     #ea_folder = 'sc15'
     #ea_folder = 'sc15_camL_L'
     #ea_folder = 'SC05_sh01'
+    """
     sc_folder_lst = []
     index = 0
     for ea_folder in dir_splt:
@@ -86,12 +110,12 @@ def compile_path(src_stuff):
     rpl_dir = "/".join(dir_splt[:index+1])
     mk_dir =  "/".join(dir_splt[index+1:])
     return {'replace_dir':rpl_dir,'makeDir':mk_dir}
-def _createPannel():
+def _createPannel():# panel
     panel = nuke.Panel('Test')
     panel.addFilenameSearch('destination', '/tmp')
     panel.addSingleLineInput('frames', '{}-{}'.format(nuke.root().firstFrame(), nuke.root().lastFrame()))
     return panel, panel.show()
-def pick_stuff_panel():
+def pick_stuff_panel(): # 接受用户输入的 路径 和帧数，返回 帧数列表
     # if __name__ == "__main__":
     (p, ret) = _createPannel()
     # ==get all need frames

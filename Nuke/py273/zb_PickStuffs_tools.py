@@ -109,12 +109,18 @@ def pick_stuff_panel():
     return {'dir':copy2Dri,'frms':allFrms}
 
 def main():
+    sel_reads = nuke.selectedNodes('Read')
+    if len(sel_reads) == 0:
+        nuke.message("You need to select at least one read node")
+        return None
+
     ret = pick_stuff_panel()
     copy2Dri = ret['dir']
     copy2Dri = re.sub("\\\\", '/', copy2Dri)
     copy2Dri = re.sub(".$", "{}/".format(re.search(".$", copy2Dri).group()), copy2Dri)
     allFrms = ret['frms']
-    for eaRd in nuke.selectedNodes('Read'):
+
+    for eaRd in sel_reads:
         print ("Now start set read node ::{}".format(eaRd.name()))
         modifyReadNode(eaRd, copy2Dri, allFrms)
 

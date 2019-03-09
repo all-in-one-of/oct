@@ -30,3 +30,6 @@ nuke.pluginAddPath(r"C:\Program Files\Common Files\OFX\Plugins\NukeToolSet_maste
 
 import cryptomatte_utilities
 cryptomatte_utilities.setup_cryptomatte()
+
+
+sys.path.append(r"C:\Python27\Lib\site-packages")

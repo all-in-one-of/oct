@@ -173,9 +173,7 @@ class NukeMenu(object):
         after write render
         :return:
         """
-        # nuke.knobDefault("Write.afterRender", "command.run_readFromWrite()")
-        nuke.knobDefault("Write.afterRender", "")
-        # pass
+        nuke.knobDefault("Write.afterRender", "command.run_readFromWrite()")
 
 
 if __name__ == '__main__':

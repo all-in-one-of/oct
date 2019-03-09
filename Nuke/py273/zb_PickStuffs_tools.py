@@ -114,7 +114,7 @@ def compile_path(src_stuff):
     mk_dir =  "/".join(dir_splt[index+1:])
     return {'replace_dir':rpl_dir,'makeDir':mk_dir}
 def _createPannel():# panel
-    panel = nuke.Panel('Test')
+    panel = nuke.Panel('PickStuffs_v01')
     panel.addFilenameSearch('destination', '/tmp')
     panel.addSingleLineInput('frames', '{}-{}'.format(nuke.root().firstFrame(), nuke.root().lastFrame()))
     return panel, panel.show()

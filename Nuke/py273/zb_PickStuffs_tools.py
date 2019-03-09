@@ -54,21 +54,24 @@ def modifyReadNode(eaRd, targDir, allFrms):
             print("there is not a stuff named :{} in the source directory\n{}".format(singleStfnm,src_stuff_splpth[0]))
             continue
         #
-        targDir = os.path.abspath(new_stuff_path)
-        if not os.path.isdir(targDir): os.makedirs(targDir)
-        subprocess.Popen(["copy", src_stfnm_full, targDir], shell=True)
+        copy2Dir = os.path.abspath(new_stuff_path)
+        if not os.path.isdir(copy2Dir): os.makedirs(copy2Dir)
+        subprocess.Popen(["copy", src_stfnm_full, copy2Dir], shell=True)
         if not os.path.isfile(new_stf_full):
             print("file copped FAILED ------------{}".format(new_stf_full))
         else:
             print("file copyed frome :{}  \nto   \n{}".format(src_stfnm_full,new_stf_full))
-    if not os.path.isdir(targDir):
+    if not os.path.isdir(copy2Dir):
+        print("!!!!!!!!!copyed Fialed!!!!!!!!!!!!!!!!!!!!")
         warnMesg += "node :{}   needs  stuffs {}".format(eaRd.name(),os.linesep)
     else:
+        print("why")
         eaRd['file'].setValue(new_stuff_value)
         print("value reset")
         eaRd['on_error'].setValue('checkerboard')
         print("set if missing  of node {}".format(eaRd.name()))
     if warnMesg != "The Following stuff not exist:": return warnMesg
+    else: return None
 def compile_path(src_stuff):
     """
     :param src_stuff: stuffs path
@@ -137,18 +140,19 @@ def main():
     if len(sel_reads) == 0:
         nuke.message("You need to select at least one read node")
         return None
-
     ret = pick_stuff_panel()
     copy2Dri = ret['dir']
     copy2Dri = re.sub("\\\\", '/', copy2Dri)
     copy2Dri = re.sub(".$", "{}/".format(re.search(".$", copy2Dri).group()), copy2Dri)
     allFrms = ret['frms']
-
+    warningMesgs = []
     for eaRd in sel_reads:
         print ("Now start set read node ::{}".format(eaRd.name()))
-        modifyReadNode(eaRd, copy2Dri, allFrms)
-
-
+        wmsg = modifyReadNode(eaRd, copy2Dri, allFrms)
+        if wmsg: warningMesgs.append(wmsg)
+    if len(warningMesgs) > 0:
+        wmsg_str = " ".join(warningMesgs)
+        nuke.message(wmsg_str)
 if __name__ == "__main__":
     main()
 

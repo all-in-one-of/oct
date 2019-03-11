@@ -25,7 +25,7 @@ class OTC_convenientKits(object):
         for eard in readNodes:
             # eard = readNodes[0]
             stuffPath = eard.knob("file").getValue()
-            cam_name = re.search('cam[_]*(r|l)', stuffPath, re.I).group()
+            cam_name = re.search('cam[\w_]*(r|l)', stuffPath, re.I).group()
             camOriant = re.search('r|l', cam_name, re.I).group()
             cam_name_new = re.sub(camOriant, self.dict_rl[camOriant], cam_name)
             stuffPaht_new = re.sub(cam_name, cam_name_new, stuffPath)

@@ -76,7 +76,7 @@ if UserName:
         m.addSeparator()
         m.addSeparator()
         m.addCommand("&DNTG Switch R L Stuffs",'newmenu.dntgCmd()','alt+r')
-        m.addCommand("pcik Stuffs", 'newmenu.pickStr()')#, 'alt+r')
+        m.addCommand("pcik Stuffs", 'newmenu.pickStr()')
         m.addSeparator()
         m.addSeparator()
         #=================================================================================================

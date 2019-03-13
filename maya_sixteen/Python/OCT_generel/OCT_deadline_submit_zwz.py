@@ -1604,6 +1604,7 @@ class CopyProject(QtGui.QDialog):
                         continue
                     cachePath = os.path.normpath(cachePath)
                     cachePathS = cachePath.split('\\')
+                    inddexType = None
                     for types in types_file:
                         try:
                             indexType = cachePathS.index(types)

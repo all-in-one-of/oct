@@ -235,6 +235,7 @@ def makeMenu():
     mc.menuItem('KeyObjSpeedFrame', label=u'创建速度与加速度的曲线', ann=u'创建速度与加速度的曲线', to=True, c='mm.eval("SpeedAttrWindow;")', parent="OCT_Animation")
     mc.menuItem(d=1, parent="OCT_Animation")
     mc.menuItem('Bake_Frame', label=u'Bake Frame', ann=u'Bake Frame', to=True, c='OCT_anim.Bake_Frame()', parent="OCT_Animation")
+    mc.menuItem('KLJZ_DistanceToScale', label=u'KLJZ DistanceToScale', ann=u'KLJZ DistanceToScale', to=True, c='OCT_anim.kljz_dst()', parent="OCT_Animation")
     mc.menuItem(d=1, parent="OCT_Animation")
     mc.menuItem('studiolibrary', label=u'studiolibrary动作库工具', ann=u'studiolibrary动作库工具', to=True, c='OCT_anim.studionLibrarys()', parent="OCT_Animation")
 

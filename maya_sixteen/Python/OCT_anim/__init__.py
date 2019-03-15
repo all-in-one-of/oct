@@ -5,6 +5,7 @@ from __future__ import with_statement #only needed for maya 2008 & 2009
 
 import threading
 import maya.cmds as mc
+import maya.mel as mel
 import sys
 
 import OCT_ChangeXxbOldCameras_zwz
@@ -17,9 +18,17 @@ import OCT_fix_animation_LXJ
 
 from CacheFile_Tools_zwz import CacheFile_Tools
 
+def kljz_dst():
+    import DisplacementToScale
+    DisplacementToScale.displacementToScale()
+
 def Bake_Frame():
     import BakeFrame
     BakeFrame.bake_Frame()
+
+def resetHeadsUpCurrentFrame():
+    if not mc.headsUpDisplay('HUDCurrentFrame', ex = True):
+        mel.eval('headsUpDisplay -section 9 -block 6 -blockSize "small" -label (uiRes("m_initHUD.kHUDCurrentFrameLabel")) -labelWidth 135 -dataWidth 75 -labelFontSize "small" -dataFontSize "small" -allowOverlap true -preset "currentFrame" -vis (`optionVar -q currentFrameVisibility`) HUDCurrentFrame;')
 
 def studionLibrarys():
 	sys.path.append(r'\\octvision.com\cg\Tech\maya_sixteen\Python\OCT_anim')

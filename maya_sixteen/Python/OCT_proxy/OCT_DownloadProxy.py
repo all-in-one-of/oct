@@ -13,7 +13,7 @@ OCT_PROXYPATH=u'\\\\octvision.com\\cg\\Resource\\Material_Library\\Proxy\\ProxyS
 
 def OCT_DownloadProxyUI():
 	proxyType=[]
-	proxyType=os.listdir(OCT_PROXYPATH)
+	proxyType=[eaDir for eaDir in os.listdir(OCT_PROXYPATH) if os.path.isdir(os.path.join(OCT_PROXYPATH,eaDir))]
 	if mc.window("OCT_ProxySeed",q=True,exists=True):
 		mc.deleteUI("OCT_ProxySeed")
 	mc.window("OCT_ProxySeed",title=u"代理库工具",widthHeight=(490,730),sizeable=False)

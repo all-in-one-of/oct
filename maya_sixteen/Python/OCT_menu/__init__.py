@@ -9,7 +9,7 @@ import maya.mel as mm
 import maya.OpenMaya as om
 import string, sys
 import shutil,re
-import OCT_lgt
+
 
 def makeMenu():
     _gMainWindow = mm.eval("global string $gMainWindow;string $temp = $gMainWindow;")
@@ -279,6 +279,8 @@ def makeMenu():
     mc.menuItem(d=1, parent="OCT_ToolSetMN")
     mc.menuItem("OCT_Light", label=u'灯光工具', ann=u'灯光工具', subMenu=True, to=True, parent="OCT_ToolSetMN")
     mc.menuItem('submitMayaJob_zwz_W', l=u'交接给特效环节工程M:\ALL\\transfer...', ann=u'灯光交接给特效环节工程M:\ALL\\transfer...', c='OCT_generel.submitMayaToDeadline_zwz(6)', parent='OCT_Light')
+    mc.menuItem('edit_vrayZDepth', l=u'修改vray ZDepth参数', ann=u'修改vray ZDepth参数', c='OCT_lgt.edit_vrayZDepth()', parent='OCT_Light')
+    mc.menuItem(d=1, parent="OCT_Light")
     mc.menuItem(d=1, parent="OCT_Light")
     mc.menuItem('delLink', label=u'删除多余的灯光链接节点', ann=u'删除多余的灯光链接节点', c='mm.eval("IC_LightLinksCleanUp")', parent='OCT_Light')
     mc.menuItem('delUnuseLightDecay', label=u'删除多余的灯光衰减节点', ann=u'删除多余的灯光衰减节点', c='OCT_lgt.deleteUnuseLightDecay()', parent='OCT_Light')

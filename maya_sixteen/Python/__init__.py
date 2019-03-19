@@ -43,6 +43,6 @@ import OCT_Projects
 
 sys.stdin = maya.app.baseUI.StandardInput()
 sys.stdout = maya.utils.Output()
-#sys.stderr = maya.utils.Output( error=1 )
+sys.stderr = maya.utils.Output( error=1 )
 
 

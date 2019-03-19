@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
+
 from __future__ import with_statement #only needed for maya 2008 & 2009
 
 import sys, os
@@ -18,6 +20,9 @@ from OCT_aiPhotometricLightMap_Tools import aiPhotomeLightFile_Tools
 # def llCleanUp():
 #     mm.eval("IC_LightLinksCleanUp")
 #	LightLinkTool.loadUI()
+
+from OCT_edit_vrayZDepth import edit_vrayZDepth
+
 
 def changePointLight():
     selectObj = mc.ls(sl=True, l=True)

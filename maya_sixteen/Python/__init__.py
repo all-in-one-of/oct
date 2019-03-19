@@ -40,3 +40,8 @@ import OCT_animImEx
 import OCT_rigging
 import Themes
 import OCT_Projects
+
+sys.stdin = maya.app.baseUI.StandardInput()
+sys.stdout = maya.utils.Output()
+sys.stderr = maya.utils.Output( error=1 )
+

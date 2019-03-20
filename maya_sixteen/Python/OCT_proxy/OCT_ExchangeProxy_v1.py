@@ -29,7 +29,7 @@ class OCT_ExchangeProxy(object):
     def __init__(self):
         self.keywd2dir = {'AR': 'arnoldtex', 'VR': 'Vray_DL', '.ass': 'arnoldtex', '.vrmesh': 'Vray_DL', 'AR_MOD': 'scenes', 'VR_MOD': 'scenes',
                           'MOD': 'scenes'}  # via key words get proxy file store folder name
-        self.prx_file_attr = {'aiStandIn': 'dso', 'VRayMesh': 'fileName', 'AR': 'dso', 'VR': 'fileName'}  # each type proxy node has different attribute name
+        self.prx_file_attr = {'aiStandIn': 'dso', 'VRayMesh': 'fileName', 'AR': 'dso', 'VR': 'fileName','file':'fileTextureName'}  # each type proxy node has different attribute name
         self.prx_type_abbr = {'vrmesh': 'VR', 'ass': 'AR', 'aiStandIn': 'AR', 'VRayMesh': 'VR'}  # various key words symbol as a acronym word
 
         #下面这个字典比较复杂 每个key 就是替换的代理类型，values 是一个列表，分别用于不同的判断
@@ -127,11 +127,12 @@ class OCT_ExchangeProxy(object):
             if ea_im.type() == self.prx_need_assign[trg_type][1]:
                 # print im_grp.index(ea_im)
                 modify_attr = ea_im.attr(self.prx_file_attr[trg_type])
-                new_attr = [ea_v[1] for ea_v in infoDcit.values() if
-                            re.match(unicode(re.sub(r'\\', self.path_spl_ch[trg_type], ea_v[0])), modify_attr.get(), re.I)]
+                current_attr_v = modify_attr.get()
+                new_attr = [ea_v[1] for ea_v in infoDcit['im'].values() if
+                            re.match(unicode(re.sub(r'\\', self.path_spl_ch[trg_type], ea_v[0])), current_attr_v, re.I)]
                 if not len(new_attr):
                     self.nowayEx.append(prx_f_bsnm_nornder)
-                    continue
+                    new_attr = [infoDcit['im'][os.path.split(current_attr_v)[-1]][1]]
                 modify_attr.set(unicode(re.sub(r'\\', self.path_spl_ch[trg_type], new_attr[0])))
                 print("{} proxy file imported, and the node :{} attribute has modified".format(self.prx_need_assign[trg_type][3], ea_im.name()))
             elif ea_im.type() == self.prx_need_assign[trg_type][4]:
@@ -139,8 +140,10 @@ class OCT_ExchangeProxy(object):
             elif ea_im.type() == 'transform':
                 im_grp_dict['trans'] = ea_im
             elif ea_im.type() == 'file':
-                print("ok")
-
+                modify_attr = ea_im.attr(self.prx_file_attr[ea_im.type()])
+                current_attr_v = modify_attr.get()
+                new_attr = [infoDcit['txt'][os.path.split(current_attr_v)[-1]][1]]
+                modify_attr.set(new_attr[0])
             nnm = ea_im.stripNamespace().strip()
             self.renameIt(ea_im, "{}_".format(nnm))
             # ea_im.rename("{}_".format(nnm))
@@ -183,26 +186,31 @@ class OCT_ExchangeProxy(object):
         # return(mc.namespaceInfo(listOnlyNamespaces=True))
 
     def doCopy(self, lst_needCp, trg_type):# 进行copy 把代理或者模型需要的相关文件 贴图 代理等
-        need_asign_msg = {}
+        need_asign_msg = {'im':{},'txt':{},'other':{}}
         need_asign_msg_02 = {}
         if len(lst_needCp['ncp']):
             for ea_itme in lst_needCp['ncp']:
-                need_asign_msg[ea_itme] = lst_needCp['ncp'][ea_itme]
+                need_asign_msg['other'][ea_itme] = lst_needCp['ncp'][ea_itme]
         if len(lst_needCp['cp']):
             for ea_ndcp in lst_needCp['cp']:
                 copy2Dir = lst_needCp['cp'][ea_ndcp][1]
                 if not os.path.splitext(copy2Dir)[-1] == "": copy2Dir = os.path.dirname(copy2Dir)
-
                 if os.path.isdir(lst_needCp['cp'][ea_ndcp][0]) and not os.path.isdir(copy2Dir): os.makedirs(copy2Dir)
                 print("READY COPY :{}\n TO :      {}".format(lst_needCp['cp'][ea_ndcp][0],copy2Dir))
                 shutil.copy2(lst_needCp['cp'][ea_ndcp][0], copy2Dir)
                 print("file copied from {} to {}".format(lst_needCp['cp'][ea_ndcp][0],lst_needCp['cp'][ea_ndcp][1]))
-                need_asign_msg[ea_ndcp] = lst_needCp['cp'][ea_ndcp]
-        dic_cp = copy.deepcopy(need_asign_msg)
+                need_asign_msg['other'][ea_ndcp] = lst_needCp['cp'][ea_ndcp]
+        dic_cp = copy.deepcopy(need_asign_msg['other'])
         for each in dic_cp:
-            if not re.search(self.prx_need_assign[trg_type][0], each):
-                need_asign_msg.pop(each)
-                print("======== copy object removed=============")
+            if re.search(self.prx_need_assign[trg_type][0], each):
+                need_asign_msg['im'][each] = need_asign_msg['other'][each]
+                need_asign_msg['other'].pop(each)
+            elif re.search('(.jpg)',each):
+                need_asign_msg['txt'][each] = need_asign_msg['other'][each]
+                need_asign_msg['other'].pop(each)
+            else:
+                need_asign_msg['other'].pop(each)
+            print("======== copy object removed=============")
         print need_asign_msg
         return need_asign_msg
 

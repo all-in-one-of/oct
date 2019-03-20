@@ -25,7 +25,7 @@ def edit_vrayZDepth():
             print(e)
 
     else:
-        cc.warning(u'没找到vray渲染设置，没进行修改操作。')
+        cc.warning(u'没找到vray渲染设置，没进行修改操作。~~')
 
 
 if __name__ == '__main__':

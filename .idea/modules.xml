@@ -3,6 +3,10 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/OCT.iml" filepath="$PROJECT_DIR$/.idea/OCT.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../python/k_abc/.idea/k_abc.iml" filepath="$PROJECT_DIR$/../python/k_abc/.idea/k_abc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../python/maya_PreRender/.idea/maya_PreRender.iml" filepath="$PROJECT_DIR$/../python/maya_PreRender/.idea/maya_PreRender.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../python/oct_ABCpipeline/.idea/oct_ABCpipeline.iml" filepath="$PROJECT_DIR$/../python/oct_ABCpipeline/.idea/oct_ABCpipeline.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../python/oct_plugins/.idea/oct_plugins.iml" filepath="$PROJECT_DIR$/../python/oct_plugins/.idea/oct_plugins.iml" />
     </modules>
   </component>
 </project>

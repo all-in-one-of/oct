@@ -4,6 +4,10 @@
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="oct_plugins" />
+    <orderEntry type="module" module-name="oct_ABCpipeline" />
+    <orderEntry type="module" module-name="maya_PreRender" />
+    <orderEntry type="module" module-name="k_abc" />
   </component>
   <component name="TestRunnerService">
     <option name="PROJECT_TEST_RUNNER" value="Unittests" />

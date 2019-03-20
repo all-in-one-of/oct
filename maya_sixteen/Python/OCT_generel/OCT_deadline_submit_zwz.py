@@ -68,17 +68,17 @@ class AssetDeadline():
         messageRadio = mc.radioButtonGrp('messagRadioBG', label=u'查看Deadline服务器信息', labelArray2=[u'是', u'否'], sl=2, cl3=['left', 'left', 'left'], cw3=[150, 100, 100], numberOfRadioButtons=2, p=oneC)
         mc.radioButtonGrp('AutoSubmit', label=u'是否全自动提交Deadline', labelArray2=[u'是', u'否'], sl=2, cl3=['left', 'left', 'left'], cw3=[150, 100, 100], numberOfRadioButtons=2, p=oneC)
         mc.radioButtonGrp('ArnoldProxy', label=u'aiStandIn', labelArray2=[u'是', u'否'], sl=1, cl3=['left', 'left', 'left'], cw3=[150, 100, 100], numberOfRadioButtons=2, p=oneC)
-        mc.textFieldGrp('imgesPool', label=u'输出路径: ', text='', editable=False, cw2=[120, 150], cal=[1, 'left'], p=oneC)
+        mc.textFieldGrp('imgesPool', label=u'输出路径: ', text='', editable=True, cw2=[120, 150], cal=[1, 'left'], p=oneC)
         one = mc.columnLayout('row1', p=form)
         mc.frameLayout('form', l="Servers List", h=20, borderStyle='out', p='row1')
         mc.columnLayout('row2', p='row1', rs=20)
         selectRadio = mc.radioCollection('myselectRadio', p='row2')
         #mc.radioButton('one', l=u'#1 (211池)', onc=self.selectServer, p='row2')
         mc.radioButton('one', l=u'#1 (206池)', onc=self.selectServer, p='row2')
+        mc.radioButton('five', l=u'#1 (207池)', onc=self.selectServer, p='row2')
         mc.radioButton('two', l=u'#2 (222池)', onc=self.selectServer, p='row2')
         mc.radioButton('three', l=u'#3 (223池)', onc=self.selectServer, p='row2')
         mc.radioButton('four', l=u'#4 (224池)', onc=self.selectServer, p='row2')
-        #mc.radioButton('five', l=u'#5 (163池)', onc=self.selectServer, p='row2')
         mc.radioButton('six', l=u'#4 (221池)', onc=self.selectServer, p='row2')
         mc.radioButton('seven', l=u'#6 (100池)', onc=self.selectServer, backgroundColor=(0.3, 0.1, 0), p='row2')
         mc.radioButton('eight', l=u'#7 (102池)', onc=self.selectServer, backgroundColor=(0.3, 0.1, 0), p='row2')
@@ -117,9 +117,9 @@ class AssetDeadline():
         elif selectOption == 'four':
             self.deadlineSereveIp = r'//192.168.80.224'
             SERVE_PATH = r'\\192.168.80.224'
-        # elif selectOption == 'five':
-        #    self.deadlineSereveIp = r'//192.168.90.163'
-        #    SERVE_PATH = r'\\192.168.90.163'
+        elif selectOption == 'five':
+           self.deadlineSereveIp = r'//192.168.80.207'
+           SERVE_PATH = r'\\192.168.80.207'
         elif selectOption == 'six':
             self.deadlineSereveIp = r'//192.168.80.221'
             SERVE_PATH = r'\\192.168.80.221'

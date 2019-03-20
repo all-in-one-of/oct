@@ -981,6 +981,10 @@ class AssetDeadline():
             mc.modelEditor(myactivePlane, e=True, allObjects=False)
 
     def copyFile(self, *args):
+        #更新全局变量
+        global SERVE_PATH
+        SERVE_PATH = mc.textFieldGrp('imgesPool',q=1,text=1)
+
         self.NonePlane()
         if not mc.radioCollection(self.assetRadio, q=True, sl=True):
             mc.confirmDialog(title=u'温馨提示：', message=u'请选择服务器！', button=['OK'], defaultButton='Yes', dismissString='No')
@@ -1187,6 +1191,7 @@ class CopyProject(QtGui.QDialog):
 
     # 创建相应场景
     def myCreateScenes(self):
+
         fileSN = self.fileSName.split('_')
         while '' in fileSN:
             fileSN.remove('')

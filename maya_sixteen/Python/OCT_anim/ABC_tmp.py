@@ -17,7 +17,7 @@ if not mc.pluginInfo("AbcImport",q=True,loaded=True):
     mc.loadPlugin('AbcImport',quiet = True)
 
 
-def wr2f():
+def wr2f(doCache=True):
     selObj = pm.ls(sl=True)
     new_add = {}
     nmsp = selObj[0].namespace().strip(':')
@@ -27,7 +27,7 @@ def wr2f():
     wsp = pm.workspace.name
     with open(r"{}/{}_caOBjList.json".format(wsp,nmsp), 'w') as f:
         f.write(json.dumps(new_add, indent=4))
-    mc.AlembicExportSelectionOptions()
+    if doCache: mc.AlembicExportSelectionOptions()
 
 
 

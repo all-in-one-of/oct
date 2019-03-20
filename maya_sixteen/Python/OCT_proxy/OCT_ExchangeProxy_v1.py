@@ -184,6 +184,7 @@ class OCT_ExchangeProxy(object):
 
     def doCopy(self, lst_needCp, trg_type):# 进行copy 把代理或者模型需要的相关文件 贴图 代理等
         need_asign_msg = {}
+        need_asign_msg_02 = {}
         if len(lst_needCp['ncp']):
             for ea_itme in lst_needCp['ncp']:
                 need_asign_msg[ea_itme] = lst_needCp['ncp'][ea_itme]

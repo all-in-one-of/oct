@@ -18,7 +18,7 @@ import maya.OpenMaya as om
 # except:
 #     mu.executeDeferred("import maya.OpenMaya as om;om.MGlobal.displayError(u'加载界面时出现异常1,请联系管理员.')")
 # 加载PYQT
-sys.path.append(r'F:\Development\octProj\oct\maya_sixteen\Python')
+#sys.path.append(r'F:\Development\octProj\oct\maya_sixteen\Python')
 mu.executeDeferred("from Python import *;import custom2016OCTV ")
 
 

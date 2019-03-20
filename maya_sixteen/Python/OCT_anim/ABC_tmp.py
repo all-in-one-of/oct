@@ -81,16 +81,18 @@ def im_cache(infor,con_cc_meshes):
 # AbcImport -mode import -setToStartFrame -debug -connect "CDMSS_ch001002MossV2_Hair_h_msAnim:yi_45 CDMSS_ch001002MossV2_Hair_h_msAnim:KOUZI CDMSS_ch001002MossV2_Hair_h_msAnim:up_oral CDMSS_ch001002MossV2_Hair_h_msAnim:yi_54 CDMSS_ch001002MossV2_Hair_h_msAnim:L_eye CDMSS_ch001002MossV2_Hair_h_msAnim:L_shoutao CDMSS_ch001002MossV2_Hair_h_msAnim:leixian_r CDMSS_ch001002MossV2_Hair_h_msAnim:R_Lash CDMSS_ch001002MossV2_Hair_h_msAnim:up_teeth CDMSS_ch001002MossV2_Hair_h_msAnim:yi_50 CDMSS_ch001002MossV2_Hair_h_msAnim:maozi CDMSS_ch001002MossV2_Hair_h_msAnim:kuzi CDMSS_ch001002MossV2_Hair_h_msAnim:leixian_l CDMSS_ch001002MossV2_Hair_h_msAnim:xie_L CDMSS_ch001002MossV2_Hair_h_msAnim:dn_teeth CDMSS_ch001002MossV2_Hair_h_msAnim:yi_55 CDMSS_ch001002MossV2_Hair_h_msAnim:sijin_Model CDMSS_ch001002MossV2_Hair_h_msAnim:yi_53 CDMSS_ch001002MossV2_Hair_h_msAnim:L_eyecon CDMSS_ch001002MossV2_Hair_h_msAnim:R_eyecon CDMSS_ch001002MossV2_Hair_h_msAnim:head_Model CDMSS_ch001002MossV2_Hair_h_msAnim:polySurface5 CDMSS_ch001002MossV2_Hair_h_msAnim:tongue CDMSS_ch001002MossV2_Hair_h_msAnim:R_shoutao CDMSS_ch001002MossV2_Hair_h_msAnim:grow_mesh CDMSS_ch001002MossV2_Hair_h_msAnim:yi_49 CDMSS_ch001002MossV2_Hair_h_msAnim:R_eye CDMSS_ch001002MossV2_Hair_h_msAnim:yi_48 CDMSS_ch001002MossV2_Hair_h_msAnim:L_Lash CDMSS_ch001002MossV2_Hair_h_msAnim:dn_oral CDMSS_ch001002MossV2_Hair_h_msAnim:xie_R CDMSS_ch001002MossV2_Hair_h_msAnim:yi_52" -createIfNotFound -removeIfNoUpdate "E:/work/FAQ_ALL/cache/alembic/all_exp_abc_001.abc";
 
 if __name__ == "__main__":
-    #先运行 下面两行代码
+#先运行 下面两行代码
     import OCT_anim.ABC_tmp as abct
     reload(abct)
 
     # ===== 动画师 输出 缓存 和 记录 选择模型信息文件 执行下面一行代码
     abct.wr2f()
-
+    # ==== 运行之后，会在 当前工程目录 路径 下 有一个 .json 格式的文件，这个文件是记录 选择的模型的
+    # 把输出的缓存 和这个 json 文件 一并 提供给 美术师
+    #===================================================================================================================
     """
     =====灯光美术师 选择要读取缓存的模型的组(要import，因为在两个leixia模型的设置并不全是rig蒙皮
-
+    
     一共三行代码 逐行运行 选择到 当前角色读取缓存的模型，要进行解锁和删除历史操作
     """
     # 第一步 选择缓存 和记录模型信息的文件 导入相关信息

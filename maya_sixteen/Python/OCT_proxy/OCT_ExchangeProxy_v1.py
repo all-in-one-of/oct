@@ -31,6 +31,10 @@ class OCT_ExchangeProxy(object):
                           'MOD': 'scenes'}  # via key words get proxy file store folder name
         self.prx_file_attr = {'aiStandIn': 'dso', 'VRayMesh': 'fileName', 'AR': 'dso', 'VR': 'fileName'}  # each type proxy node has different attribute name
         self.prx_type_abbr = {'vrmesh': 'VR', 'ass': 'AR', 'aiStandIn': 'AR', 'VRayMesh': 'VR'}  # various key words symbol as a acronym word
+
+        #下面这个字典比较复杂 每个key 就是替换的代理类型，values 是一个列表，分别用于不同的判断
+        #item 1  导入对应的文件后，会有导入的节点的记录，判断节点的类型如果是 对应的节点，就要修改属性 vr代理的
+        #item 2  对应节点要重设的属性名字
         self.prx_need_assign = {'VR': ['.vrmesh', 'VRayMesh', 'fileName', 'VRay', 'mesh'], 'AR': ['.ass', 'aiStandIn', 'dso', 'Arnold', 'aiStandIn'],
                                 'VR_MOD': ['.jpg', 'file', 'fileName', 'Model', 'mesh'], 'AR_MOD': ['.jpg', 'file', 'fileName', 'Model', 'mesh'],
                                 '_MOD': ['.jpg', 'file', 'fileName', 'Model', 'mesh']}
@@ -73,13 +77,11 @@ class OCT_ExchangeProxy(object):
         for ea_prx in need_prxs_date:
             # ea_prx = need_prxs_date.
             # fileAttr = ea_prx.attr(self.prx_file_attr[ea_prx.type()]).get()
-
             # 当前代理 信息
             prx_f_bsnm = os.path.splitext(ea_prx)[0]
             prx_f_bsnm_nornder = re.sub('(_AR|_VR)', '', prx_f_bsnm)
             src_type = re.search('(_AR|_VR)', prx_f_bsnm).group().strip("_")
             src_file_ext = os.path.splitext(ea_prx)[-1]
-
             current_prx_servDir = need_prxs_date[ea_prx]
             curr_prx_servDir_split = current_prx_servDir.split(self.path_spl_ch[src_file_ext])
             folder_indx = curr_prx_servDir_split.index(self.keywd2dir[src_file_ext])
@@ -95,11 +97,9 @@ class OCT_ExchangeProxy(object):
             targ_prx_dir = '{}{}{}'.format(targ_above_folder, self.path_spl_ch[src_file_ext], self.keywd2dir[trg_type])
             sub_str = re.sub('_MOD', '_{}'.format(src_type), self.prx_im_f_ext_dic[trg_type])
             targ_imf_nm = re.sub(self.prx_im_f_ext_dic[src_type], sub_str, ea_prx)
-
             # 导入的文件 需要copy的文件
             imf_pth_full = '{}{}{}'.format(targ_prx_dir, self.path_spl_ch[src_file_ext], targ_imf_nm)
             sub_str_2 = re.sub('scenes', '{}_txt'.format(prx_f_bsnm_nornder), self.keywd2dir[trg_type])
-
             need_cp_src = [os.path.abspath("{}{}/sourceimages/{}".format(prx_proj_pth, self.path_spl_ch[trg_type], sub_str_2))]
             move2Dir = os.path.abspath(os.path.join(self.cur_prj, 'sourceimages'))
             move2Dir_sub = os.path.abspath(os.path.join(move2Dir, sub_str_2))
@@ -114,7 +114,7 @@ class OCT_ExchangeProxy(object):
         return im_prxs_dict
 
     # import relative proxy file
-    def import_Prx(self, imf_pth_full, prx_f_bsnm_nornder, trg_type, infoDcit):
+    def import_Prx(self, imf_pth_full, prx_f_bsnm_nornder, trg_type, infoDcit):#导入代理并设置好对应的节点的路径属性
         # infoDcit = need_info
         im_ns = 'RepPrx_{}'.format(prx_f_bsnm_nornder)
         mc.file(imf_pth_full, i=True, type=self.im_f_t[trg_type], ra=True, ns=im_ns, pr=True, mergeNamespacesOnClash=False, options="v=0",
@@ -138,6 +138,9 @@ class OCT_ExchangeProxy(object):
                 im_grp_dict['needRep'] = ea_im
             elif ea_im.type() == 'transform':
                 im_grp_dict['trans'] = ea_im
+            elif ea_im.type() == 'file':
+                print("ok")
+
             nnm = ea_im.stripNamespace().strip()
             self.renameIt(ea_im, "{}_".format(nnm))
             # ea_im.rename("{}_".format(nnm))
@@ -179,19 +182,21 @@ class OCT_ExchangeProxy(object):
         mc.namespace(removeNamespace=removeNS)
         # return(mc.namespaceInfo(listOnlyNamespaces=True))
 
-    def doCopy(self, lst_needCp, trg_type):
+    def doCopy(self, lst_needCp, trg_type):# 进行copy 把代理或者模型需要的相关文件 贴图 代理等
         need_asign_msg = {}
         if len(lst_needCp['ncp']):
             for ea_itme in lst_needCp['ncp']:
                 need_asign_msg[ea_itme] = lst_needCp['ncp'][ea_itme]
         if len(lst_needCp['cp']):
             for ea_ndcp in lst_needCp['cp']:
-                if os.path.isdir(lst_needCp['cp'][ea_ndcp][0]) and not os.path.isdir(lst_needCp['cp'][ea_ndcp][1]): os.makedirs(lst_needCp['cp'][ea_ndcp][1])
-                print("READY COPY :{}\n TO :      {}".format(lst_needCp['cp'][ea_ndcp][0],os.path.isdir(lst_needCp['cp'][ea_ndcp][1])))
-                shutil.copy2(lst_needCp['cp'][ea_ndcp][0], lst_needCp['cp'][ea_ndcp][1])
+                copy2Dir = lst_needCp['cp'][ea_ndcp][1]
+                if not os.path.splitext(copy2Dir)[-1] == "": copy2Dir = os.path.dirname(copy2Dir)
+
+                if os.path.isdir(lst_needCp['cp'][ea_ndcp][0]) and not os.path.isdir(copy2Dir): os.makedirs(copy2Dir)
+                print("READY COPY :{}\n TO :      {}".format(lst_needCp['cp'][ea_ndcp][0],copy2Dir))
+                shutil.copy2(lst_needCp['cp'][ea_ndcp][0], copy2Dir)
                 print("file copied from {} to {}".format(lst_needCp['cp'][ea_ndcp][0],lst_needCp['cp'][ea_ndcp][1]))
                 need_asign_msg[ea_ndcp] = lst_needCp['cp'][ea_ndcp]
-
         dic_cp = copy.deepcopy(need_asign_msg)
         for each in dic_cp:
             if not re.search(self.prx_need_assign[trg_type][0], each):
@@ -200,7 +205,7 @@ class OCT_ExchangeProxy(object):
         print need_asign_msg
         return need_asign_msg
 
-    def listNeedCopy(self, src_dir_s,st=0,copy_files={'tmp':{},'cp': {}, 'ncp': {}}):
+    def listNeedCopy(self, src_dir_s,st=0,copy_files={'tmp':{},'cp': {}, 'ncp': {}}):##列出需要复制的 和不用复制的 代理相关文件(.vraymesh,.jpg贴图等)
         # copy_fils = {}
         # src_dir = r"\\octvision.com\CG\Resource\Material_Library\Proxy\ProxySeed\Flowers\flower018\sourceimages\Vray_DL"
         # src_dir_s = need_cp_src
@@ -219,7 +224,7 @@ class OCT_ExchangeProxy(object):
             for eaobj in lst_dir:
                 # eaobj = lst_dir[0]
                 ext_str = os.path.splitext(eaobj)[-1]
-                targ_folder = os.path.split(src_dir)[-1]
+                # targ_folder = os.path.split(src_dir)[-1]
                 # move2Dir = os.path.abspath(os.path.join(cur_prj, 'sourceimages'))
                 # move2Dir_sub = os.path.abspath(os.path.join(move2Dir, targ_folder))
                 src_dir_spl = src_dir.split('\\')
@@ -227,7 +232,7 @@ class OCT_ExchangeProxy(object):
                 need_dir = "\\".join(src_dir_spl[srcimg_indx:])
                 # print (" ---------- {} ------------".format(need_dir))
                 if ext_str in self.needCopy_ext:
-                    copy_pair = [os.path.join(src_dir, eaobj), os.path.join(os.path.join(self.cur_prj, need_dir),eaobj)]
+                    copy_pair = [os.path.join(src_dir, eaobj), os.path.abspath(os.path.join(os.path.join(self.cur_prj, need_dir),eaobj))]
                     copy_files['tmp'][eaobj] = copy_pair
         cp_copy_fils = copy.deepcopy(copy_files)
         print("Check : {}".format(cp_copy_fils['tmp']))
@@ -270,60 +275,6 @@ class OCT_ExchangeProxy(object):
         print("<<<<<<<End parse {:05d}<<<<<<<<<".format(st))
         return copy_files
 
-    # def listNeedCopy(self, src_dir_s,st=0,copy_files={'tmp':{},'cp': {}, 'ncp': {}}):
-    #     # copy_fils = {}
-    #     # src_dir = r"\\octvision.com\CG\Resource\Material_Library\Proxy\ProxySeed\Flowers\flower018\sourceimages\Vray_DL"
-    #     # src_dir_s = need_cp_src
-    #     if st == 5: raise Exception("TD test")
-    #     if not isinstance(src_dir_s,list):raise Exception("you wrong")
-    #     for src_dir in src_dir_s:
-    #         print ("----{}-----{}".format(st,src_dir))
-    #         if not os.path.isdir(src_dir):
-    #             self.nowayEx.append("++++There is no texture folder CHECK! == {}".format(src_dir))
-    #             continue
-    #         lst_dir = os.listdir(src_dir)
-    #         for eaobj in lst_dir:
-    #             # eaobj = lst_dir[0]
-    #             ext_str = os.path.splitext(eaobj)[-1]
-    #             targ_folder = os.path.split(src_dir)[-1]
-    #             # move2Dir = os.path.abspath(os.path.join(cur_prj, 'sourceimages'))
-    #             # move2Dir_sub = os.path.abspath(os.path.join(move2Dir, targ_folder))
-    #             src_dir_spl = src_dir.split('\\')
-    #             srcimg_indx = src_dir_spl.index('sourceimages')
-    #             need_dir = "\\".join(src_dir_spl[srcimg_indx:])
-    #             print (" ---------- {} ------------".format(need_dir))
-    #             if ext_str in self.needCopy_ext:
-    #                 copy_pair = [os.path.join(src_dir, eaobj), os.path.join(self.cur_prj, need_dir)]
-    #                 copy_files['tmp'][eaobj] = copy_pair
-    #     cp_copy_fils = copy.deepcopy(copy_files)
-    #     print("Now cp_copy_file : {}".format(cp_copy_fils['cp']))
-    #     for ea_cp in cp_copy_fils['tmp']:
-    #         # targ_file_name_full = os.path.join(targ_dir, ea_cp)
-    #         if not os.path
-    #         if os.path.isfile(cp_copy_fils['tmp'][ea_cp][1]):
-    #             src_tm = os.stat(cp_copy_fils['cp'][ea_cp][0]).st_mtime
-    #             targ_tm = os.stat(cp_copy_fils['cp'][ea_cp][1]).st_mtime
-    #             print "source file modified time is {}".format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(src_tm)))
-    #             print "target file modified time is {}".format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(targ_tm)))
-    #             if time.localtime(src_tm) == time.localtime(targ_tm):
-    #                 copy_files['ncp'][ea_cp] = [cp_copy_fils['cp'][ea_cp][0], cp_copy_fils['cp'][ea_cp][1]]
-    #                 copy_files['cp'].pop(ea_cp)
-    #         elif os.path.isdir(cp_copy_fils['cp'][ea_cp][1]):
-    #             # print cp_copy_fils['cp'][ea_cp][1]
-    #             #src_dir_sub = os.path.join(src_dir_s, ea_cp)
-    #             print "==================================="
-    #             # print src_dir_sub
-    #             print "==================================="
-    #             st += 1
-    #             self.listNeedCopy([cp_copy_fils['cp'][ea_cp][0]],st,copy_files)
-    #             print "================================"
-    #             # raise Exception("td test")
-    #         else:
-    #             cp_copy_fils['cp'][ea_cp] = []
-    #     return copy_files
-
-
-
 
     def get_prxs(self, proxyType='aiStandIn', selObj=None):  # get all specify proxy shape node list
         all_need_prxy = []
@@ -350,7 +301,7 @@ class OCT_ExchangeProxy(object):
         return all_need_prxy
 
 
-    def renameIt(self,obj,newNm,cur_num=None):
+    def renameIt(self,obj,newNm,cur_num=None):#挺有用的重命名工具
         if not cur_num: cur_num = 0
         new_nm_str  = "{}{}".format(newNm,cur_num)
         new_nm_str = re.sub("_0$",'_',new_nm_str)
@@ -442,6 +393,58 @@ class OCT_ExchangeProxy(object):
 
     def wr_prx_info_2_server(self, prx_serv_dir=r"\\octvision.com\CG\Resource\Material_Library\Proxy\ProxySeed"):  # do it
         self.rec_prxInfo(self.parse_prxyDate(prx_serv_dir), prx_serv_dir)
+
+    # def listNeedCopy(self, src_dir_s,st=0,copy_files={'tmp':{},'cp': {}, 'ncp': {}}):
+    #     # copy_fils = {}
+    #     # src_dir = r"\\octvision.com\CG\Resource\Material_Library\Proxy\ProxySeed\Flowers\flower018\sourceimages\Vray_DL"
+    #     # src_dir_s = need_cp_src
+    #     if st == 5: raise Exception("TD test")
+    #     if not isinstance(src_dir_s,list):raise Exception("you wrong")
+    #     for src_dir in src_dir_s:
+    #         print ("----{}-----{}".format(st,src_dir))
+    #         if not os.path.isdir(src_dir):
+    #             self.nowayEx.append("++++There is no texture folder CHECK! == {}".format(src_dir))
+    #             continue
+    #         lst_dir = os.listdir(src_dir)
+    #         for eaobj in lst_dir:
+    #             # eaobj = lst_dir[0]
+    #             ext_str = os.path.splitext(eaobj)[-1]
+    #             targ_folder = os.path.split(src_dir)[-1]
+    #             # move2Dir = os.path.abspath(os.path.join(cur_prj, 'sourceimages'))
+    #             # move2Dir_sub = os.path.abspath(os.path.join(move2Dir, targ_folder))
+    #             src_dir_spl = src_dir.split('\\')
+    #             srcimg_indx = src_dir_spl.index('sourceimages')
+    #             need_dir = "\\".join(src_dir_spl[srcimg_indx:])
+    #             print (" ---------- {} ------------".format(need_dir))
+    #             if ext_str in self.needCopy_ext:
+    #                 copy_pair = [os.path.join(src_dir, eaobj), os.path.join(self.cur_prj, need_dir)]
+    #                 copy_files['tmp'][eaobj] = copy_pair
+    #     cp_copy_fils = copy.deepcopy(copy_files)
+    #     print("Now cp_copy_file : {}".format(cp_copy_fils['cp']))
+    #     for ea_cp in cp_copy_fils['tmp']:
+    #         # targ_file_name_full = os.path.join(targ_dir, ea_cp)
+    #         if not os.path
+    #         if os.path.isfile(cp_copy_fils['tmp'][ea_cp][1]):
+    #             src_tm = os.stat(cp_copy_fils['cp'][ea_cp][0]).st_mtime
+    #             targ_tm = os.stat(cp_copy_fils['cp'][ea_cp][1]).st_mtime
+    #             print "source file modified time is {}".format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(src_tm)))
+    #             print "target file modified time is {}".format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(targ_tm)))
+    #             if time.localtime(src_tm) == time.localtime(targ_tm):
+    #                 copy_files['ncp'][ea_cp] = [cp_copy_fils['cp'][ea_cp][0], cp_copy_fils['cp'][ea_cp][1]]
+    #                 copy_files['cp'].pop(ea_cp)
+    #         elif os.path.isdir(cp_copy_fils['cp'][ea_cp][1]):
+    #             # print cp_copy_fils['cp'][ea_cp][1]
+    #             #src_dir_sub = os.path.join(src_dir_s, ea_cp)
+    #             print "==================================="
+    #             # print src_dir_sub
+    #             print "==================================="
+    #             st += 1
+    #             self.listNeedCopy([cp_copy_fils['cp'][ea_cp][0]],st,copy_files)
+    #             print "================================"
+    #             # raise Exception("td test")
+    #         else:
+    #             cp_copy_fils['cp'][ea_cp] = []
+    #     return copy_files
 
 # if __name__ == "__main__":
 # wr_prx_info_2_server()

@@ -570,8 +570,9 @@ if (FTM_SelCheck(`ls -sl -typ file -typ mentalrayTexture`)) {// if (0)
 			$isSeq[$i] = 0;
 			$isOneOfSeq[$i] = 0;
 			if (`nodeType $fileNodesList[$i]` == "file" && size($fileRegularName[1])) {
-				if (`getAttr ($fileNodesList[$i] + ".useFrameExtension")`)
+				if (`getAttr ($fileNodesList[$i] + ".useFrameExtension")` || `getAttr ($fileNodesList[$i] + ".uvTilingMode")`==3){
 					$isSeq[$i] = 1;
+				}
 				else
 					$isOneOfSeq[$i] = 1;
 			}
@@ -812,7 +813,7 @@ if (`FTM_SelCheck $FTM_FileNodes`) {
 		progressWindow -e -pr $progress -st ("Setting BOT options, please wait......      " + $percentage + "%");
 
 		// Do not handle sequence textures
-		if (`getAttr ($FTM_FileNodes[$i] + ".useFrameExtension")`) {
+		if (`getAttr ($FTM_FileNodes[$i] + ".useFrameExtension")`|| `getAttr ($FTM_FileNodes[$i] + ".uvTilingMode")`==3) {
 			FTM_Log "" "" "Sequence specified, Skipped!";
 			continue;
 		}
@@ -894,7 +895,7 @@ if (`FTM_SelCheck $FTM_FileNodes`) {
 		progressWindow -e -pr $progress -st ("Setting up mentalray memory-mapped textures, please wait......      " + $percentage + "%");
 
 		// Do not handle sequence textures
-		if (`getAttr ($FTM_FileNodes[$i] + ".useFrameExtension")`) {
+		if (`getAttr ($FTM_FileNodes[$i] + ".useFrameExtension")`|| `getAttr ($FTM_FileNodes[$i] + ".uvTilingMode")`==3) {
 			FTM_Log "" "" "Sequence specified, Skipped!";
 			continue;
 		}
@@ -1303,6 +1304,7 @@ global proc FTM_Function (string $FTM_Function, string $FTM_OptionColumn, int $m
 
 		// Target directory.
 		string $FTM_TargetDirectory = `textFieldButtonGrp -q -text ($FTM_OptionColumn + "|FTM_TargetDirectoryField")`;
+		string $sequence_copy_path = $FTM_TargetDirectory;
 		$FTM_TargetDirectory = `FTM_GetPath "path" $FTM_TargetDirectory`;
 		// Check if new folder needed. If needed, create one only when the folder does not exist.
 		if ( `checkBoxGrp -q -v1 ($FTM_OptionColumn + "|FTM_MakeFolderChecker")` )
@@ -1327,12 +1329,21 @@ global proc FTM_Function (string $FTM_Function, string $FTM_OptionColumn, int $m
 		}
 
 		if (!$wrong) {
-			// Define command for function.
+						// Define command for function.
 			string $FTM_FunctionCmd;
-			if ($FTM_Function == "Copy")
+			if ($FTM_Function == "Copy"){
+				python("import OCT_util.Utils as utils");  // python copy sequence texture 
+				string $pythonCmd = "utils.Copy_Sequence_Texture_File(r'" + $sequence_copy_path + "', 'copy')";
+				print $sequence_copy_path;
+				python($pythonCmd);
 				$FTM_FunctionCmd = "sysFile -cp ";
-			else if ($FTM_Function == "Move")
+			}
+			else if ($FTM_Function == "Move"){
+				python("import OCT_util.Utils as utils");  // python move sequence texture 
+				string $pythonCmd = "utils.Copy_Sequence_Texture_File(r'" + $sequence_copy_path + "', 'move')";
+				python($pythonCmd);
 				$FTM_FunctionCmd = "sysFile -mov ";
+			}
 
 			// base of progress feedback setup
 			int $progress = 0;

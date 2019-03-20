@@ -81,9 +81,10 @@ def im_cache(infor,con_cc_meshes):
 # AbcImport -mode import -setToStartFrame -debug -connect "CDMSS_ch001002MossV2_Hair_h_msAnim:yi_45 CDMSS_ch001002MossV2_Hair_h_msAnim:KOUZI CDMSS_ch001002MossV2_Hair_h_msAnim:up_oral CDMSS_ch001002MossV2_Hair_h_msAnim:yi_54 CDMSS_ch001002MossV2_Hair_h_msAnim:L_eye CDMSS_ch001002MossV2_Hair_h_msAnim:L_shoutao CDMSS_ch001002MossV2_Hair_h_msAnim:leixian_r CDMSS_ch001002MossV2_Hair_h_msAnim:R_Lash CDMSS_ch001002MossV2_Hair_h_msAnim:up_teeth CDMSS_ch001002MossV2_Hair_h_msAnim:yi_50 CDMSS_ch001002MossV2_Hair_h_msAnim:maozi CDMSS_ch001002MossV2_Hair_h_msAnim:kuzi CDMSS_ch001002MossV2_Hair_h_msAnim:leixian_l CDMSS_ch001002MossV2_Hair_h_msAnim:xie_L CDMSS_ch001002MossV2_Hair_h_msAnim:dn_teeth CDMSS_ch001002MossV2_Hair_h_msAnim:yi_55 CDMSS_ch001002MossV2_Hair_h_msAnim:sijin_Model CDMSS_ch001002MossV2_Hair_h_msAnim:yi_53 CDMSS_ch001002MossV2_Hair_h_msAnim:L_eyecon CDMSS_ch001002MossV2_Hair_h_msAnim:R_eyecon CDMSS_ch001002MossV2_Hair_h_msAnim:head_Model CDMSS_ch001002MossV2_Hair_h_msAnim:polySurface5 CDMSS_ch001002MossV2_Hair_h_msAnim:tongue CDMSS_ch001002MossV2_Hair_h_msAnim:R_shoutao CDMSS_ch001002MossV2_Hair_h_msAnim:grow_mesh CDMSS_ch001002MossV2_Hair_h_msAnim:yi_49 CDMSS_ch001002MossV2_Hair_h_msAnim:R_eye CDMSS_ch001002MossV2_Hair_h_msAnim:yi_48 CDMSS_ch001002MossV2_Hair_h_msAnim:L_Lash CDMSS_ch001002MossV2_Hair_h_msAnim:dn_oral CDMSS_ch001002MossV2_Hair_h_msAnim:xie_R CDMSS_ch001002MossV2_Hair_h_msAnim:yi_52" -createIfNotFound -removeIfNoUpdate "E:/work/FAQ_ALL/cache/alembic/all_exp_abc_001.abc";
 
 if __name__ == "__main__":
+    #先运行 下面两行代码
     import OCT_anim.ABC_tmp as abct
-
     reload(abct)
+
     # ===== 动画师 输出 缓存 和 记录 选择模型信息文件 执行下面一行代码
     abct.wr2f()
 

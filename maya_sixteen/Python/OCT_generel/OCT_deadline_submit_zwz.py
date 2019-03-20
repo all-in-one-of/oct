@@ -26,6 +26,7 @@ IMAGESFLODER_NAME = 'Images'
 PROJECT_PATH = mm.eval('getenv "OCTV_PROJECTS"')
 OCT_DRIVE = r'\\octvision.com\cg'
 SERVE_PATH = r'\\192.168.80.205'
+SERVE_outputPath = r'\\192.168.80.205'
 OCT_FilePath = r'\\file.com\share'
 OCT_MDRIVE = r'\\file2.nas\share'
  
@@ -982,8 +983,9 @@ class AssetDeadline():
 
     def copyFile(self, *args):
         #更新全局变量
-        global SERVE_PATH
-        SERVE_PATH = mc.textFieldGrp('imgesPool',q=1,text=1)
+        #global SERVE_PATH
+        global SERVE_outputPath
+        SERVE_outputPath = mc.textFieldGrp('imgesPool',q=1,text=1)
 
         self.NonePlane()
         if not mc.radioCollection(self.assetRadio, q=True, sl=True):
@@ -1264,7 +1266,7 @@ class CopyProject(QtGui.QDialog):
     def myCreateImagesFolder(self):
         fileSNameSplit = self.fileSName.split('_')
         # ProjectName = os.path.splitext(self.fileSName)[0]
-        serveProject = os.path.join(SERVE_PATH, IMAGESFLODER_NAME, fileSNameSplit[0], fileSNameSplit[1],
+        serveProject = os.path.join(SERVE_outputPath, IMAGESFLODER_NAME, fileSNameSplit[0], fileSNameSplit[1],
                                     fileSNameSplit[2], USERNAME)
         if not os.path.isdir(serveProject):
             self.myCreateFolder(serveProject)

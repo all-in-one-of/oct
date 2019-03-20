@@ -2397,6 +2397,7 @@ class CopyProject(QtGui.QDialog):
                 time.sleep(1)
             if self.copyType == 1 or self.copyType == 5:
                 myProjectAddress = self.serveProject.replace('\\', '/')
+                print ("line 2400 Set Project to ::: {}".format(myProjectAddress))
                 mm.eval('setProject "%s"' % myProjectAddress)
             if ChangeFlag:
                 try:

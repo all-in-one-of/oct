@@ -45,11 +45,14 @@ def doLink(targGrp, srcGrpNSP):
             continue
         for ealight in readInfo[getKey]:
             pm.lightlink(object = eaObj, light=ealight)
-
-def DupLightLink():
+    return ret_dic
+def DupLightLink(prnt=False):
     sel_groups = pm.selected()
     if len(sel_groups) !=2: pm.error("Please select 2 group: 1--source character; 2--target group")
     readDate =  write_lightLinks(sel_groups[0])
-
-    doLink(sel_groups[1],readDate.keys()[0])
-
+    result = doLink(sel_groups[1],readDate.keys()[0])
+    if not prnt:
+        print(u"  一 一 ！！！ 歪歪歪！！ light linked done!!!!")
+    for eaRes in result:
+        for eaitm in result[eaRes]:
+            print (eaRes,eaitm)

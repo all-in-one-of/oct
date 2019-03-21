@@ -43,8 +43,8 @@ def doLink(targGrp, srcGrpNSP):
         if not len(ea_l_l):
             ret_dic['noLinked'].append("WARNING!!!!!:Node {} not find in source Select Group".format(eaObj.longName()))
             continue
-        for ealight in readInfo[getKey]:
-            pm.lightlink(object = eaObj, light=ealight)
+        l_tuple = [ealight.name() for ealight in readInfo[getKey]]
+        pm.lightlink(object = eaObj, light=l_tuple)
     return ret_dic
 def DupLightLink(prnt=False):
     sel_groups = pm.selected()

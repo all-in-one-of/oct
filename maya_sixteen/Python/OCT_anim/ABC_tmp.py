@@ -57,14 +57,26 @@ def list_rdcc_meshs(infor):
     pm.select(readCcMsh.values(),r=True)
     return readCcMsh
 
-def im_cache(infor,con_cc_meshes):
+def im_cache(infor,merge=None):
     #infor = r4f()
-    abc_f = infor['abc']
-    #con_cc_meshes = {}
     sel_chr = pm.selected()[0]
+    sel_nms = sel_chr.namespace().strip(':')
+    abc_f = infor['abc']
+    con_cc_meshes = list_rdcc_meshs(infor)
     con_objs = [m.longName() for m in con_cc_meshes.values()]
     con_str = " ".join(con_objs)
-    mc.AbcImport(abc_f, mode='import', connect = con_str)
+    if merge:
+        mc.AbcImport(abc_f, mode='import', connect=con_str)
+        return None
+    else:
+        exist_abc = pm.ls(type='AlembicNode')
+        imp_obj = mc.AbcImport(abc_f, mode='import')
+        imp_abc = [eaAbc for eaAbc in pm.ls(type='AlembicNode') if eaAbc not in exist_abc]
+        listCon = imp_abc[0].listConnections(p=True,c=True)
+        return {'cache':{imp_abc[0].name():listCon},'objs':{sel_nms:con_cc_meshes}}
+
+
+
 
 
 

@@ -17,7 +17,7 @@ def write_lightLinks(sourceGrps):
     nmspc = sourceGrps.namespace()
     tmpDir = os.getenv('TMP')
     wf = os.path.abspath(os.path.join(tmpDir, '{}_lightLink.json'.format(nmspc.strip(':'))))
-    listAllObject = [ea.getParent() for ea in sourceGrps.listRelatives(ad=True, s=True, ni=True) if not ea.isIntermediate()]
+    listAllObject = [ea.getParent() for ea in sourceGrps.listRelatives(ad=True, s=True, ni=True,type='mesh') if not ea.isIntermediate()]
     l_l_dict = {}
     for ea in listAllObject:
         list_lights = pm.lightlink(q=True, object=ea)
@@ -32,7 +32,7 @@ def doLink(targGrp, srcGrpNSP):
     readInfo = None
     with open(readFile, 'r') as rf:
         readInfo = json.load(rf)
-    listAllObject = [ea.getParent() for ea in targGrp.listRelatives(ad=True, s=True, ni=True) if not ea.isIntermediate()]
+    listAllObject = [ea.getParent() for ea in targGrp.listRelatives(ad=True, s=True, ni=True,type='mesh') if not ea.isIntermediate()]
     ret_dic = {'linked': [], 'failed': [], 'noLinked': []}
     for eaObj in listAllObject:
         getKey = eaObj.name(stripNamespace=True)

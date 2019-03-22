@@ -420,6 +420,9 @@ class OCT_ExchangeProxy(object):
             prxSty = ea_inst.type()
             trxSty_acr = self.prx_type_abbr[prxSty]
             prxy_dir_used = ea_inst.attr(self.prx_file_attr[prxSty]).get()
+            prxy_dir_spltx =  os.path.splitext(prxy_dir_used)
+            if prxy_dir_spltx[-1] != self.prx_ext_dic[prxSty]:
+                pm.error(u'代理节点的属性所关联的代理文件错误，请检查{}'.format(ea_inst))
             prx_nm = os.path.split(prxy_dir_used)[1]
             prx_dir_serv = ""
             if prx_nm in prxy_infor_dict[trxSty_acr] and prx_nm not in prxy_dict:

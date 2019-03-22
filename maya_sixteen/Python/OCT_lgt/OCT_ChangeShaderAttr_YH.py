@@ -592,7 +592,10 @@ global proc shaderMultiEditOverrideUI() {
 			rowLayout -nc 2 -cw 1 344 -cw 2 200;
 				checkBox -label "EnableMatte" -align "right" aiEnableMatte;
 				button -l "UPDATE" -c "updateShaderAttr(8, \\"aiEnableMatte\\",\\"aiEnableMatte\\")";
+				
 			setParent..;
+				colorSliderButtonGrp -label "Matte color" -buttonLabel "UPDATE" -rgb 0 0 0 -symbolButtonDisplay true -cw 1 130 -cw 2 60 -cw 3 145 -image "navButtonUnconnected.xpm" -bc "updateShaderAttr(6, \\"aiMatteColor\\",\\"aiMatteColor\\")" -sbc "CreateRenderNode(6,\\"aiMatteColor\\")" aiMatteColor;
+				floatSliderButtonGrp -pre 3 -v 1 -label "Matte Opacity" -field true -buttonLabel "UPDATE" -symbolButtonDisplay true -cw 1 130 -cw 2 50 -min 0 -max 1 -fieldMaxValue 99999 -image "navButtonUnconnected.xpm" -bc "updateShaderAttr(7, \\"aiMatteColorA\\",\\"aiMatteColorA\\")"  -sbc "CreateRenderNode(6,\\"aiMatteColorA\\")"  aiMatteColorA;	
 
 			text -l "";
 			text -l "Diffuse";

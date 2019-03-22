@@ -17,7 +17,9 @@ def displacementToScale():
         mc.connectAttr('%s.worldMatrix[0]' %objSelect[x],  '%s.inMatrix' % pointMatrixNode, force=True)
         mc.connectAttr( '%s.output' %pointMatrixNode, '%s.obj%s' %(dts_node,str(x+1)), force=True)
 
-    mc.setAttr('%s.coefficient' % dts_node, -0.00423781, 0.12412153, 0.09117381)
+    mc.setAttr('%s.coefficient' % dts_node, -0.00423781, 0.12412153, 0.09117381, l=True)
+    mc.setAttr('%s.MaxDistance' % dts_node, 14.72, l=True)
+    mc.setAttr('%s.MinDistance' % dts_node, 1.341, l=True)
 
     mc.connectAttr('%s.value' %dts_node, '%s.scaleX' %objSelect[1], f=True)
     mc.connectAttr('%s.value' %dts_node, '%s.scaleY' %objSelect[1], f=True)

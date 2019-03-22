@@ -49,7 +49,7 @@ class OCT_ExchangeProxy(object):
 
         self.prx_serv_dir = r"\\octvision.com\CG\Resource\Material_Library\Proxy\ProxySeed"
 
-        self.path_spl_ch = {'AR': r'\\', 'VR': '/', 'aiStandIn': r'\\', 'VRayMesh': '/', '.ass': '\\', '.vrmesh': '/', 'MOD': r'\\', 'VR_MOD': r'\\',
+        self.path_spl_ch = {'AR': r'\\', 'VR': '/', 'aiStandIn': r'\\', 'VRayMesh': '/', '.ass': r'\\', '.vrmesh': '/', 'MOD': r'\\', 'VR_MOD': r'\\',
                             'AR_MOD': r'\\'}
         self.needCopy_ext = ['', '.ass', '.vrmesh', '.jpg']
         self.nowayEx = []
@@ -115,15 +115,17 @@ class OCT_ExchangeProxy(object):
             # ea_prx = need_prxs_date.
             # fileAttr = ea_prx.attr(self.prx_file_attr[ea_prx.type()]).get()
             # 当前代理 信息
+            print ea_prx
             prx_f_bsnm = os.path.splitext(ea_prx)[0]
             prx_f_bsnm_nornder = re.sub('(_AR|_VR)', '', prx_f_bsnm)
             src_type = re.search('(_AR|_VR)', prx_f_bsnm).group().strip("_")
             src_file_ext = os.path.splitext(ea_prx)[-1]
             current_prx_servDir = need_prxs_date[ea_prx]
-            print current_prx_servDir
+            print("line 124"), current_prx_servDir
             print self.path_spl_ch[src_file_ext]
             curr_prx_servDir_split = current_prx_servDir.split(self.path_spl_ch[src_file_ext])
-            print curr_prx_servDir_split
+            # print "line 126",curr_prx_servDir_split
+            # raise
             if len(curr_prx_servDir_split) == 1: curr_prx_servDir_split = current_prx_servDir.split('\\')
             print('\n'.join(curr_prx_servDir_split))
             folder_indx = curr_prx_servDir_split.index(self.keywd2dir[src_file_ext])

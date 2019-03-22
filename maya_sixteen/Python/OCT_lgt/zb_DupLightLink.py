@@ -47,7 +47,7 @@ def doLink(targGrp, srcGrpNSP):
         l_tuple = [ealight for ealight in readInfo[getKey]]
         pm.lightlink(object = eaObj, light=l_tuple)
     return ret_dic
-def DupLightLink(haveRndLayer = False):
+def DupLightLink(haveRndLayer = True):
     if not haveRndLayer:
         sel_groups = pm.selected()
         if len(sel_groups) !=2: pm.error("Please select 2 group: 1--source character; 2--target group")

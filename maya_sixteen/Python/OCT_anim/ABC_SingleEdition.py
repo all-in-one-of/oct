@@ -17,7 +17,7 @@ if not mc.pluginInfo("AbcImport",q=True,loaded=True):
     mc.loadPlugin('AbcImport',quiet = True)
 
 
-def wr2f(doCache=True):
+def wr2f(doCache=True):## ===== 动画师 输出 缓存 和 记录 选择模型信息文件 执行下
     selObj = pm.ls(sl=True)
     new_add = {}
     nmsp = selObj[0].namespace().strip(':')
@@ -30,9 +30,7 @@ def wr2f(doCache=True):
     if doCache: mc.AlembicExportSelectionOptions()
 
 
-
-
-def r4f():
+def r4f():#=== 选择缓存和记录模型的文件
     wsp = pm.workspace.name
     singleFilter = "All Files (*.*)"
     res = mc.fileDialog2(fileFilter=singleFilter, dialogStyle=2,fileMode=4)
@@ -45,7 +43,7 @@ def r4f():
         readDate['cclst']= json.load(f)
     return readDate
 
-def list_rdcc_meshs(infor):
+def list_rdcc_meshs(infor):# 根据记录的信息返回当前读取缓存的模型列表
     #infor = r4f()
     cc_meshes = infor['cclst']
     readCcMsh = {}
@@ -75,9 +73,36 @@ def im_cache(infor,merge=None):
         listCon = imp_abc[0].listConnections(p=True,c=True)
         return {'cache':{imp_abc[0].name():listCon},'objs':{sel_nms:con_cc_meshes}}
 
+    all_msg = abct.im_cache(info)
+    sel_objs = pm.selected()
+    mel.eval("DeleteHistory")
+    for ea in sel_objs:
+        for ea_attrGrp in [ea.translate, ea.rotate, ea.scale]:
+            for ea_attr in ea_attrGrp.children():
+                ea_attr.unlock()
 
+    abcnd = all_msg['cache'].keys()[0]
+    objs = all_msg['objs']
+    objs_dic = {}
+    for ea_sh in all_msg['objs'].values()[0].keys():
+        objs_dic[ea_sh.name(stripNamespace=True)] = ea_sh
+    for ea_tr in all_msg['objs'].values()[0].values():
+        objs_dic[ea_tr.name(stripNamespace=True)] = ea_tr
 
+    undone = {}
 
+    for ea_con_pare in all_msg['cache'].values()[0]:
+        out_abc_at = ea_con_pare[0]
+        in_dg_at = ea_con_pare[1]
+        in_dg_at_nm = in_dg_at.name()
+        in_dg_nd_nm = in_dg_at.nodeName()
+        in_attr_lnm = in_dg_at.longName()
+        need_node = objs_dic[in_dg_nd_nm]
+        try:
+            need_node = objs_dic[in_dg_nd_nm]
+        except:
+            undone[ea_con_pare[0]] = ea_con_pare[1]
+    out_abc_at >> need_node.attr(in_attr_lnm)
 
 
     # AlembicImportOptions;

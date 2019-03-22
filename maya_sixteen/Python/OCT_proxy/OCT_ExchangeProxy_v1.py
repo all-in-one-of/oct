@@ -256,6 +256,7 @@ class OCT_ExchangeProxy(object):
         if len(lst_needCp['cp']):
             for ea_ndcp in lst_needCp['cp']:
                 copyFromDir = lst_needCp['cp'][ea_ndcp][0]
+                if os.path.isdir(copyFromDir):continue
                 print "COPY FROM ===== {}".format(copyFromDir)
                 #if not os.path.splitext(copy2Dir)[-1] == "":
                 copy2Dir = os.path.dirname(lst_needCp['cp'][ea_ndcp][1])

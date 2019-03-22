@@ -9,8 +9,9 @@ I love animals. They taste delicious.
 """
 import pymel.core as pm
 import json
-import os
-
+import os,re
+import maya.mel as mel
+import maya.cmds as mc
 def write_lightLinks(sourceGrps):
     ws = pm.workspace.name
     out_file = {}
@@ -46,13 +47,33 @@ def doLink(targGrp, srcGrpNSP):
         l_tuple = [ealight for ealight in readInfo[getKey]]
         pm.lightlink(object = eaObj, light=l_tuple)
     return ret_dic
-def DupLightLink(prnt=False):
-    sel_groups = pm.selected()
-    if len(sel_groups) !=2: pm.error("Please select 2 group: 1--source character; 2--target group")
-    readDate =  write_lightLinks(sel_groups[0])
-    result = doLink(sel_groups[1],readDate.keys()[0])
-    if not prnt:
+def DupLightLink(haveRndLayer = False):
+    if not haveRndLayer:
+        sel_groups = pm.selected()
+        if len(sel_groups) !=2: pm.error("Please select 2 group: 1--source character; 2--target group")
+        readDate =  write_lightLinks(sel_groups[0])
+        result = doLink(sel_groups[1],readDate.keys()[0])
         print(u"  一 一 ！！！ 歪歪歪！！ light linked done!!!!")
-    for eaRes in result:
-        for eaitm in result[eaRes]:
-            print (eaRes,eaitm)
+        for eaRes in result:
+            for eaitm in result[eaRes]:
+                print (eaRes,eaitm)
+    else:
+        sel_obj = pm.selected()
+        src_grp = sel_obj[0]
+        targ_grp = sel_obj[1]
+        allRndL = [eaRl for eaRl in pm.ls(type='renderLayer') if not re.search('defaultrenderlayer', eaRl.name(), re.I)]
+        allRndL.extend([eaRl for eaRl in pm.ls(type='renderLayer') if eaRl.name() == 'defaultRenderLayer'])
+        for cur_rl in allRndL:
+            # cur_rl = allRndL[0]
+            cur_rl.setCurrent()
+
+            if cur_rl.inLayer(src_grp) and not cur_rl.inLayer(targ_grp):
+                cur_rl.addMembers(targ_grp)
+            # list lights linked
+            mel.eval("selectLightsIlluminating {}".format(src_grp.name()))
+            cur_link_light = pm.selected()
+            # cur_link_light_nm = [e_l.name() for e_l in cur_sel_light]
+            pm.select(targ_grp, add=True)
+            pm.lightlink(make=True, useActiveLights=True, useActiveObjects=True)
+            print("=============light linked succeed !!!  in renderLayer {}".format(cur_rl.name()))
+        print("All Light Linked to new Character !!!!!!!")

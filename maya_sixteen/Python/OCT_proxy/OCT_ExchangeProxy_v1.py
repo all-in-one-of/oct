@@ -73,6 +73,7 @@ class OCT_ExchangeProxy(object):
                     cp_prx = pm.instance(im_objs[ea_prx_type]['needRep'],st=True)
                     cp_prx_trn = cp_prx[0]
                     print ('instance object {}'.format(cp_prx))
+
                 else:
                     cp_prx = pm.duplicate(im_objs[ea_prx_type]['needRep'], rr=True)
                     cp_prx_trn = cp_prx[0]
@@ -118,23 +119,26 @@ class OCT_ExchangeProxy(object):
             print ("parse proxy file {}".format(ea_prx),":::::",need_prxs_date[ea_prx])
             if need_prxs_date[ea_prx] == '':
                 self.nowayEx.append("can not finde the Proxy File on proxy repository ::: {}".format(ea_prx))
+                continue
             prx_f_bsnm = os.path.splitext(ea_prx)[0]
             prx_f_bsnm_nornder = re.sub('(_AR|_VR)', '', prx_f_bsnm)
             src_type = re.search('(_AR|_VR)', prx_f_bsnm).group().strip("_")
             src_file_ext = os.path.splitext(ea_prx)[-1]
             current_prx_servDir = need_prxs_date[ea_prx]
-            print("line 124"), current_prx_servDir
-            print self.path_spl_ch[src_file_ext]
+            # print("line 124"), repr(current_prx_servDir)
+            print repr(self.path_spl_ch[src_file_ext])
             curr_prx_servDir_split = current_prx_servDir.split(self.path_spl_ch[src_file_ext])
             # print "line 126",curr_prx_servDir_split
-            # raise
-            if len(curr_prx_servDir_split) == 1: curr_prx_servDir_split = current_prx_servDir.split('\\')
+            # print ("line 131 : split path length :  {}".format(curr_prx_servDir_split))
+            if len(curr_prx_servDir_split) <= 2: curr_prx_servDir_split = current_prx_servDir.split('\\')
             print('\n'.join(curr_prx_servDir_split))
+            # raise
+            # print("line 135",os.sep)
             folder_indx = curr_prx_servDir_split.index(self.keywd2dir[src_file_ext])
             # 代理工程路径
-            prx_proj_pth = self.path_spl_ch[src_file_ext].join(curr_prx_servDir_split[:folder_indx - 1])
+            prx_proj_pth = os.path.abspath((os.sep).join(curr_prx_servDir_split[:folder_indx - 1]))
             # 存放当前代理的 上层路径
-            above_folder = self.path_spl_ch[src_file_ext].join(curr_prx_servDir_split[:folder_indx])
+            above_folder = os.path.abspath((os.sep).join(curr_prx_servDir_split[:folder_indx]))
             # 替换的文件 信息
             targ_above_folder = above_folder
             if re.search('MOD', trg_type):
@@ -142,8 +146,9 @@ class OCT_ExchangeProxy(object):
             targ_prx_dir = '{}{}{}'.format(targ_above_folder, self.path_spl_ch[src_file_ext], self.keywd2dir[trg_type])
             sub_str = re.sub('_MOD', '_{}'.format(src_type), self.prx_im_f_ext_dic[trg_type])
             targ_imf_nm = re.sub(self.prx_im_f_ext_dic_vr[src_type], sub_str, ea_prx)
+            # print ("line 148",targ_prx_dir)
             # 导入的文件 需要copy的文件
-            imf_pth_full = '{}{}{}'.format(targ_prx_dir, self.path_spl_ch[src_file_ext], targ_imf_nm)
+            imf_pth_full = '{}{}{}'.format(targ_prx_dir, '\\', targ_imf_nm)
             sub_str_2 = re.sub('scenes', '{}_txt'.format(prx_f_bsnm_nornder), self.keywd2dir[trg_type])
             need_cp_src = [os.path.abspath("{}{}/sourceimages/{}".format(prx_proj_pth, self.path_spl_ch[trg_type], sub_str_2))]
             move2Dir = os.path.abspath(os.path.join(self.cur_prj, 'sourceimages'))
@@ -153,6 +158,8 @@ class OCT_ExchangeProxy(object):
             lst_needCp = self.listNeedCopy(need_cp_src)
             # print(lst_needCp)
             need_info = self.doCopy(lst_needCp, trg_type)
+            # print ("line158 ",imf_pth_full)
+            # raise
             # print need_info
             # raise Exception("TD Check")
             im_prxs_dict[ea_prx] = self.import_Prx(imf_pth_full, prx_f_bsnm_nornder, trg_type, need_info)
@@ -166,6 +173,8 @@ class OCT_ExchangeProxy(object):
         existAistds = None
         if trg_type == 'AR': existAistds = pm.ls(type='aiStandIn')
         #raise Exception("TD Check")
+        print  imf_pth_full
+        # raise
         mc.file(imf_pth_full, i=True, type=self.im_f_t[trg_type], ra=True, ns=im_ns, pr=True, mergeNamespacesOnClash=False, options="v=0",
                 loadReferenceDepth="all")
         im_grp = pm.ls("{}*:*".format(im_ns))

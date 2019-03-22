@@ -12,7 +12,7 @@ import json
 import re
 import maya.cmds as mc
 import os
-
+import maya.mel as mel
 if not mc.pluginInfo("AbcImport",q=True,loaded=True):
     mc.loadPlugin('AbcImport',quiet = True)
 
@@ -23,7 +23,7 @@ def wr2f(doCache=True):## ===== 动画师 输出 缓存 和 记录 选择模型�
     nmsp = selObj[0].namespace().strip(':')
     for ea in selObj:
         needName = ea.stripNamespace().strip()
-        new_add[needName] = ea.longName(stripNamespace=True)
+        new_add[needName] = None
     wsp = pm.workspace.name
     with open(r"{}/{}_caOBjList.json".format(wsp,nmsp), 'w') as f:
         f.write(json.dumps(new_add, indent=4))
@@ -40,7 +40,7 @@ def r4f():#=== 选择缓存和记录模型的文件
         if ext == ".abc": readDate['abc'] = af
         elif ext == '.json': readDate['js'] = af
     with open(readDate['js'], 'r') as f:
-        readDate['cclst']= json.load(f)
+        readDate['cclst']= json.load(f).keys()
     return readDate
 
 def list_rdcc_meshs(infor):# 根据记录的信息返回当前读取缓存的模型列表
@@ -54,7 +54,7 @@ def list_rdcc_meshs(infor):# 根据记录的信息返回当前读取缓存的模
         if ea_p.name(stripNamespace=True) in cc_meshes and eaMesh not in readCcMsh: readCcMsh[eaMesh] = ea_p
     pm.select(readCcMsh.values(),r=True)
     return readCcMsh
-
+#导入缓存合并模式如果有缓存物体非rigging 模式运动，读取缓存的物体的又锁定了transform定会有问题，所以如果不merge 就返回alembic node 的链接信息
 def im_cache(infor,merge=None):
     #infor = r4f()
     sel_chr = pm.selected()[0]
@@ -71,7 +71,53 @@ def im_cache(infor,merge=None):
         imp_obj = mc.AbcImport(abc_f, mode='import')
         imp_abc = [eaAbc for eaAbc in pm.ls(type='AlembicNode') if eaAbc not in exist_abc]
         listCon = imp_abc[0].listConnections(p=True,c=True)
-        return {'cache':{imp_abc[0].name():listCon},'objs':{sel_nms:con_cc_meshes}}
+        return {'conmsg':{imp_abc[0].name():listCon},'objs':{sel_nms:con_cc_meshes}}
+
+def refeshObjs(sel_objs):#清除要读取缓存的物体的历史，解除transform 信息的lock
+    # sel_objs = pm.selected()
+    mel.eval("DeleteHistory")
+    for ea in sel_objs:
+        for ea_attrGrp in [ea.translate, ea.rotate, ea.scale]:
+            for ea_attr in ea_attrGrp.children():
+                ea_attr.unlock()
+    #
+    # info = abct.r4f()
+    # all_msg = abct.im_cache(info)
+
+def con_cc(all_msg, undone={'sec': {}, 'uncon': {}}):##适配版导入缓存，导入缓存文件后，读取abc node 的 information 再逐一链接
+    abcnd = all_msg['conmsg'].keys()[0]
+    objs = all_msg['objs']
+    objs_dic = {}
+    for ea_sh in all_msg['objs'].values()[0].keys():
+        objs_dic[ea_sh.name(stripNamespace=True)] = ea_sh
+    for ea_tr in all_msg['objs'].values()[0].values():
+        objs_dic[ea_tr.name(stripNamespace=True)] = ea_tr
+    for ea_con_pare in all_msg['conmsg'].values()[0]:
+        out_abc_at = ea_con_pare[0]
+        in_dg_at = ea_con_pare[1]
+        in_dg_at_nm = in_dg_at.name()
+        in_dg_nd_nm = in_dg_at.nodeName()
+        in_attr_lnm = in_dg_at.longName()
+        need_node = None
+        try:
+            need_node = objs_dic[in_dg_nd_nm]
+        except:
+            undone['sec'][ea_con_pare[0]] = ea_con_pare[1]
+        else:
+            try:
+                out_abc_at >> need_node.attr(in_attr_lnm)
+            except:
+                undone['uncon'][out_abc_at] = need_node.attr(in_attr_lnm)
+    # pm.select(undone.values())
+    if undone['sec'] == {}:
+        if undone['uncon']:
+            print ("there are connected failed attribute")
+            for item in undone['uncon']: print item
+        print("Cache connected!")
+        return None
+    for ea_un in undone:
+        sec_nd_at = undone[ea_un]
+        sec_nd = sec_nd_at.node()
 
     all_msg = abct.im_cache(info)
     sel_objs = pm.selected()
@@ -81,7 +127,7 @@ def im_cache(infor,merge=None):
             for ea_attr in ea_attrGrp.children():
                 ea_attr.unlock()
 
-    abcnd = all_msg['cache'].keys()[0]
+    abcnd = all_msg['conmsg'].keys()[0]
     objs = all_msg['objs']
     objs_dic = {}
     for ea_sh in all_msg['objs'].values()[0].keys():
@@ -91,7 +137,7 @@ def im_cache(infor,merge=None):
 
     undone = {}
 
-    for ea_con_pare in all_msg['cache'].values()[0]:
+    for ea_con_pare in all_msg['conmsg'].values()[0]:
         out_abc_at = ea_con_pare[0]
         in_dg_at = ea_con_pare[1]
         in_dg_at_nm = in_dg_at.name()

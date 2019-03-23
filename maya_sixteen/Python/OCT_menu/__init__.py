@@ -326,7 +326,8 @@ def makeMenu():
     
     mc.menuItem(d=1, parent="OCT_Light")
     mc.menuItem('lightLibrary', l=u'灯光库', ann=u'灯光库', c="OCT_lgt.lightLibrary()", parent="OCT_Light")
-
+    mc.menuItem(d=1, parent="OCT_Light")
+    mc.menuItem('duplicate light link', l=u'复制灯光链接', ann=u'复制灯光链接', c="OCT_lgt.zb_DupLightLink()", parent="OCT_Light")
 
     #渲染工具
     mc.menuItem(d=1, parent="OCT_ToolSetMN")

@@ -68,21 +68,28 @@ class OCT_ExchangeProxy(object):
                     eaPrxShp = eaPrxShp.attr('output').listConnections(sh=True,type='mesh')[0]
                 trns_nd = eaPrxShp.getParent()
                 grp_nd = trns_nd.getParent()
+                insToggle = False
                 cp_prx_trn = ""
                 if eaPrxShp.isInstanced():
                     cp_prx = pm.instance(im_objs[ea_prx_type]['needRep'],st=True)
                     cp_prx_trn = cp_prx[0]
                     print ('instance object {}'.format(cp_prx))
-
-                else:
+                    if grp_nd:# instance 的物体有时候在场景中不能被P到其他节点下，没有报错，就是P不进去，所以加了个判断，如果P不进去，就改成普通的duplicate
+                        try:
+                            cp_prx_trn.setParent(grp_nd)
+                            insToggle = True
+                        except:
+                            pm.delete(cp_prx_trn)
+                            insToggle = False
+                if not insToggle:
                     cp_prx = pm.duplicate(im_objs[ea_prx_type]['needRep'], rr=True)
                     cp_prx_trn = cp_prx[0]
                     if trg_type == 'VR':
                         get_vrmsh = im_objs[ea_prx_type]['needRep'].attr('inMesh').listConnections(type='VRayMesh',p=True)[0]
                         get_vrmsh >> cp_prx_trn.getShape().attr('inMesh')
-                if grp_nd:
-                    try: cp_prx_trn.setParent(grp_nd)
-                    except: raise Exception("TD Check")
+                    if grp_nd:
+                        try: cp_prx_trn.setParent(grp_nd)
+                        except: raise Exception("TD Check")
                 print ("rename =========ok")
                 trns_nd.translate >> cp_prx_trn.translate
                 trns_nd.rotate >> cp_prx_trn.rotate

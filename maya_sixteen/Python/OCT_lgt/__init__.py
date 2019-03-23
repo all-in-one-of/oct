@@ -967,3 +967,8 @@ def HYZX_eyeLight():
 
         slIt.next()
 
+def zb_DupLightLink_cmd():
+    res = mc.confirmDialog(t=u"复制灯光链接",message='1 先选择有灯光链接的原角色组\n2 再选择没有灯光链接的新角色组',button=['copy','No'])
+    if res == 'copy':
+        import OCT_lgt.zb_DupLightLink as dupll
+        dupll.DupLightLink()

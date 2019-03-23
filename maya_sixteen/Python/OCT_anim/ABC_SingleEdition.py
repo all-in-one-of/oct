@@ -15,8 +15,6 @@ import os
 import maya.mel as mel
 if not mc.pluginInfo("AbcImport",q=True,loaded=True):
     mc.loadPlugin('AbcImport',quiet = True)
-
-
 def wr2f(doCache=True):## ===== 动画师 输出 缓存 和 记录 选择模型信息文件 执行下
     selObj = pm.ls(sl=True)
     new_add = {}
@@ -28,7 +26,6 @@ def wr2f(doCache=True):## ===== 动画师 输出 缓存 和 记录 选择模型�
     with open(r"{}/{}_caOBjList.json".format(wsp,nmsp), 'w') as f:
         f.write(json.dumps(new_add, indent=4))
     if doCache: mc.AlembicExportSelectionOptions()
-
 
 def r4f():#=== 选择缓存和记录模型的文件
     wsp = pm.workspace.name
@@ -71,9 +68,10 @@ def im_cache(infor,merge=None):
         imp_obj = mc.AbcImport(abc_f, mode='import')
         imp_abc = [eaAbc for eaAbc in pm.ls(type='AlembicNode') if eaAbc not in exist_abc]
         listCon = imp_abc[0].listConnections(p=True,c=True)
+        pm.playbackOptions(e=True, min=imp_abc[0].attr('startFrame').get(), max=imp_abc[0].attr('endFrame').get())
         return {'conmsg':{imp_abc[0].name():listCon},'objs':{sel_nms:con_cc_meshes}}
 
-def refeshObjs(sel_objs):#清除要读取缓存的物体的历史，解除transform 信息的lock
+def refreshObjs(sel_objs):#清除要读取缓存的物体的历史，解除transform 信息的lock
     # sel_objs = pm.selected()
     mel.eval("DeleteHistory")
     for ea in sel_objs:
@@ -84,72 +82,38 @@ def refeshObjs(sel_objs):#清除要读取缓存的物体的历史，解除transf
     # info = abct.r4f()
     # all_msg = abct.im_cache(info)
 
-def con_cc(all_msg, undone={'sec': {}, 'uncon': {}}):##适配版导入缓存，导入缓存文件后，读取abc node 的 information 再逐一链接
-    abcnd = all_msg['conmsg'].keys()[0]
-    objs = all_msg['objs']
-    objs_dic = {}
-    for ea_sh in all_msg['objs'].values()[0].keys():
-        objs_dic[ea_sh.name(stripNamespace=True)] = ea_sh
-    for ea_tr in all_msg['objs'].values()[0].values():
-        objs_dic[ea_tr.name(stripNamespace=True)] = ea_tr
-    for ea_con_pare in all_msg['conmsg'].values()[0]:
-        out_abc_at = ea_con_pare[0]
-        in_dg_at = ea_con_pare[1]
-        in_dg_at_nm = in_dg_at.name()
-        in_dg_nd_nm = in_dg_at.nodeName()
-        in_attr_lnm = in_dg_at.longName()
-        need_node = None
-        try:
-            need_node = objs_dic[in_dg_nd_nm]
-        except:
-            undone['sec'][ea_con_pare[0]] = ea_con_pare[1]
-        else:
-            try:
-                out_abc_at >> need_node.attr(in_attr_lnm)
-            except:
-                undone['uncon'][out_abc_at] = need_node.attr(in_attr_lnm)
-    # pm.select(undone.values())
-    if undone['sec'] == {}:
-        if undone['uncon']:
-            print ("there are connected failed attribute")
-            for item in undone['uncon']: print item
-        print("Cache connected!")
-        return None
-    for ea_un in undone:
-        sec_nd_at = undone[ea_un]
-        sec_nd = sec_nd_at.node()
-
-    all_msg = abct.im_cache(info)
-    sel_objs = pm.selected()
-    mel.eval("DeleteHistory")
-    for ea in sel_objs:
-        for ea_attrGrp in [ea.translate, ea.rotate, ea.scale]:
-            for ea_attr in ea_attrGrp.children():
-                ea_attr.unlock()
-
-    abcnd = all_msg['conmsg'].keys()[0]
-    objs = all_msg['objs']
+def con_cc(refObjs=False,delSrc=False):# 通过导入的缓存信息  链接 目标物体的属性
+    infor = r4f()
+    all_msg = im_cache(infor)
+    if refObjs:refreshObjs(pm.selected())
     objs_dic = {}
     for ea_sh in all_msg['objs'].values()[0].keys():
         objs_dic[ea_sh.name(stripNamespace=True)] = ea_sh
     for ea_tr in all_msg['objs'].values()[0].values():
         objs_dic[ea_tr.name(stripNamespace=True)] = ea_tr
 
-    undone = {}
-
     for ea_con_pare in all_msg['conmsg'].values()[0]:
-        out_abc_at = ea_con_pare[0]
-        in_dg_at = ea_con_pare[1]
-        in_dg_at_nm = in_dg_at.name()
-        in_dg_nd_nm = in_dg_at.nodeName()
-        in_attr_lnm = in_dg_at.longName()
-        need_node = objs_dic[in_dg_nd_nm]
-        try:
-            need_node = objs_dic[in_dg_nd_nm]
-        except:
-            undone[ea_con_pare[0]] = ea_con_pare[1]
-    out_abc_at >> need_node.attr(in_attr_lnm)
+        cc_mesh = ea_con_pare[1].node()
+        if cc_mesh.name() not in objs_dic: continue
+        con_cc_mesh = objs_dic[cc_mesh.name()]
+        res_con = dup_connect(cc_mesh, con_cc_mesh,delSrc)
+        print res_con
 
+def dup_connect(src_obj, targ_obj,delSrc=False):#复制链接
+    con_msg = src_obj.listConnections(c=True, p=True, s=True, d=False)
+    con_msg_dic = dict((y, x) for x, y in con_msg)
+    con_faile = []
+    for ea_con in con_msg_dic:
+        try:
+            ea_con >> targ_obj.attr(con_msg_dic[ea_con].attrName())
+            print ("Attribute connected !!! {} >>> {}".format(ea_con.name(),targ_obj.attr(con_msg_dic[ea_con].attrName()).name()))
+        except:
+            con_faile.append({ea_con:targ_obj.attr(con_msg_dic[ea_con].attrName())})
+    if delSrc:
+        if src_obj.type() != 'transform': pm.delete(src_obj.getParent())
+        else:pm.delete(src_obj)
+    if len(con_faile): return con_faile
+    else: return ("Connected Done!!!")
 
     # AlembicImportOptions;
     # performAlembicImport 1 2;

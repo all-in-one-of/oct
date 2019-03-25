@@ -12,33 +12,35 @@ class k_ABC_procedure():
 	def k_getTargetInfo(self):
 
 		#获取需要输出abc目标的名字
-		k_targetObject = '|CDBWG_ch004001XiShi_h_ms_anim:allAnim|CDBWG_ch004001XiShi_h_ms_anim:Geo'
+		k_targetObject = '|CDMSS_ch001002MossV2_Hair_h_msAnim:allAnim|CDMSS_ch001002MossV2_Hair_h_msAnim:tou_new'
 		#取得abc文件路径名
 		k_sn = cc.file(q=1, sn=1)
 		scenesPath=os.path.split(k_sn)[0]
 		#ABC文件路径
-		ABCfile = r'E:\work\Themes\ABC\master\CDBWG_ch004001XiShi_h_ms_anim_Geo.abc'
+		ABCfile = r'E:\work\Themes\ABC\master\CDMSS_ch001002MossV2_Hair_h_msAnim:tou_new.abc'
 		#大组名称
-		topGroupName = 'CDBWG_ch004001XiShi_h_ms_anim:allAnim'
+		topGroupName = 'CDMSS_ch001002MossV2_Hair_h_msAnim:allAnim'
 
 
-		#获取需要输出abc目标的名字
-		k_targetObject2 = '|CDBWG_ch004001XiShi_h_ms_anim1:allAnim|CDBWG_ch004001XiShi_h_ms_anim1:Geo'
-		#取得abc文件路径名
-		k_sn = cc.file(q=1, sn=1)
-		scenesPath2=os.path.split(k_sn)[0]
-		#ABC文件路径
-		ABCfile2 = r'E:\work\Themes\ABC\master\CDBWG_ch004001XiShi_h_ms_anim1_Geo.abc'
-		#大组名称
-		topGroupName2 = 'CDBWG_ch004001XiShi_h_ms_anim1:allAnim'
+		# #获取需要输出abc目标的名字
+		# 		# k_targetObject2 = '|CDBWG_ch004001XiShi_h_ms_anim1:allAnim|CDBWG_ch004001XiShi_h_ms_anim1:Geo'
+		# 		# #取得abc文件路径名
+		# 		# k_sn = cc.file(q=1, sn=1)
+		# 		# scenesPath2=os.path.split(k_sn)[0]
+		# 		# #ABC文件路径
+		# 		# ABCfile2 = r'E:\work\Themes\ABC\master\CDBWG_ch004001XiShi_h_ms_anim1_Geo.abc'
+		# 		# #大组名称
+		# 		# topGroupName2 = 'CDBWG_ch004001XiShi_h_ms_anim1:allAnim'
+		# 		#
+		# 		# kresult=[{'targetObject':k_targetObject,'scenesPath':scenesPath,\
+		# 		# 		 'ABCfile':ABCfile,'topGroupName':topGroupName}, \
+		# 		# 		 {'targetObject': k_targetObject2, 'scenesPath': scenesPath2, \
+		# 		# 		  'ABCfile': ABCfile2, 'topGroupName': topGroupName2}\
+		# 		# 		 ]
 
-		kresult=[{'targetObject':k_targetObject,'scenesPath':scenesPath,\
-				 'ABCfile':ABCfile,'topGroupName':topGroupName}, \
-				 {'targetObject': k_targetObject2, 'scenesPath': scenesPath2, \
-				  'ABCfile': ABCfile2, 'topGroupName': topGroupName2}\
-				 ]
-
-
+		kresult = [{'targetObject': k_targetObject, 'scenesPath': scenesPath, \
+							 'ABCfile':ABCfile,'topGroupName':topGroupName}, \
+						 ]
 
 		return (kresult)
 

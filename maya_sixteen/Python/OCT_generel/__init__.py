@@ -13,6 +13,7 @@ import OCT_RenderSet_zwz
 import OCT_Associate_attribute_zwz
 import ui_Checkin
 import OCT_xGPUCache
+import OCT_edit_vrayZDepth_deadline
 
 def Unload_Plugins():
    import UnloadPlugin
@@ -122,6 +123,9 @@ def submitMayaToDeadline_zwz(type):
                 # if effectFile == 'Yes':
                 #     CopyJob = OCT_deadline_submit_zwz.CopyProject()
                 #     CopyJob.main(5, i.myUseRender)
+                #弹窗提示 修改vray ZDepth参数
+                OCT_edit_vrayZDepth_deadline.edit_vrayZDepth_deadline()
+
                 i.show()
         else:
             mc.confirmDialog(title=u'温馨提示：', message=u'提交功能仅支持灯光组和后期组使用本工具！', button=['OK'], defaultButton='Yes', dismissString='No')

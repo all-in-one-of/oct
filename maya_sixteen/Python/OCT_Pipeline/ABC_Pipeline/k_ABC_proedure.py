@@ -17,7 +17,7 @@ class k_ABC_procedure():
 		k_sn = cc.file(q=1, sn=1)
 		scenesPath=os.path.split(k_sn)[0]
 		#ABC文件路径
-		ABCfile = r'E:\work\Themes\ABC\master\CDMSS_ch001002MossV2_Hair_h_msAnim:tou_new.abc'
+		ABCfile = r'E:\work\Themes\ABC\master\CDMSS_ch001002MossV2_Hair_h_msAnim_tou_new.abc'
 		#大组名称
 		topGroupName = 'CDMSS_ch001002MossV2_Hair_h_msAnim:allAnim'
 
@@ -91,7 +91,7 @@ class k_ABC_procedure():
 				print (unresolveRef)
 				RNRef = cc.referenceQuery(resolveRef, referenceNode=1)
 				print (RNRef)
-				rep_unresolveRef=unresolveRef.replace('anim','render')
+				rep_unresolveRef=unresolveRef.replace('msAnim','msrender')
 				cc.file(rep_unresolveRef, loadReference=RNRef)
 
 	def excuteImpABC(self, kargs):
@@ -146,6 +146,7 @@ class k_ABC_procedure():
 		# print(ABCNodename)
 
 		list_abcShapes = cc.listConnections(ABCNodename, s=0, sh=1, type='mesh')
+
 		for abcShape in list_abcShapes:
 			singleAbcShapeConnect = cc.listConnections(abcShape, d=0, sh=1, c=1, p=1)
 			# print(singleAbcShapeConnect)
@@ -162,6 +163,26 @@ class k_ABC_procedure():
 				cc.connectAttr(singleAbcShapeConnect[1], ConnectShape, f=1)
 			except Exception as e:
 				print (e)
+
+		list_abcTranform = cc.listConnections(ABCNodename, s=0, sh=1, scn=1, type='transform')
+		list_abcTranform = list(set(list_abcTranform))
+
+		for abcTranform in list_abcTranform:
+			singleAbcTranformConnect = cc.listConnections(abcTranform, d=0, sh=1, c=1, scn=1, p=1)
+
+			for i in range(len(singleAbcTranformConnect)):
+				if i % 2 == 1:
+					kcode = re.compile("^k_tempGroup\|\S*")
+					if not kcode.search(singleAbcTranformConnect[i - 1]):
+						raise Exception("had not match TopGroup!")
+					connectShape = kcode.search(singleAbcTranformConnect[i- 1]).group()
+
+					ConnectShape = re.sub("^k_tempGroup", topGroupName, connectShape)
+
+					try:
+						cc.connectAttr(singleAbcTranformConnect[i], ConnectShape, f=1)
+					except Exception as e:
+						print (e)
 
 		try:
 			cc.delete('k_tempGroup')

@@ -238,6 +238,9 @@ def makeMenu():
     mc.menuItem('KLJZ_DistanceToScale', label=u'KLJZ DistanceToScale', ann=u'KLJZ DistanceToScale', to=True, c='OCT_anim.kljz_dst()', parent="OCT_Animation")
     mc.menuItem(d=1, parent="OCT_Animation")
     mc.menuItem('studiolibrary', label=u'studiolibrary动作库工具', ann=u'studiolibrary动作库工具', to=True, c='OCT_anim.studionLibrarys()', parent="OCT_Animation")
+    mc.menuItem(d=1, parent="OCT_Animation")
+    mc.menuItem(d=1, parent="OCT_Animation")
+    mc.menuItem('abcSgl_mi', label=u'单角色版缓存工具', ann=u'单个角色导入导出缓存', to=True, c='OCT_anim.OCT_abcSglEdition()', parent="OCT_Animation")
 
     #设置工具
     mc.menuItem(d=1, parent="OCT_ToolSetMN")

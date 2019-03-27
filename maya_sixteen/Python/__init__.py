@@ -40,6 +40,7 @@ import OCT_animImEx
 import OCT_rigging
 import Themes
 import OCT_Projects
+import OCT_Pipeline
 
 sys.stdin = maya.app.baseUI.StandardInput()
 sys.stdout = maya.utils.Output()

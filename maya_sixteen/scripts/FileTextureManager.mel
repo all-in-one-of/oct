@@ -1331,10 +1331,10 @@ global proc FTM_Function (string $FTM_Function, string $FTM_OptionColumn, int $m
 		if (!$wrong) {
 						// Define command for function.
 			string $FTM_FunctionCmd;
+			$sequence_copy_path = substituteAll ("\\\\", $sequence_copy_path, "/");
 			if ($FTM_Function == "Copy"){
 				python("import OCT_util.Utils as utils");  // python copy sequence texture 
 				string $pythonCmd = "utils.Copy_Sequence_Texture_File(r'" + $sequence_copy_path + "', 'copy')";
-				print $sequence_copy_path;
 				python($pythonCmd);
 				$FTM_FunctionCmd = "sysFile -cp ";
 			}

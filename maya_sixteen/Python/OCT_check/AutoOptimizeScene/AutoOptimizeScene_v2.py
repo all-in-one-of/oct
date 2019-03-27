@@ -26,7 +26,7 @@ import deleteUnUseVRayMesh
 pyObject = omu.MQtUtil.mainWindow ()
 mainWindow = sip.wrapinstance (long (pyObject), QtGui.QWidget)
 
-uiFile = scriptsPath + '/ui/AutoOptimizeScene.ui'
+uiFile = scriptsPath + '/myuis/AutoOptimizeScene.myuis'
 print uiFile 
 formClass, baseClass = uic.loadUiType (uiFile)
 

@@ -525,7 +525,7 @@ class paintContext (object):
 
     def createObject(self,intersection):
         '''
-        will create the object at the intersection object gathered data, pending all ui and transform options
+        will create the object at the intersection object gathered data, pending all myuis and transform options
         will update the stored data to store the created object DAG path and return the newly created object DAG Path back
         '''
 

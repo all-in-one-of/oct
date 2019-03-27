@@ -184,7 +184,7 @@ class YetiFile_Tools(QtGui.QDialog):
         #取的控件
         treeWidget = self.ui.treeWidget
         ChangePushButton = self.ui.ChangePushButton
-        # checkPushButton = self.ui.checkPushButton
+        # checkPushButton = self.myuis.checkPushButton
         ChangeSelectedPushButton = self.ui.ChangeSelectedPushButton
         SelectAllPushButton = self.ui.SelectAllPushButton
         copySelectPushButton = self.ui.copySelectPushButton

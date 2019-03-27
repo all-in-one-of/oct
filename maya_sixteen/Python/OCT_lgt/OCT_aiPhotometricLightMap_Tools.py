@@ -168,12 +168,12 @@ class aiPhotomeLightFile_Tools(QtGui.QDialog):
     def setUpGui(self):
         #取的控件
         treeWidget = self.ui.treeWidget
-        #ChangePushButton = self.ui.ChangePushButton
+        #ChangePushButton = self.myuis.ChangePushButton
         checkPushButton = self.ui.checkPushButton
         ChangeSelectedPushButton = self.ui.ChangeSelectedPushButton
         SelectAllPushButton = self.ui.SelectAllPushButton
         copySelectPushButton = self.ui.copySelectPushButton
-        #copyAllPushButton = self.ui.copyAllPushButton
+        #copyAllPushButton = self.myuis.copyAllPushButton
         #按钮的链接
         #ChangePushButton.clicked.connect(self.ChangeAll)
         ChangeSelectedPushButton.clicked.connect(self.ChangeSelected)

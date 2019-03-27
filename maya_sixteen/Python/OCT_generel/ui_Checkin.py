@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui_Checkin.ui'
+# Form implementation generated from reading myuis file 'ui_Checkin.myuis'
 #
 # Created: Mon Aug 12 10:54:27 2013
 #      by: PyQt4 UI code generator 4.9

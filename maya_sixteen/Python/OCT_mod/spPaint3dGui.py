@@ -422,7 +422,7 @@ class spPaint3dWin (object):
     Main UI window class definition
     '''
     def __init__(self):
-        #delete ui window if opened
+        #delete myuis window if opened
         if mc.window(spPaint3dGuiID, exists=True): mc.deleteUI(spPaint3dGuiID);
         #removing delete prefs to prevent issues when window is spawned outside of display on mac?
         #if mc.windowPref(spPaint3dGuiID, exists=True): mc.windowPref(spPaint3dGuiID, remove=True);
@@ -584,7 +584,7 @@ class spPaint3dWin (object):
         
         mc.showWindow(self.uiWin)
         self.resizeWindow('winui', spPaint3dGuiID_Height) # force a resize to prevent some weird UI issue on mac
-        if(sp3d_log): self.debugFrameSize() #display actual corrected ui frame sizes
+        if(sp3d_log): self.debugFrameSize() #display actual corrected myuis frame sizes
         
 
     def uiTransformCallback(self, *args):
@@ -670,7 +670,7 @@ class spPaint3dWin (object):
 
     def updateUIControls(self, ui):
         '''
-        Will update the self ui controls with the values stores in the passed instance object
+        Will update the self myuis controls with the values stores in the passed instance object
         '''
         mc.checkBox(self.uiTransformRotateCheck, edit=True, value=ui.transformRotate)
         mc.checkBox(self.uiTransformScaleCheck, edit=True, value=ui.transformScale)
@@ -917,7 +917,7 @@ class spPaint3dWin (object):
 
     def updateUISetupControls(self, ui):
         '''
-        Will update the self ui controls with the values stores in the passed instance object
+        Will update the self myuis controls with the values stores in the passed instance object
         '''
         if(sp3d_log): print ui.__dict__
         mc.checkBoxGrp(self.uiSetupChkInputConn, edit=True, value1=ui.preserveConn)
@@ -933,7 +933,7 @@ class spPaint3dWin (object):
 
         # toggling the proper hierarchy grouping options
         mc.checkBoxGrp(self.uiSetupHierarchyActive, edit=True, value1=ui.hierarchy)
-        if(sp3d_log): print ("ui.hierarchy %s" % ui.hierarchy)
+        if(sp3d_log): print ("myuis.hierarchy %s" % ui.hierarchy)
         if (ui.hierarchy):
             #toggling radio button enabled
             if(sp3d_log): print "toggling grouping option ON"

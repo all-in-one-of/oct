@@ -85,7 +85,7 @@ def app():
 
 def uiPath(cls):
     """
-    Return the ui path for the given widget class.
+    Return the myuis path for the given widget class.
     
     :type cls: type
     :rtype: str
@@ -94,7 +94,7 @@ def uiPath(cls):
     path = inspect.getfile(cls)
     dirname = os.path.dirname(path)
 
-    path = dirname + "/resource/ui/" + name + ".ui"
+    path = dirname + "/resource/myuis/" + name + ".myuis"
     return path
 
 

@@ -85,10 +85,10 @@ QtCompat = self
 
 
 def convert(lines):
-    """Convert compiled .ui file from PySide2 to Qt.py
+    """Convert compiled .myuis file from PySide2 to Qt.py
 
     Arguments:
-        lines (list): Each line of of .ui file
+        lines (list): Each line of of .myuis file
 
     Usage:
         >> with open("myui.py") as f:
@@ -302,7 +302,7 @@ def cli(args):
     parser.add_argument("--convert",
                         help="Path to compiled Python module, e.g. my_ui.py")
     parser.add_argument("--compile",
-                        help="Accept raw .ui file and compile with native "
+                        help="Accept raw .myuis file and compile with native "
                              "PySide2 compiler.")
     parser.add_argument("--stdout",
                         help="Write to stdout instead of file",

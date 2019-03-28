@@ -50,7 +50,7 @@ if UserName:
         m.addCommand(u'Import Right Images', 'OCT_AddRightImages_zwz.do_AddRightImages_zwz()')
         m.addCommand(u'Left To Right Images', 'OCT_LeftToRightImages_zwz.do_LeftToRightImages_zwz()')
         #m.addCommand(u'Left Right connect', 'newmenu.LeftRightCon()')
-        m.addCommand(u'Left Right Images connect', 'newmenu.MergeCamLeftRightCon()')
+        m.addCommand(u'Left Right Images connect', 'newmenu.MergeCamLeftRightCon()',"alt+M")
 
         m.addCommand(u'CheckFile On Net', 'OCT_CheckFileOnNet_zwz.ChckFileOnnet_uui()')
         m.addCommand(u'AnimationCurve_convert', 'OCT_animationCurve_convert_zxy.animationCurve_convert()')

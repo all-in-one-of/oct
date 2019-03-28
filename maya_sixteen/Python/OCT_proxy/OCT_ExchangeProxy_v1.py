@@ -16,17 +16,40 @@ import json
 import shutil
 import time
 import copy
+import sip
+import maya.OpenMayaUI as mui
+import OCT_proxy.uis.exProxy_win_ui as exprxy
+reload(exprxy)
+
+import PyQt4.QtCore as qc
+import PyQt4.QtGui as qg
 from stat import ST_ATIME, ST_CTIME, ST_MTIME
 import subprocess
 
+def getMayaWindow():
+    """
+    get the maya main window as a QMainWndow instance
+    :return:
+    """
+    ptr = mui.MQtUtil.mainWindow()
+    return sip.wrapinstance(long(ptr),qc.QObject)
 
-class OCT_ExchangeProxy(object):
+
+
+
+class OCT_ExchangeProxy(qg.QMainWindow,exprxy.Ui_exchProxyWin):
     """
     大的场景，很多代理在布置场景的时候用的instance 的方式，之前的代理替换工具对于关联复制的代理物体替换存在位置不能正确匹配的情况
     重写
     """
 
-    def __init__(self):
+    def __init__(self,parent=getMayaWindow()):
+
+        super(OCT_ExchangeProxy,self).__init__(parent)
+        self.setupUi(self)
+
+        self.move(100,200)
+        #======= exchange proxy relatives local variables==========================================
         self.keywd2dir = {'AR': 'arnoldtex', 'VR': 'Vray_DL', '.ass': 'arnoldtex', '.vrmesh': 'Vray_DL', 'AR_MOD': 'scenes', 'VR_MOD': 'scenes',
                           'MOD': 'scenes'}  # via key words get proxy file store folder name
         self.prx_file_attr = {'aiStandIn': 'dso', 'VRayMesh': 'fileName2', 'AR': 'dso', 'VR': 'fileName','file':'fileTextureName'}  # each type proxy node has different attribute name
@@ -55,13 +78,38 @@ class OCT_ExchangeProxy(object):
         self.nowayEx = []
         self.cur_prj = pm.workspace.name
 
-    def ExchangeProxy(self, prx_type, trg_type, ifAll=None):
+        self.ui2prxy = {'Arnold Proxy':'AR','Vray Proxy':'VR','Model':'MOD'}
+        #=====================================about ui config======================================
+        self.ex_bt.clicked.connect(self.ex_cc_bt_cmd)
+
+
+    def ex_cc_bt_cmd(self):#通过UI获得用户选择的信息再执行替换操作
+        ifAll = None
+        ex_mode  = self.sel_all_grp.checkedButton().text()
+        if ex_mode == 'selected objects': ifAll = 'sel'
+        elif ex_mode == 'All Proxy': ifAll = 'all'
+        prx_type = None
+        src_pr_tp = self.srcGrp.checkedButton().text()
+        if src_pr_tp == 'Arnold Proxy':prx_type = 'aiStandIn'
+        elif src_pr_tp == 'VRay Proxy':prx_type = 'VRayMesh'
+        trg_type = None
+        targ_pr_tp = self.targGrp.checkedButton().text()
+        if targ_pr_tp == 'Arnold Proxy':trg_type = 'AR'
+        elif targ_pr_tp == 'VRay Proxy':trg_type = 'VR'
+        elif targ_pr_tp == 'Model':trg_type = 'MOD'
+        rep_count = self.ExchangeProxy(prx_type,trg_type,ifAll)
+        #re_str = unicode(qc.QString(self.re_lb.text()), 'utf-8', 'ignor')
+        re_str_new = u'共替换了：{:d}个{}代理'.format(rep_count,src_pr_tp)
+        self.re_lb.setText(re_str_new)
+
+    def ExchangeProxy(self, prx_type, trg_type, ifAll=None):#执行替换
         sel_prxs_dict = self.list_prxys_dict(self.get_prxs(prx_type, ifAll))
         need_prxs_date = self.nessesary_prxDcit(sel_prxs_dict)
         # src_type = 'AR'
         # trg_type = 'VR'
         im_objs = self.imp_all_prxs(need_prxs_date, trg_type)
         #print im_objs
+        rpl_cnt = 0
         for ea_prx_type in sel_prxs_dict:  # pass
             for eaPrxShp in sel_prxs_dict[ea_prx_type]:  # pass
                 if prx_type == 'VRayMesh':
@@ -95,9 +143,10 @@ class OCT_ExchangeProxy(object):
                 trns_nd.rotate >> cp_prx_trn.rotate
                 trns_nd.scale >> cp_prx_trn.scale
                 pm.delete(trns_nd)
+                rpl_cnt += 1
         for ea_v in im_objs.values():
             pm.delete(ea_v['trans'])
-
+        return rpl_cnt
     def getInstances(self):  # get all instance shape node list
         instances = []
         iterDag = om.MItDag(om.MItDag.kBreadthFirst)
@@ -117,7 +166,7 @@ class OCT_ExchangeProxy(object):
             mc.delete(parent)
             instances = self.getInstances()
 
-    def imp_all_prxs(self, need_prxs_date, trg_type):
+    def imp_all_prxs(self, need_prxs_date, trg_type):#导入所有需要导入的代理
         im_prxs_dict = {}
         for ea_prx in need_prxs_date:
             # ea_prx = need_prxs_date.

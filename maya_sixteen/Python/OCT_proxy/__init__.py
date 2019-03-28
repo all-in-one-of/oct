@@ -44,3 +44,11 @@ def VRayProxyChangeModel():
 def proxyChanges():
 	import OCT_ALLVRayProxyChangeArnoldProxy
 	OCT_ALLVRayProxyChangeArnoldProxy.proxyChange()
+
+def ExchangeProxy4Instance():
+	import OCT_ExchangeProxy_v1 as oep
+	if (mc.window('exchProxyWin', exists=True, q=True)):
+		mc.deleteUI('exchProxyWin')
+	inWin = oep.OCT_ExchangeProxy()
+	inWin.show()
+	inWin.raise_()

@@ -159,7 +159,10 @@ def makeMenu():
     mc.menuItem('VRayProxyChangeModel', label=u'VRay代理转Model(代理库中的路劲名相似)', ann=u'VRay代理转Model', c='OCT_proxy.VRayProxyChangeModel()', parent="OCT_proxys")
     mc.menuItem('VRayProxyChangeArnoldProxy', label=u'VRay代理转Arnold代理(代理路径、代理名相同，后缀名不同)', ann=u'VRay代理转Arnold代理', c='OCT_proxy.proxyChanges()', parent="OCT_proxys")
     # mc.menuItem("FindVrayProxyes", label=u'查找VrayMesh的代表物体', ann=u'查找VrayMesh的代表物体', c='OCT_lgt.FindVrayProxys()', parent="OCT_proxys")
-    
+    mc.menuItem(d=1, parent="OCT_proxys")
+    mc.menuItem(d=1, parent="OCT_proxys")
+    mc.menuItem('exPrx4Ins_mi', label=u'替换代理-关联复制(instance)版', ann=u'代理替换工具(可替换关联复制(instance)代理)\n可保持关联复制', c='OCT_proxy.ExchangeProxy4Instance()', parent="OCT_proxys")
+
 
     #摄像机工具
     mc.menuItem(d=1, parent="OCT_ToolSetMN")

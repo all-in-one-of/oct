@@ -26,9 +26,9 @@ except AttributeError:
 class Ui_abcS_win(object):
     def setupUi(self, abcS_win):
         abcS_win.setObjectName(_fromUtf8("abcS_win"))
-        abcS_win.resize(418, 305)
+        abcS_win.resize(515, 4220)
         abcS_win.setMinimumSize(QtCore.QSize(415, 300))
-        abcS_win.setMaximumSize(QtCore.QSize(418, 350))
+        abcS_win.setMaximumSize(QtCore.QSize(515, 420))
         self.centralwidget = QtGui.QWidget(abcS_win)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         abcS_win.setCentralWidget(self.centralwidget)

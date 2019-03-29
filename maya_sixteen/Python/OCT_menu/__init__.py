@@ -393,6 +393,9 @@ def makeMenu():
     mc.menuItem("nb_cur", label=u"选择模型开口的一圈线创建模型中心曲线", ann=u'选择模型开口的一圈线创建模型中心曲线', c='OCT_hair.nb_cur()', parent="OCT_Hair")
     mc.menuItem("hairballUI", label=u"编辑曲线物体中间生成线", ann=u'编辑曲线物体中间生成线', c='OCT_hair.hairTool()', parent="OCT_Hair")
 
+    # pipeline tools
+    mc.menuItem(d=1, parent="OCT_ToolSetMN")
+    mc.menuItem("OCT_Pipeline_mi", label=u'缓存流程', ann=u'缓存流程相关工具', subMenu=True, to=True, parent="OCT_ToolSetMN")
 
     #旧工具
     mc.menuItem(d=1, parent="OCT_ToolSetMN")
@@ -445,7 +448,11 @@ def makeMenu():
     # OCT_UpdateReferenceRemind()
     
     # mc.scriptJob(event=("PostSceneRead",OCT_UpdateReferenceRemind))
-
+   # load_ppl_mune_m()
+def load_ppl_mune_m():#load pipeline menu item
+    import OCT_Pipeline
+    OCT_Pipeline.call_load_pl_menu()
+    print("Pipeline menu loaded successful!")
 def installTab(projectName):
     mm.eval("addNewShelfTab(\"%s\")" % projectName)
 

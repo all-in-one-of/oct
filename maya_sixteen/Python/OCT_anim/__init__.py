@@ -109,7 +109,7 @@ def OCT_deleteKeyFrames():
     i.deleteKey()
 
 def OCT_abcSglEdition():
-    import OCT_Pipeline.ABC_Pipeline.ABC_SingleEdition as abcs
+    import OCT_Pipeline.scripts.ABC_Pipeline.ABC_SingleEdition as abcs
     reload(abcs)
     if (mc.window('abcS_win', exists=True, q=True)):
         mc.deleteUI('abcS_win')

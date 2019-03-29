@@ -213,6 +213,7 @@ class OCT_ExchangeProxy(qg.QMainWindow,exprxy.Ui_exchProxyWin):
                 need_cp_src.append(os.path.abspath("{}{}/sourceimages/{}_txt".format(prx_proj_pth, self.path_spl_ch[trg_type], prx_f_bsnm_nornder)))
             lst_needCp = self.listNeedCopy(need_cp_src)
             # print(lst_needCp)
+            # raise Exception ("TD TEST")
             need_info = self.doCopy(lst_needCp, trg_type)
             # print ("line158 ",imf_pth_full)
             # raise
@@ -342,7 +343,7 @@ class OCT_ExchangeProxy(qg.QMainWindow,exprxy.Ui_exchProxyWin):
             if re.search(self.prx_need_assign[trg_type][0], each):
                 need_asign_msg['im'][each] = need_asign_msg['other'][each]
                 need_asign_msg['other'].pop(each)
-            elif re.search('(.jpg)',each):
+            elif re.search('(.jpg)',each,re.I):
                 need_asign_msg['txt'][each] = need_asign_msg['other'][each]
                 need_asign_msg['other'].pop(each)
             else:

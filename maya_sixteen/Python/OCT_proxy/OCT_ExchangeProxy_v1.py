@@ -74,7 +74,7 @@ class OCT_ExchangeProxy(qg.QMainWindow,exprxy.Ui_exchProxyWin):
 
         self.path_spl_ch = {'AR': r'\\', 'VR': '/', 'aiStandIn': r'\\', 'VRayMesh': '/', '.ass': r'\\', '.vrmesh': '/', 'MOD': r'\\', 'VR_MOD': r'\\',
                             'AR_MOD': r'\\'}
-        self.needCopy_ext = ['', '.ass', '.vrmesh', '.jpg']
+        self.needCopy_ext = ['', '.ass', '.vrmesh', '.jpg','.JPG']
         self.nowayEx = []
         self.cur_prj = pm.workspace.name
 

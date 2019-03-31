@@ -9,7 +9,8 @@ I love animals. They taste delicious.
 """
 import maya.cmds as mc
 import os
-# from ..past import sk_checkTools
+print("I am menu command config file")
+from ..past import sk_checkTools
 
 print("I am OCT_Pipeline -_-")
 import PySide.QtGui as psqg
@@ -67,7 +68,7 @@ def main():# pipeline menu 添加 菜单项
 def asset_check_tools():
     asckt = sk_checkTools.sk_checkTools()
     asckt.sk_sceneUICheckTools()
-
-if __name__ == "__main__":
-    print __file__
-    print __file__.split('/')[:-2]
+#
+# if __name__ == "__main__":
+#     print __file__
+#     print __file__.split('/')[:-2]

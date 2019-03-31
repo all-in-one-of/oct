@@ -10,11 +10,11 @@
 
 import maya.cmds as mc
 import maya.mel as mel
-import idmt.pipeline.db
+# import idmt.pipeline.db
 
 import sk_infoConfig
 reload(sk_infoConfig)
-from idmt.maya.commonCore.core_baseCommon import sk_infoCore
+import sk_infoCore
 reload(sk_infoCore)
 
 class sk_sceneTools(object):

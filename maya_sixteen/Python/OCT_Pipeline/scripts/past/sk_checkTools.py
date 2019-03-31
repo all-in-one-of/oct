@@ -14,8 +14,7 @@
 
 import maya.cmds as mc
 import maya.mel as mel
-from idmt.maya.commonCore.core_mayaCommon import sk_infoConfig
-reload(sk_infoConfig)
+import sk_infoConfig
 import os
 
 class sk_checkTools(object):
@@ -49,70 +48,70 @@ class sk_checkTools(object):
         # 选取栏
         mc.rowLayout(numberOfColumns=2, columnWidth2=(230, 100))
         mc.textField('sk_sceneUICheckName', w=230 , h=30 , en=1 , text=(u'输入整行然后按【提取选择】按钮'))
-        mc.button(w=100 , h=30 , bgc=[0.3, 0.2, 0.6], label=(u'【提取选择】') , c='import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().sk_sceneDetailsSelectObject()')
+        mc.button(w=100 , h=30 , bgc=[0.3, 0.2, 0.6], label=(u'【提取选择】') , c='from OCT_Pipeline.scripts.past import sk_checkTools\nsk_checkTools.sk_checkTools().sk_sceneDetailsSelectObject()')
         mc.setParent("..")
         # 行按钮
         mc.rowLayout(numberOfColumns=2, columnWidth2=(80, 250))
         # 全自动
-        mc.button(w=80 , h=350 , bgc=[0.1, 0.1, 0.1], label=(u'【全自动】\n【Check】'), c='import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning()')
+        mc.button(w=80 , h=350 , bgc=[0.1, 0.1, 0.1], label=(u'【全自动】\n【Check】'), c='from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning()')
         mc.columnLayout()
         # 分割按钮
         # 第1排
         mc.rowLayout(numberOfColumns=2, columnWidth2=(125, 125))
-        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【参考】          '), c='import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"refCheck\")')
+        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【参考】          '), c='from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"refCheck\")')
         mc.button(w=125 , h=30 , bgc=[0.395, 0.504, 0.257], label=(u'<<自动更新标记Set>>'),c = 'import sk_sceneTools\nreload(sk_sceneTools)\nsk_sceneTools.sk_sceneTools().checkCacheSetAdd()\nsk_sceneTools.sk_sceneTools().checkTransAnimSetAdd()\nsk_sceneTools.sk_sceneTools().sk_sceneCacheAnimSetConfig(\"Cache\",\"ZM\")\nsk_sceneTools.sk_sceneTools().sk_sceneCacheAnimSetConfig(\"Anim\",\"ZM\")')
         mc.setParent("..")
         # 第2排
         mc.rowLayout(numberOfColumns=2, columnWidth2=(125, 125))
-        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【namespace】'),c='import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"nsCheck\")')
+        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【namespace】'),c='from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"nsCheck\")')
         mc.button(w=125 , h=30 , bgc=[0.395, 0.504, 0.257], label=(u'<<namespace工具>>'),c = 'mel.eval(\"common_namespaceTools\")')
         mc.setParent("..")
         # 第3排
         mc.rowLayout(numberOfColumns=2, columnWidth2=(125, 125))
-        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【命名】          '),c='import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"MSHCheck\")')
-        mc.button(w=125 , h=30 , bgc=[0.395, 0.504, 0.257], label=(u'<<选取添加_后缀>>'),c ='import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkRenameMSHPosfix()')
+        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【命名】          '),c='from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"MSHCheck\")')
+        mc.button(w=125 , h=30 , bgc=[0.395, 0.504, 0.257], label=(u'<<选取添加_后缀>>'),c ='from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkRenameMSHPosfix()')
         mc.setParent("..")
         # 第4排
         mc.rowLayout(numberOfColumns=2, columnWidth2=(125, 125))
-        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【面数】          '),c='import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"faceCheck\")')
-        mc.button(w=125 , h=30 , bgc=[0.395, 0.504, 0.257], label=(u'<<自动处理重命名>>'),c ='import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkSameRename()\nsk_checkTools.sk_checkTools().checkSameRename(\"mesh\")\nsk_checkTools.sk_checkTools().checkSameRename(\"nurbsCurve\")\nsk_checkTools.sk_checkTools().checkMSHKeepOneRename(\"MSH\")')
+        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【面数】          '),c='from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"faceCheck\")')
+        mc.button(w=125 , h=30 , bgc=[0.395, 0.504, 0.257], label=(u'<<自动处理重命名>>'),c ='from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkSameRename()\nsk_checkTools.sk_checkTools().checkSameRename(\"mesh\")\nsk_checkTools.sk_checkTools().checkSameRename(\"nurbsCurve\")\nsk_checkTools.sk_checkTools().checkMSHKeepOneRename(\"MSH\")')
         mc.setParent("..")
         # 第5排
         mc.rowLayout(numberOfColumns=2, columnWidth2=(125, 125))
-        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【instance】    '),c='import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"insCheck\")')
+        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【instance】    '),c='from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"insCheck\")')
         mc.button(w=125 , h=30 , bgc=[0.395, 0.504, 0.257], label=(u'<<displaceLayer清理>>'),c = 'import sk_sceneTools\nreload(sk_sceneTools)\nsk_sceneTools.sk_sceneTools().checkCleanDisplayLayers()')
         mc.setParent("..")
         # 第6排
         mc.rowLayout(numberOfColumns=2, columnWidth2=(125, 125))
-        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【smooth】     '),c='import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"smoothCheck\")')
+        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【smooth】     '),c='from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"smoothCheck\")')
         mc.button(w=125 , h=30 , bgc=[0.395, 0.504, 0.257], label=(u'<<renderLayer清理>>'), c = 'import sk_sceneTools\nreload(sk_sceneTools)\nsk_sceneTools.sk_sceneTools().checkCleanRenderLayers()')
         mc.setParent("..")        
         # 第7排
         mc.rowLayout(numberOfColumns=2, columnWidth2=(125, 125))
-        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【标记】         '),c='import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"signCheck\")')
+        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【标记】         '),c='from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"signCheck\")')
         mc.button(w=125 , h=30 , bgc=[0.395, 0.504, 0.257], label=(u'<<自动清理空组>>'),c = 'mel.eval(\"deleteEmptyGroups()\")')
         mc.setParent("..")
         # 第8排
         mc.rowLayout(numberOfColumns=2, columnWidth2=(125, 125))
-        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【物体重名】  '),c='import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"sameTransformCheck\")')
-        mc.button(w=125 , h=30 , bgc=[0.395, 0.504, 0.257], label=(u'<<显示|隐藏骨骼>>'),c = 'import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkJointViewHide()')
+        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【物体重名】  '),c='from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"sameTransformCheck\")')
+        mc.button(w=125 , h=30 , bgc=[0.395, 0.504, 0.257], label=(u'<<显示|隐藏骨骼>>'),c = 'from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkJointViewHide()')
         mc.setParent("..")
         # 第9排
         mc.rowLayout(numberOfColumns=2, columnWidth2=(125, 125))
-        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【shape重名】'),c='import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"sameShapeCheck\")')
-        mc.button(w=125 , h=30 , bgc=[0.395, 0.504, 0.257], label=(u'<<赋予ct_an标记>>'),c='import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkCTANSignAdd()')
+        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【shape重名】'),c='from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"sameShapeCheck\")')
+        mc.button(w=125 , h=30 , bgc=[0.395, 0.504, 0.257], label=(u'<<赋予ct_an标记>>'),c='from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkCTANSignAdd()')
         mc.setParent("..")     
         
         # 第10排
         mc.rowLayout(numberOfColumns=2, columnWidth2=(125, 125))
-        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【Mesh同名】'),c='import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"sameShapeNodeCheck\")')
-        mc.button(w=125 , h=30 , bgc=[0.395, 0.504, 0.257], label=(u'【Check】【proxy位移】'),c='import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"proxyInfo\")')
+        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【Mesh同名】'),c='from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"sameShapeNodeCheck\")')
+        mc.button(w=125 , h=30 , bgc=[0.395, 0.504, 0.257], label=(u'【Check】【proxy位移】'),c='from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"proxyInfo\")')
         mc.setParent("..")    
         
         # 第11排
         mc.rowLayout(numberOfColumns=2, columnWidth2=(125, 125))
-        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【smoothSet】'),c='import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"smoothSet\")')
-        mc.button(w=125 , h=30 , bgc=[0.395, 0.504, 0.257], label=(u'【Check】【renderState】'),c='import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"renderState\")')
+        mc.button(w=125 , h=30 , bgc=[0.403, 0.388, 0.760], label=(u'【Check】【smoothSet】'),c='from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"smoothSet\")')
+        mc.button(w=125 , h=30 , bgc=[0.395, 0.504, 0.257], label=(u'【Check】【renderState】'),c='from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkModelDetailsWarning(\"renderState\")')
         mc.setParent("..")     
         
         mc.setParent("..")
@@ -2370,12 +2369,12 @@ class sk_checkTools(object):
         base = mc.rowColumnLayout(numberOfColumns=2)
 
         mc.columnLayout(adjustableColumn = True)
-        mc.textScrollList('sk_checkKeyScroll',width = self.winSize05[0],height = self.winSize05[1],selectCommand ='from idmt.maya.commonCore.core_mayaCommon import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkKeyDetailsGoTo(0)')
+        mc.textScrollList('sk_checkKeyScroll',width = self.winSize05[0],height = self.winSize05[1],selectCommand ='from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkKeyDetailsGoTo(0)')
         mc.setParent(base)
 
         mc.columnLayout(adjustableColumn = True)
 
-        mc.textFieldButtonGrp('sk_checkKeyField',label = 'Search',tx = u'【贴图路径】',buttonLabel = u'Search | 搜索',columnWidth3 = self.winSize03,buttonCommand ='from idmt.maya.commonCore.core_mayaCommon import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkKeyDetailsGoTo(1)')
+        mc.textFieldButtonGrp('sk_checkKeyField',label = 'Search',tx = u'【贴图路径】',buttonLabel = u'Search | 搜索',columnWidth3 = self.winSize03,buttonCommand ='from OCT_Pipeline.scripts.past import sk_checkTools\nreload(sk_checkTools)\nsk_checkTools.sk_checkTools().checkKeyDetailsGoTo(1)')
         mc.text(label = '' , height = self.spaceH02)
         mc.scrollField('sk_checkDetailsField',width = self.winSize06[0],height = self.winSize06[1],editable = 0 )
         mc.setParent(base)

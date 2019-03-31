@@ -1,0 +1,451 @@
+/*=========================================================
+[新][通用]namespace工具
+沈康 2013.1.4
+
+***********************************************************/
+
+global proc common_namespaceTools() {
+	string $win = "commonNamespaceToolsWindow";
+	if (`window -ex $win`) deleteUI $win;
+	window -sizeable 0 -title "[通用]Namespace管理" -menuBar 1 -minimizeButton 0 -maximizeButton 0 $win;
+	menu -label "说明";
+		menuItem -label "帮助" -c "system(\"load //file-cluster/gdc/Resource/Support/Maya/docs/common_namespaceTool.mht\");";
+		
+	columnLayout -adjustableColumn 1 -columnOffset both 0 commonNSTMainColumnLayout;
+		frameLayout -label "创建namespace" -collapse 0 -collapsable 1 -borderStyle "etchedIn";
+			columnLayout -adjustableColumn 1 -columnOffset both 10;
+				text -label "" -height 10;
+				text -label " [说明] 创建空的namespace，Enter输入 ";
+				text -label "" -height 3;
+				textField -height 30 -changeCommand "common_namespaceTools_create" commonNST_createNamespace;
+				text -label "" -height 10;
+				setParent commonNSTMainColumnLayout;
+		frameLayout -label "显示namespace|删除选中Delete" -collapse 0 -collapsable 1 -borderStyle "etchedIn";
+			columnLayout -adjustableColumn 1 -columnOffset both 10;
+				text -label "" -height 10;
+				text -label "Namespace列表";
+				text -label "" -height 3;
+				textScrollList -width 250 -numberOfRows 10 -allowMultiSelection 1 -doubleClickCommand "common_namespaceTools_setSelectedOneToCurrent" -deleteKeyCommand "common_namespaceTools_deleteSelectedNamespaces" commonNST_namespaceList;
+				popupMenu -p commonNST_namespaceList;
+					menuItem -label "[选取]关联物体" -command "common_namespaceTools_selectAllObjectsInCurrent";
+					menuItem -label "[prefix]替换前缀" -command "common_namespaceTools_addAsPrefix";
+					menuItem -label "[默认设置]" -command "common_namespaceTools_setSelectedOneToCurrent";
+					menuItem -label "[取消默认]" -command "common_namespaceTools_clearSetToCurrent";
+					menuItem -label "[删除]" -command "common_namespaceTools_deleteSelectedNamespaces";
+					menuItem -label "[删除空]namespace" -command "common_namespaceTools_deleteEmpty";
+					menuItem -label "[删除所有]非参考" -command "common_namespaceTools_deleteAll";
+				columnLayout -adjustableColumn 1 -columnOffset both 60;
+					text -label "" -height 3;
+ 					button -label "刷新列表" -command "common_namespaceTools_listNamespaces" -height 25;
+					text -label "" -height 10;
+			setParent commonNSTMainColumnLayout;
+		frameLayout -label "替换namespace" -collapse 0 -collapsable 1 -borderStyle "etchedIn" commonNST_moveFrameLayout;
+			columnLayout -adjustableColumn 1 -columnOffset both 10 commonNST_moveColumnLayout;
+				text -label "" -height 10;
+				columnLayout -adjustableColumn 1 commonNST_sourceColumnLayout;
+					text -label " 原namespace" -al left;
+					optionMenuGrp -adjustableColumn 1 commonNST_source;
+					setParent..;
+				columnLayout -adjustableColumn 1 commonNST_destinationColumnLayout;
+					text -label " 替换namespace " -al left;
+					optionMenuGrp -adjustableColumn 1 commonNST_destination;
+					setParent..;
+				text -label "" -height 10;
+				button -label "执行Namespace替换" -height 30 -command "common_namespaceTools_moveObjectsToDestination";
+				text -label "" -height 10;
+	
+	showWindow $win;
+	
+	common_namespaceTools_listNamespaces();
+	common_namespaceTools_listSourceDestination();
+}
+
+global proc common_namespaceTools_addAsPrefix() {
+	string $selectedNamespaces[] = `textScrollList -q -selectItem commonNST_namespaceList`;
+	if (size($selectedNamespaces) == 1) {
+		string $namespace =`common_namespaceEmpty($selectedNamespaces[0])` ;
+		string $root[] = `ls -sl`;
+		string $sel[] = eval("listRelatives -pa -ad `ls -sl -l`");
+		for($i = 0 ; $i< size($root) ; $i++)
+		{
+			common_namespaceTools_prefixNode(($namespace + ":"), $root[$i]);
+			for ($s in $sel) {
+				common_namespaceTools_prefixNode(($namespace + ":"), $s);
+			}
+		}
+		common_namespaceTools_listNamespaces();
+	}
+}
+
+global proc common_namespaceTools_prefixNode(string $prefix, string $node) {
+	string $isType[]	= `ls -type transform $node`;
+	if (size($isType) > 0 ) {
+		string $nodeName = `substitute ".*|" $node ""`;
+		string $preCheck = "^" + $prefix;
+		if (`match $preCheck $nodeName` == "") {
+			rename $node ($prefix + $nodeName);
+		}
+	}
+}
+
+global proc common_namespaceTools_moveObjectsToDestination() {
+	string $currentNamespace = `namespaceInfo -currentNamespace`;
+	if ($currentNamespace != ":") {
+		$currentNamespace = ":" + $currentNamespace;
+	}
+	namespace -set ":";
+	string $source = `common_namespaceTools_getSourceDestination("source")`;
+	string $destination = `common_namespaceTools_getSourceDestination("destination")`;
+	string $selectedSource = `optionMenuGrp -q -value $source`;
+	$selectedSource = `common_namespaceEmpty($selectedSource)`;
+	string $selectedDestination = `optionMenuGrp -q -value $destination`;
+	$selectedDestination = `common_namespaceEmpty($selectedDestination)`;
+	
+	if (`optionMenuGrp -q -sl $source` == 1 || `optionMenuGrp -q -sl $destination` == 1) {
+		print("未选取原namespace或目标namespace");
+	} else {
+		$selectedSource =`common_namespaceEmpty($selectedSource)`;
+		$selectedSource = ":" + $selectedSource;
+		if ($selectedDestination == ": (root)" ) {
+			$selectedDestination = ":";
+		} else {
+			$selectedDestination = ":" + $selectedDestination;
+		}
+		namespace -force -moveNamespace $selectedSource $selectedDestination;
+		common_wprint ("完成替换： [ " + $selectedSource + " ] -> [ " + $selectedDestination + " ]");
+		string $confirm = `confirmDialog -title "Confirm" -message "保留还是删除原namespace？" -messageAlign center -b "Delete" -b "Keep" -cancelButton "Keep" -defaultButton "Keep" -dismissString "Keep"`;
+		if ($confirm == "Delete") {
+			namespace -removeNamespace $selectedSource;
+			common_wprint ("删除namespace [ " + $selectedSource + " ]");
+		}
+		common_namespaceTools_listNamespaces();
+		common_namespaceTools_listSourceDestination();
+	}
+	if (`namespace -ex $currentNamespace` == 0) {
+		$currentNamespace = ":";
+	}
+	namespace -setNamespace $currentNamespace;
+}
+
+global proc string common_namespaceTools_getSourceDestination(string $which) {
+	string $source = "commonNamespaceToolsWindow|commonNSTMainColumnLayout|commonNST_moveFrameLayout|commonNST_moveColumnLayout|commonNST_sourceColumnLayout|commonNST_source";
+	string $destination = "commonNamespaceToolsWindow|commonNSTMainColumnLayout|commonNST_moveFrameLayout|commonNST_moveColumnLayout|commonNST_destinationColumnLayout|commonNST_destination";
+	if ($which == "source") {
+		return $source;
+	} else if ($which == "destination") {
+		return $destination;
+	}
+	return "";
+}
+	
+global proc common_namespaceTools_preSourceDestination() {
+	string $source = `common_namespaceTools_getSourceDestination("source")`;
+	string $destination = `common_namespaceTools_getSourceDestination("destination")`;
+	string $space;
+	for ($i=0; $i<20; $i++) {
+		$space += " ";
+	}
+	string $sourceMsg = "(选取原namespace名)";
+	string $destinationMsg = "(选取替换namespace名)";
+	menuItem -p ($source + "|OptionMenu") -label ($sourceMsg + $space);
+	menuItem -p ($destination + "|OptionMenu") -label ($destinationMsg + $space);
+}
+
+global proc common_namespaceTools_listSourceDestination() {
+	string $sourceParent = "commonNST_sourceColumnLayout";
+	string $destinationParent = "commonNST_destinationColumnLayout";
+	if (`optionMenuGrp -ex commonNST_source`) deleteUI commonNST_source;
+	if (`optionMenuGrp -ex commonNST_destination`) deleteUI commonNST_destination;
+	optionMenuGrp -adjustableColumn 1 -p $sourceParent commonNST_source;
+	optionMenuGrp -adjustableColumn 1 -p $destinationParent commonNST_destination;
+	string $win = "commonNamespaceToolsWindow";
+	string $source = `common_namespaceTools_getSourceDestination("source")`;
+	string $destination = `common_namespaceTools_getSourceDestination("destination")`;
+	if (`window -ex $win` == 1 && `window -q -visible $win` == 1) {
+		common_namespaceTools_preSourceDestination();
+		string $selected[] = `textScrollList -q -allItems commonNST_namespaceList`;
+		if (size($selected) > 0) {
+			menuItem -p ($destination + "|OptionMenu") -label ": (root)";
+			for ($ns in $selected) {
+				menuItem -p ($source + "|OptionMenu") -label $ns;
+				menuItem -p ($destination + "|OptionMenu") -label $ns;
+			}
+		}
+	}
+}
+
+global proc common_namespaceTools_deleteEmpty() {
+	string $currentNamespace = `namespaceInfo -currentNamespace`;
+	if ($currentNamespace != ":") {
+		$currentNamespace = ":" + $currentNamespace;
+	}
+	namespace -set ":";
+	string $selected[] = `textScrollList -q -allItems commonNST_namespaceList`;
+	string $reverseNs[];
+	for ($i=0; $i<size($selected); $i++) {
+		$reverseNs[size($reverseNs)] = $selected[size($selected) - ($i + 1)];
+	}
+	for ($ns in $reverseNs) {
+		$ns =`common_namespaceEmpty($ns)`;
+		$ns = ":" + $ns;
+		namespace -setNamespace $ns;
+		string $objects[] = `namespaceInfo -dagPath -ls`;
+		if (size($objects) == 0) {
+			namespace -set ":";
+			namespace -removeNamespace $ns;
+			common_wprint ("删除空的namespace [ " + $ns + " ]");
+		}
+	}
+	if (`namespace -ex $currentNamespace` == 0) {
+		$currentNamespace = ":";
+	}
+	namespace -setNamespace $currentNamespace;
+	common_namespaceTools_listNamespaces();
+	common_namespaceTools_listSourceDestination();
+}
+
+global proc common_namespaceTools_deleteAll() {
+	common_namespaceTools_listNamespaces();
+	common_namespaceTools_listSourceDestination();
+	string $currentNamespace = `namespaceInfo -currentNamespace`;
+	if ($currentNamespace != ":") {
+		$currentNamespace = ":" + $currentNamespace;
+	}
+	namespace -set ":";
+	string $selected[] = `textScrollList -q -allItems commonNST_namespaceList`;
+	string $reverseNs[];
+	for ($i=0; $i<size($selected); $i++) {
+		$reverseNs[size($reverseNs)] = $selected[size($selected) - ($i + 1)];
+	}
+	for ($ns in $reverseNs) {
+		namespace -set ":";
+		$ns =`common_namespaceEmpty($ns)`;
+		$ns = ":" + $ns;
+		catch(`namespace -force -moveNamespace $ns ":"`);
+		catch(`namespace -removeNamespace $ns`);
+	}
+	common_namespaceTools_listNamespaces();
+	common_namespaceTools_listSourceDestination();
+}
+
+global proc common_namespaceTools_selectAllObjectsInCurrent() {
+	string $currentNamespace = `namespaceInfo -currentNamespace`;
+	if ($currentNamespace != ":") {
+		$currentNamespace = ":" + $currentNamespace;
+	}
+	namespace -set ":";
+	string $selected[] = `textScrollList -q -selectItem commonNST_namespaceList`;
+	for ($ns in $selected) {
+		$ns =`common_namespaceEmpty($ns)`;
+		string $currentNamespace = ":" + $ns;
+		namespace -setNamespace $ns;
+		string $objects[] = `namespaceInfo -dagPath -ls`;
+		string $exists[];
+		for ($ex in $objects) {
+			if (objExists($ex)) {
+				$exists[size($exists)] = $ex;
+			}
+		}
+		select -r $exists;
+	}
+	namespace -setNamespace $currentNamespace;
+}
+
+global proc common_namespaceTools_create() {
+	namespace -set ":";
+	string $order = `textField -q -tx commonNST_createNamespace`;
+	$order = `strip($order)`;
+	string $bff[];
+	tokenize $order ":" $bff;
+	if (size($bff) == 1) {
+		if ($bff[0] == "") {
+			warning ("指定的namespace不存在.");
+			return;
+		} else {
+			if (`namespace -ex $bff[0]` == 0) {
+				namespace -add $bff[0];
+				common_wprint ("创建新的Namespace [ " + $bff[0] + " :]");
+				namespace -set ":";
+			} else {
+				warning ("Namespace [ " + $bff[0] + " ] 已经存在.");
+			}
+		}
+	} else if (size($bff) > 1) {
+		string $parentNamespace;
+		string $childNamespace;
+		string $totalNamespace;
+		for ($i=0; $i<size($bff); $i++) {
+			if ($i == 0) {
+				$parentNamespace = ":";
+				$childNamespace = $bff[$i];
+				$totalNamespace = ":" + $childNamespace;
+			} else {
+				$parentNamespace = "";
+				for ($j=0; $j<$i; $j++) {
+					$parentNamespace += ":";
+					$parentNamespace += $bff[$j];
+				}
+				$childNamespace = $bff[$i];
+				$totalNamespace = $parentNamespace + ":" + $childNamespace;
+			}
+			if (`namespace -ex $totalNamespace` == 0) {
+				namespace -add $childNamespace -p $parentNamespace;
+				common_wprint ("创建namespace [ " + $totalNamespace + " ]");
+				namespace -set ":";
+			} else {
+				warning ("Namespace [ " + $totalNamespace + " ] 已经存在.");
+			}
+		}
+	}
+	namespace -set ":";
+	textField -e -tx "" commonNST_createNamespace;
+	common_namespaceTools_listNamespaces();
+	common_namespaceTools_listSourceDestination();
+}
+
+global proc common_namespaceTools_setSelectedOneToCurrent() {
+	string $selected[] = `textScrollList -q -selectItem commonNST_namespaceList`;
+	if (size($selected) > 1) {
+		common_wprint("[错误]请选取一个namespace.");
+	} else if (size($selected) == 1) {
+		$selected[0] =`common_namespaceEmpty($selected[0])`;
+		string $currentNamespace = ":" + $selected[0];
+		namespace -setNamespace $currentNamespace;
+		common_wprint("当前选取的namespace，会成为之后所有新建物体的默认namespace");
+		common_wprint("换默认namespace请选择别的namespace执行[默认设置]");
+		common_wprint("祛除默认namespace请执行[取消默认]\n");
+	}
+}
+
+global proc common_namespaceTools_clearSetToCurrent() {
+	namespace -set ":";
+	common_wprint("默认namespace已清空");
+}
+
+global proc common_namespaceTools_deleteSelectedNamespaces() {
+	string $currentNamespace = `namespaceInfo -currentNamespace`;
+	if ($currentNamespace != ":") {
+		$currentNamespace = ":" + $currentNamespace;
+	}
+	namespace -set ":";
+	string $selected[] = `textScrollList -q -selectItem commonNST_namespaceList`;
+	if (size($selected) == 0) {
+		common_wprint ("选取要删除的namespace.");
+	} else if (size($selected) > 0) {
+		string $message;
+		$message += "确定删除？\n";
+		$message += "\n";
+		$message += "\n";
+		for ($ns in $selected) {
+			$ns =`common_namespaceEmpty($ns)`;
+			$message += $ns;
+			$message += "\n";
+		}
+		string $confirm = `confirmDialog
+			-title "[确定]"
+			-message $message
+			-messageAlign left
+			-button "Yes"
+			-button "No"
+			-dismissString "Cancel"
+			-defaultButton "Cancel"
+			-cancelButton "Cancel"
+			`;
+		if ($confirm == "Yes") {
+			string $reverseNs[];
+			for ($i=0; $i<size($selected); $i++) {
+				$reverseNs[size($reverseNs)] = $selected[size($selected) - ($i + 1)];
+			}
+			for ($ns in $reverseNs) {
+				$ns =`common_namespaceEmpty($ns)`;
+				$ns = ":" + $ns;
+				namespace -force -moveNamespace $ns ":";
+				namespace -removeNamespace $ns;
+				common_wprint ("删除namespace [ " + $ns + " ]");
+				common_wprint ("[注意] 参考物体namespace无法删除，请到原文件处理\n");
+			}
+			if (`namespace -ex $currentNamespace` == 0) {
+				$currentNamespace = ":";
+			}
+			namespace -setNamespace $currentNamespace;
+			common_namespaceTools_listNamespaces();
+			common_namespaceTools_listSourceDestination();
+		} else {
+			namespace -setNamespace $currentNamespace;
+		}
+	}
+}
+
+global proc string[] common_namespaceTools_AllNamespaces(string $namespace) {
+	if ($namespace != ":") {
+		$namespace =`common_namespaceEmpty($namespace)`;
+		$namespace = ":" + $namespace;
+	}
+	namespace -setNamespace $namespace;
+	string $namespaces[] = `namespaceInfo -listOnlyNamespaces`;
+	string $removeNamespaces[] = { "UI", "shared" };
+	$namespaces = stringArrayRemove($removeNamespaces, $namespaces);
+	if (size($namespaces) == 0) {
+		return {};
+	}
+	else{
+		for ($ns in $namespaces) {
+			optionVar -stringValueAppend commonNST_allNamespaces $ns;
+			//扫描多重namespace
+			common_namespaceTools_AllNamespaces $ns;
+		}
+		return `optionVar -q commonNST_allNamespaces`;
+	}
+}
+
+global proc common_namespaceTools_listNamespaces() {
+	if (`optionVar -ex commonNST_allNamespaces` == 1) {
+		optionVar -clearArray commonNST_allNamespaces;
+	}
+	string $currentNamespace = `namespaceInfo -currentNamespace`;
+	if ($currentNamespace != ":") {
+		$currentNamespace = ":" + $currentNamespace;
+	}
+	namespace -set ":";
+	string $namespaces[] = `common_namespaceTools_AllNamespaces ":"`;
+
+	//string $namespaces[] = `namespaceInfo -lon `;
+	//$namespaces = stringArrayRemove({"UI","shared"},$namespaces ) ;
+
+	textScrollList -e -removeAll commonNST_namespaceList;
+	for ($ns in $namespaces) {
+		namespace -setNamespace (":" + $ns);
+		$name_temp = `namespaceInfo -dagPath -listOnlyDependencyNodes` ;
+		if(size($name_temp) == 0 )
+		{
+			$ns = "[Empty]" + $ns ;
+		}
+		textScrollList -e -append $ns commonNST_namespaceList;
+	}
+	namespace -setNamespace $currentNamespace;
+	common_namespaceTools_listSourceDestination();
+}
+
+
+global proc common_wprint(string $string) {
+	print ("// " + $string);
+	print ("\n");
+}
+
+global proc string common_namespaceEmpty(string $empty){
+	//为避免asset名字有Empty，加入[Empty]
+	string $name_empty = `match "[Empty]" $empty`;
+	string $new_names[] = {};
+	if($name_empty == "E")
+	{
+		tokenize($empty,"]", $new_names);	
+		return $new_names[1];
+	}
+	else
+	{
+		return $empty;
+	}
+}
+
+
+//common_namespaceTools();

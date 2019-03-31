@@ -448,10 +448,10 @@ def makeMenu():
     # OCT_UpdateReferenceRemind()
     
     # mc.scriptJob(event=("PostSceneRead",OCT_UpdateReferenceRemind))
-   # load_ppl_mune_m()
+    load_ppl_mune_m()
 def load_ppl_mune_m():#load pipeline menu item
-    import OCT_Pipeline
-    OCT_Pipeline.call_load_pl_menu()
+    import OCT_Pipeline.scripts.Minor.menu_cmds as ppmc
+    ppmc.main()
     print("Pipeline menu loaded successful!")
 def installTab(projectName):
     mm.eval("addNewShelfTab(\"%s\")" % projectName)

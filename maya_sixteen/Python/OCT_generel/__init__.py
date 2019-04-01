@@ -15,6 +15,38 @@ import ui_Checkin
 import OCT_xGPUCache
 import OCT_edit_vrayZDepth_deadline
 
+
+def renameTexture_temp():
+    fileNodeNameList = mc.ls(typ='file')
+    if not fileNodeNameList:
+        mc.error('No file node on the scence!')
+
+    pathNameList = os.listdir(r'Z:\Themes')
+
+    currentFilePath = mc.file(sn=True,q=True)
+    (filePath, fileName) = os.path.split(currentFilePath)
+    currentProject_split = fileName.split('_')
+    if len(currentProject_split)>1:
+        currentProject = currentProject_split[0]
+    else:
+        mc.error('file name is error!please change!')
+
+    for fileNodeName in fileNodeNameList:
+        fileTexturePath = mc.getAttr('%s.fileTextureName' %fileNodeName)
+        if not os.path.isfile(fileTexturePath):
+            mc.warning('%s is not exist!' %fileTexturePath)
+            continue
+        (filePath, fileName) = os.path.split(fileTexturePath)
+        fileName_split = fileName.split('_')
+        if fileName_split[0] in pathNameList:
+            fileName_split[0] = currentProject
+        else:
+            fileName_split.insert(0, currentProject)
+        newFileName = ('_').join(fileName_split)
+        newFilePath = os.path.join(filePath, newFileName)
+        os.rename(fileTexturePath, newFilePath)
+        mc.setAttr('%s.fileTextureName' %fileNodeName, newFilePath, type="string")
+
 def Unload_Plugins():
    import UnloadPlugin
    UnloadPlugin.main()

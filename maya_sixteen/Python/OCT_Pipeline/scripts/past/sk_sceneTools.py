@@ -10,12 +10,14 @@
 
 import maya.cmds as mc
 import maya.mel as mel
-# import idmt.pipeline.db
+import db
 
 import sk_infoConfig
 reload(sk_infoConfig)
 import sk_infoCore
 reload(sk_infoCore)
+
+import maya.OpenMaya as om
 
 class sk_sceneTools(object):
     def __init__(self):
@@ -197,10 +199,10 @@ class sk_sceneTools(object):
             if os.path.exists(newFile):
                 os.remove(newFile)
             os.rename(oldFile,newFile)
-        print '------------outPut'
-        print bgColors
-        print needCamList
-        print localPath
+        om.MGlobal.displayInfo( '------------outPut')
+        om.MGlobal.displayInfo( bgColors)
+        om.MGlobal.displayInfo( needCamList)
+        om.MGlobal.displayInfo( localPath)
 
     # ----------------------------------------------------------------------------------------------#
     # ------------------------------#
@@ -219,7 +221,7 @@ class sk_sceneTools(object):
         # 顺溜临时处理
         if shotType == 3:
             shotID = shotInfo[0] + '_' + shotInfo[1] + '_' + shotInfo[2] + '_' + shotInfo[3]
-        anim = idmt.pipeline.db.GetAnimByFilename(shotID)
+        anim = db.GetAnimByFilename(shotID)
         proStartFrame = int(anim.frmStart)
 
         # 清理unknown节点
@@ -270,14 +272,14 @@ class sk_sceneTools(object):
             camShapes = mc.listRelatives(needCam,s=1,f=1)
             stereoStateCheck = 0
             tempType = mc.nodeType(camShapes[0])
-            print tempType
+            om.MGlobal.displayInfo( tempType)
             if stereoState and 'stereo' not in tempType:
                 stereoStateCheck = 1
             if not stereoState and 'stereo' in tempType:
                 stereoStateCheck = 1
             if stereoStateCheck:
-                print u'---[Cam Type Error]Cam类型不对,请检查是否立体项目---'
-                print u'---[Cam Type Error]或者查询是否有多的非法相机---'
+                om.MGlobal.displayInfo( u'---[Cam Type Error]Cam类型不对,请检查是否立体项目---')
+                om.MGlobal.displayInfo( u'---[Cam Type Error]或者查询是否有多的非法相机---')
                 mc.error()
             # camBakeName = camSourceName + '_baked'
             camBakeName = needCam.split('|')[-1] + '_baked'
@@ -297,16 +299,16 @@ class sk_sceneTools(object):
             if needCam:
                 mc.select(needCam)
             else:
-                print(u'=============找不到对应镜头的CAM=============')
+                om.MGlobal.displayInfo(u'=============找不到对应镜头的CAM=============')
                 mc.error(u'=============找不到对应镜头的CAM=============')
             #mel.eval('source \"//file-cluster/GDC/Resource/Support/Maya/2013/zwCameraImportExport.mel\"')
             #mel.eval('zwBakeCamera')
-            from idmt.maya.commonCore.core_finalLayout import sk_bkCore
+            import sk_bkCore
             reload(sk_bkCore)
             sk_bkCore.sk_bkCore().sk_sceneCameraBK(stereoMode = stereoState,shotInfos = shotInfo,bkCam = needCam)
             mc.lockNode("defaultRenderGlobals", lock = 0)
             mc.select(camBakeName)
-            print '-------needCam'
+            om.MGlobal.displayInfo( '-------needCam')
             print camBakeName
             print shotInfos
             if testMode in [0.1]:
@@ -335,7 +337,7 @@ class sk_sceneTools(object):
             mel.eval('zwSysFile \"copy\" \"' + exportPath[0] + '\" \"' + '%s%s'%(camDataPath,needInfo) + '\" 1')
             if testMode in [0.3]:
                 return
-            print u'====================成功更新camera到服务器端===================='
+            om.MGlobal.displayInfo( u'====================成功更新camera到服务器端====================')
             #========add by zhangben 20160603   export camera abc cache 2 server ==============================
             if abcToggle:
                 import Other.minitiger.mi_pipelineProcs as mpplp;reload(mpplp)
@@ -344,7 +346,7 @@ class sk_sceneTools(object):
                 cam_abc_exp2 = u'%s%s_%s%s'%(camServerBasePath,shotInfo[0],camFileTestKey,needInfo.replace(u'.ma',u'.abc'))
                 ins_mpplp.mi_export_camAbc2Server(camBakeName,cam_abc_gener_path)
                 mel.eval('zwSysFile \"copy\" \"' + cam_abc_gener_path + '\" \"' + cam_abc_exp2 + '\" 1')
-                print u'================ copied camera abc file  2 server ============================'
+                om.MGlobal.displayInfo( u'================ copied camera abc file  2 server ============================')
             # 删除bake后的相机
             mc.delete(camBakeName)
             mc.select(cl=1)
@@ -802,7 +804,8 @@ class sk_sceneTools(object):
         if shotType == 3:
             shot = shotInfo[0] + '_' + shotInfo[1] + '_' + shotInfo[2] + '_' + shotInfo[3]
         # 开始处理
-        anim = idmt.pipeline.db.GetAnimByFilename(shot)
+
+        anim = db.GetAnimByFilename(shot)
         startFrame = anim.frmStart
         endFrame = anim.frmEnd
         fpsFrame = anim.fps
@@ -2125,7 +2128,7 @@ class sk_sceneTools(object):
         if shotType == 3:
             shotID = shotInfo[0] + '_' + shotInfo[1] + '_' + shotInfo[2] + '_' + shotInfo[3]
 
-        anim = idmt.pipeline.db.GetAnimByFilename(shotID)
+        anim = db.GetAnimByFilename(shotID)
         startFrame = anim.frmStart
         endFrame = anim.frmEnd
 

@@ -16,6 +16,7 @@ import maya.cmds as mc
 import maya.mel as mel
 import sk_infoConfig
 import os
+import maya.OpenMaya as om
 
 class sk_checkTools(object):
     def __init__(self):
@@ -855,16 +856,19 @@ class sk_checkTools(object):
                                     newName = sameDetails[keyDetail[index]][jIndex].split('|')[-1] + str(checkID) + '_'
                                     checkID += 1
                                     mc.rename(sameDetails[keyDetail[index]][jIndex] , newName)
+                                    om.MGlobal.displayInfo("Node Renamed:::".format(newName))
                                 # nurbs曲线及骨骼等
                                 else:
                                     newName = sameDetails[keyDetail[index]][jIndex].split('|')[-1] + '_' + str(checkID)
                                     checkID += 1
                                     mc.rename(sameDetails[keyDetail[index]][jIndex] , newName)
+                                    om.MGlobal.displayInfo("Node Renamed:::".format(newName))
                             # 大组类
                             else:
                                 newName = sameDetails[keyDetail[index]][jIndex].split('|')[-1] + '_' + str(checkID)
                                 checkID += 1
                                 mc.rename(sameDetails[keyDetail[index]][jIndex] , newName)
+                                om.MGlobal.displayInfo("Node Renamed:::".format(newName))
                         # 清除key信息
                         sameDetails[keyDetail[index]][jIndex] = ''
                         deepDetails[keyDetail[index]][jIndex] = 0
@@ -1937,7 +1941,7 @@ class sk_checkTools(object):
                 mc.rename(node,newName)
                 ID += 1
         #print(u'====================共处理【%s】处【无_后缀】命名====================' % (str(ID)))
-        print(u'====================共处理【%s】处【无_后缀】命名====================' % (ID))
+        om.MGlobal.displayInfo(u'====================共处理【%s】处【无_后缀】命名====================' % (ID))
 
     #------------------------------#
     # 选取所有的mesh的transfrom节点

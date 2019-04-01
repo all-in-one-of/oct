@@ -115,6 +115,7 @@ def makeMenu():
     mc.menuItem('ExShaderTools', l=u'替换材质工具...', ann=u'替换材质工具...', c='OCT_lgt.OCT_exShader()', parent='OCT_Mod')
     mc.menuItem('cleanMatTools', l=u'清理材质工具...', ann=u'清理材质工具...', c='OCT_lgt.cleanMatUI()', parent='OCT_Mod')
     mc.menuItem('removeDuplicateMatTools', l=u'清理材质工具...(测试版)', ann=u'清理材质工具...(测试版)', c='OCT_mod.removeDuplicateMat()', parent='OCT_Mod')
+    mc.menuItem('renameTexture', l=u'修改材质贴图名称工具...(只添加项目名)', ann=u'修改材质贴图名称工具...(只添加项目名)', c='OCT_generel.renameTexture_temp()', parent='OCT_Mod')
     mc.menuItem('repairTex_YJL', l=u'修复贴图(参考关联复制材质修复工具)...', ann=u'修复贴图...', c='OCT_mod.repairTex_YJL.repWin()', parent='OCT_Mod')
     mc.menuItem(d=1, parent="OCT_Mod")
     mc.menuItem('smoothTools', l=u'圆滑工具...', ann=u'圆滑工具...', c='mm.eval("tazz_SmoothTool")', parent='OCT_Mod')

@@ -6,12 +6,6 @@
 #  Data  :2014_07
 # import sys
 # sys.path.append('D:\\')
-
-
-
-
-
-
 import maya.cmds as mc
 import maya.mel as mel
 import os

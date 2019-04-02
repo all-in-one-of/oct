@@ -9,7 +9,7 @@ class k_ABC_procedure():
 	def __init__(self):
 		pass
 
-	def k_getTargetInfo(self):
+	def k_getTargetInfo2(self):
 
 		#获取需要输出abc目标的名字
 		k_targetObject = '|CDMSS_ch001002MossV2_Hair_h_msAnim:allAnim|CDMSS_ch001002MossV2_Hair_h_msAnim:tou_new'
@@ -22,7 +22,7 @@ class k_ABC_procedure():
 		topGroupName = 'CDMSS_ch001002MossV2_Hair_h_msAnim:allAnim'
 
 
-		# #获取需要输出abc目标的名字
+		#获取需要输出abc目标的名字
 		# 		# k_targetObject2 = '|CDBWG_ch004001XiShi_h_ms_anim1:allAnim|CDBWG_ch004001XiShi_h_ms_anim1:Geo'
 		# 		# #取得abc文件路径名
 		# 		# k_sn = cc.file(q=1, sn=1)
@@ -44,27 +44,59 @@ class k_ABC_procedure():
 
 		return (kresult)
 
+	def k_getTargetInfo(self):
+
+		# 获取需要输出abc目标的名字
+		k_targetObject = '|CDBWG_ch004001XiShi_h_ms_anim1:allAnim|CDBWG_ch004001XiShi_h_ms_anim1:Geo'
+		#取得abc文件路径名
+		k_sn = cc.file(q=1, sn=1)
+		scenesPath=os.path.split(k_sn)[0]
+		#ABC文件路径
+		ABCfile = r'E:\work\Themes\ABC\master\CDBWG_ch004001XiShi_h_ms_anim1_Geo.abc'
+		#大组名称
+		topGroupName = 'CDBWG_ch004001XiShi_h_ms_anim1:allAnim'
+
+
+		kresult = [{'targetObject': k_targetObject, 'scenesPath': scenesPath, \
+							 'ABCfile':ABCfile,'topGroupName':topGroupName}, \
+						 ]
+
+		return (kresult)
+
 	def k_getatomInfo(self):
 		kresult=[{'groupname':'|CDBWG_ch004001XiShi_h_ms_anim1:allAnim|CDBWG_ch004001XiShi_h_ms_anim1:master',\
 				  'atomfile':"E:/work/Themes/ABC/master/ttt.atom"}]
 
 		return (kresult)
 
-	def k_expABCInfo(self,startframe,endframe,targetObject,abcFilename,attr=''):
+	def k_expABCInfo(self,startframe,endframe,targetObject,abcFilename,pyCommond=''):
 		"""Maya ABC输出参数"""
 		k_jobArgs = "-frameRange " \
 						 + str(startframe) \
 						 + " " \
 						 + str(endframe) \
-						 + " -uvWrite -worldSpace -root " \
+						 + " -uvWrite -wholeFrameGeo -attr k_centerpivot -worldSpace -pythonPerFrameCallback "\
+						 + str(pyCommond)\
+					   	 + " -root " \
 						 + str(targetObject) \
 						 + " " \
 						 + "-file" + " " + str(abcFilename)
 
 		cc.AbcExport(verbose=1,j=k_jobArgs)
 
+
+	def k_setPivotCmd(self,targetObject):
+		kcmd ="\"import maya.cmds as cc;\
+		cc.xform('{0}', cpc=1);\
+		kpivot = cc.xform('{0}', q=1, ws=1, rotatePivot=1);\
+		cc.setAttr('{0}.k_centerpivotX', kpivot[0]);\
+		cc.setAttr('{0}.k_centerpivotY', kpivot[1]);\
+		cc.setAttr('{0}.k_centerpivotZ', kpivot[2]);\
+		cc.setKeyframe('{0}.k_centerpivot')\"".format(targetObject)
+		return (kcmd)
+
 	def excuteExpABC(self,kargs):
-		"""执行输出ABC"""
+		"""执行输出ABC  #k_centerpivot为写死的属性名 需要导出 两个版本的参考时加入此属性"""
 		targetObject = kargs['targetObject']
 		scenesPath = kargs['scenesPath']
 
@@ -78,8 +110,17 @@ class k_ABC_procedure():
 			k_abcFilename=k_abcFilename.replace(":","_")
 		abcPath = os.path.join(scenesPath,k_abcFilename)
 		abcPath = abcPath+'.abc'
-		print abcPath
-		self.k_expABCInfo(startFrame,endFrame,targetObject,abcPath)
+
+		#在GEO组下创建记录空间位置的属性
+		# try:
+		# 	cc.getAttr(targetObject + '.k_centerpivot')
+		# except:
+		# 	cc.addAttr(targetObject, ln="k_centerpivot", at='double3')
+		# 	cc.addAttr(targetObject, ln="k_centerpivotX", at='double', p='k_centerpivot')
+		# 	cc.addAttr(targetObject, ln="k_centerpivotY", at='double', p='k_centerpivot')
+		# 	cc.addAttr(targetObject, ln="k_centerpivotZ", at='double', p='k_centerpivot')
+
+		self.k_expABCInfo(startFrame,endFrame,targetObject,abcPath,self.k_setPivotCmd(targetObject))
 
 	def changeRefer(self):
 		"""换参考，将无材质带绑定的参考换成 有材质无绑定的参考"""
@@ -184,6 +225,7 @@ class k_ABC_procedure():
 					except Exception as e:
 						print (e)
 
+
 		try:
 			cc.delete('k_tempGroup')
 		except Exception as e:
@@ -226,6 +268,8 @@ class k_ABC_procedure():
 
 
 if __name__ == "__main__":
+
 	a=k_ABC_procedure()
 	a.tempwin()
+
 

@@ -31,16 +31,10 @@ def renameTexture_temp():
     else:
         mc.error('file name is error!please change!')
 
-    renameDict = {}
-    nodeDict = {}
-
     for fileNodeName in fileNodeNameList:
         fileTexturePath = mc.getAttr('%s.fileTextureName' %fileNodeName)
         if not os.path.isfile(fileTexturePath):
             mc.warning('%s is not exist!' %fileTexturePath)
-            continue
-        if fileTexturePath in renameDict:
-            nodeDict[fileNodeName] = renameDict[fileTexturePath]
             continue
         (filePath, fileName) = os.path.split(fileTexturePath)
         fileName_split = fileName.split('_')
@@ -50,16 +44,8 @@ def renameTexture_temp():
             fileName_split.insert(0, currentProject)
         newFileName = ('_').join(fileName_split)
         newFilePath = os.path.join(filePath, newFileName)
-        
-        renameDict[fileTexturePath] = newFilePath
-        nodeDict[fileNodeName] = newFilePath
-
-    for oldName, newName in renameDict.items():
-        os.rename(oldName, newName)
-    for nodeName, newPath in nodeDict.items():
-        mc.setAttr('%s.fileTextureName' %nodeName, newPath, type="string")
-        
-        
+        os.rename(fileTexturePath, newFilePath)
+        mc.setAttr('%s.fileTextureName' %fileNodeName, newFilePath, type="string")
 
 def Unload_Plugins():
    import UnloadPlugin

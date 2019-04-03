@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 __title__ = OCT_Pipeline_menu
-__author__ = zhangben 
+__author__ = zhangben
 __mtime__ = 2019/3/28 : 14:05
 # code is far away from bugs with the god animal protecting
 I love animals. They taste delicious.

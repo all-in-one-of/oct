@@ -353,12 +353,12 @@ global proc zwCopyTextureImage(string $version, string $args[])
 		$file = `zwFullPath $file`;
 		string $texture = $file;
 		
-		print ("\n---------------texture:" + $texture);
+		//print ("\n---------------texture:" + $texture);
 
 		int $except = false;
 		if (`gmatch (tolower($file)) (tolower($exceptFolder))`||`gmatch (tolower($texture)) (tolower($OCTV_PROJECTS  + "/" + $project + "/Project/sourceimages/*"))`||`gmatch (tolower($texture)) (tolower("${OCTV_PROJECTS}/" + $project + "/Project/sourceimages/*"))`)
 			$except = true;
-		print ("\n---------------except:" + $except);
+		//print ("\n---------------except:" + $except);
 
 		clear $buf4;
 		//
@@ -368,7 +368,7 @@ global proc zwCopyTextureImage(string $version, string $args[])
 
 		if(!$except)	// 需要上传
 		{
-			print ("\n---------------desttexture:" + $texture);
+			//print ("\n---------------desttexture:" + $texture);
 			$buf4[size($buf4)] = $file;
 			if (`attributeExists "useFrameExtension" $node`)
 			{
@@ -383,15 +383,18 @@ global proc zwCopyTextureImage(string $version, string $args[])
 			}
 
 			//
-
+            print ("\n\n" + `size $buf4` + "NOW!!! Befor  Searching sequence texture at time :::::  " + `date -time` + "\n");
 			if (`attributeExists "uvTilingMode" $node`){
 
 				if(`getAttr ($node + ".uvTilingMode")` == 2 || `getAttr ($node + ".uvTilingMode")` == 3){
-					string $path = "//octvision.com/cg/Tech/maya_sixteen/scripts/checkin/zwGetUVSequence.mel";
 
+				    print ("Unfortunately !!! We Nee to Searching sequence texture at time :::::  " + `date -time` + "\n");
+
+					string $path = "//octvision.com/cg/Tech/maya_sixteen/scripts/checkin/zwGetUVSequence.mel";
 					eval ("source \"" + $path + "\"");
-					
+					print("search other textures time ::::   " + `date -time` + "\n");
 					string $buf3[] = zwGetUVSequence($folder + "/" + $filename);
+					print("found other textures time  ::::   " + `date -time` + "\n");
 					for ($seq in $buf3)
 					{
 						$buf4[size($buf4)] = $folder + "/" + $seq;
@@ -406,7 +409,7 @@ global proc zwCopyTextureImage(string $version, string $args[])
 					}
 				}
 			}
-			
+//            print ("Implement search realative sequence textures :::::  " + `date -time`);
 			//
 
 			$modifyPath = 1;
@@ -433,7 +436,7 @@ global proc zwCopyTextureImage(string $version, string $args[])
 			string $filename = `match "[^/\\]+$" $source`;
 			string $dest = $destFolder;
 
-			print ("\n---------------dest:" + $dest);
+//			print ("\n---------------dest:" + $dest);
 
 			/*$rs = `zwSysFile "fcopy" $source $dest 0`;
 
@@ -459,7 +462,31 @@ global proc zwCopyTextureImage(string $version, string $args[])
 				print ($dest + "\n");*/
 
 			while(true){
-			    $rs = `zwSysFile "fcopy" $source $dest 0`;
+                print ("READ TO COPY  textures ....." + $source  + " :::::  " + `date -time`+"\n");
+/////////////////// add by zhangben  TD test  copy spped
+                $dest_test = "E:/work/FAQ_ALL/sourceimages/check_texture_copy";
+                $log_f = $dest_test + "/td_ck_log.txt";
+
+                cmdFileOutput -o $log_f;
+
+// 			    $rs = `zwSysFile "fcopy" $source $dest 0`;
+ 			    $rs = `zwSysFile "fcopy" $source $dest_test 0`;
+//================test start  add test  use system copy
+//            string $OCTV_TECH = `getenv "OCTV_TECH"`;	//OCTV Tech folder
+//            string $invokepath = $OCTV_TECH + "/bin/CPAU.exe -LWP -u octvision\\supermaya -p supermaya -ex ";
+//            string	$cmdvar = substituteAllString($OCTV_TECH, "\/", "\\");
+//            $cmd = $invokepath + "\"" + $cmdvar + "\\bin\\FastCopy341\\FastCopy.exe" + " /force_close /cmd=sync \\\"" + $source + "\\\" /to=\\\"" + $dest + "\\\"\" -nowarn -wait";
+//            $cmd = $invokepath + "\"python.exe F:/Development/octProj/oct/maya_sixteen/Python/OCT_Pipeline/scripts/utility/Copy2.py " + $source + " " + $dest+"\"";
+//            print (" Will implement a command ---------------------------\n");
+//            print ($cmd + "\n");
+//            $rs = `system $cmd`;
+ 			    print ("Copied texture ....." + $dest + " ::::: " + `date -time` + "\n\n\n");
+
+ 			    $desc = `cmdFileOutput -o $log_f -q `;
+ 			    if ( -1 != $desc ) {
+                            cmdFileOutput -close $desc;
+                 }
+//==================test end=================================================================================
 			    if ($rs != "")
 				{
 					$message = "拷贝文件出错：" + $node + "." + $attr + "\n" + $rs + "\n" + $source + $dest+ "请检查网络？";
@@ -502,8 +529,8 @@ global proc zwCopyTextureImage(string $version, string $args[])
 		$sourceUrl = `substituteAllString $sourceUrl "\\" "/"`;
 		string $destUrl = $texture;
 	
-		print ("\nmodifyPath:" + $modifyPath);
-		print("---------------------------\n");
+//		print ("\nmodifyPath:" + $modifyPath);
+//		print("---------------------------\n");
 		//if ($modifyPath && `filetest -f $texture` && tolower($sourceUrl) != tolower($destUrl))
 
 		//2015.6.5
@@ -517,8 +544,8 @@ global proc zwCopyTextureImage(string $version, string $args[])
 
 		//2016.12.14
 		if($modifyPath && `filetest -f $texture`){
-			print("node:"+$node);
-			print("seting:"+$destUrl+"\n");
+//			print("node:"+$node);
+//			print("seting:"+$destUrl+"\n");
 
 			$destUrl = `zwFullPath $destUrl`;
 			string $destUrl_tmp = `substitute "//octvision.com/CG/Themes" $destUrl "Z:/Themes"`;

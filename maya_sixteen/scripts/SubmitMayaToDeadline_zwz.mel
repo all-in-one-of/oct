@@ -3682,7 +3682,7 @@ global proc SubmitMayaToDeadline_zwz()
 						string $mayatestFG = `textFieldGrp -enable (!$useMayaBatchPlugin) -label "Command Line Args" -cl2 "left" "left" -cw2 $labelWidth 320 -text $mayaArgs -changeCommand SavePersistentDeadlineOptions -annotation "Additional command line options to pass to Maya" frw_mayaArgs`;
 						if (`editRenderLayerGlobals -query -currentRenderLayer` == "defaultRenderLayer"){
 							if (`getAttr "defaultRenderGlobals.currentRenderer"` == "arnold")
-							textFieldGrp -e -text "-ai:lmw 1 -ai:lve 1" $mayatestFG;
+							textFieldGrp -e -text "" $mayatestFG;
 						}
 						if (`getAttr "defaultRenderGlobals.currentRenderer"` == "mentalRay")
 							textFieldGrp -e -text "-v 3" $mayatestFG;

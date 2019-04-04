@@ -15,7 +15,8 @@ from ..Major import Ppl_pubCheck
 reload(Ppl_pubCheck)
 from ..Major import Ppl_scInfo
 reload(Ppl_scInfo)
-
+from ..utility import Kits
+reload(Kits)
 # scinf = pc.major.Pc_scInfo.Pc_scInfo()
 # reload(ppc)
 # chk = ppc.Pc_pubCheck()
@@ -64,6 +65,7 @@ def renm_grp(SEL_GRP):
         for each in GET_CH:
             fix_suffix_num(each)
         SEL_GRP.rename(new_names(SEL_GRP))
+        fix_suffix_num(SEL_GRP)
         return None
     GET_CH = SEL_GRP.getChildren(c=True,type='transform')
     #cp_all = copy.deepcopy(GET_CH)
@@ -83,6 +85,7 @@ def renm_grp(SEL_GRP):
                 ea_ch.rename(new_names(ea_ch))
                 fix_suffix_num(ea_ch)
             ea_ch.rename(new_names(ea_ch))
+            fix_suffix_num(ea_ch)
         else:
             grndch = ea_ch.getChildren(c=True,type='transform',ad=True)
             if not (len(grndch)):
@@ -90,6 +93,7 @@ def renm_grp(SEL_GRP):
                 fix_suffix_num(ea_ch)
             else:  renm_grp(ea_ch)
     SEL_GRP.rename(new_names(SEL_GRP))
+    fix_suffix_num(SEL_GRP)
 def ls_ch_side_flg(SEL_GRP):
     """
     列出指定物体的子物体并分类：
@@ -188,7 +192,7 @@ def new_names(nodeObj, prifix=u'MSH', suffix=u'_',precision= None, pk_sid = None
         prifix = nmsplt[0]
         nm_dic['sd'] = nmsplt[1]
         precision = nmsplt[2]
-        nm_dic['nm'] = nmsplt[3]
+        nm_dic['nm'] = '_'.join(nmsplt[3:])
     if not nodeObj.getShape():
         suffix = None
     new_name_dict = {'pr': prifix, 'prec': precision, 'nm': nm_dic['nm'], 'side': nm_dic['sd'], 'id': nm_dic['id']}
@@ -211,7 +215,8 @@ def new_names(nodeObj, prifix=u'MSH', suffix=u'_',precision= None, pk_sid = None
         new_name_str = re.sub(u'[_]+$', u'', new_name_str)
     else:
         new_name_str += suffix
-    return new_name_str
+    final_nm = Kits.Kits.unique_name(new_name_str,suff='_')
+    return final_nm
 
 def get_name_membs(nm_str,pk_sid=None): # return a dict, contains the new name needs membership
     new_name_dict = {}

@@ -1,0 +1,173 @@
+global proc shelf_OCTPipeline()
+{
+python("import maya.cmds as cmds");
+python("import maya.mel as mel");
+    shelfButton
+        -width 34
+        -height 34
+        -annotation "Update"
+        -label "Update"
+        -font "plainLabelFont"
+        -imageOverlayLabel "Update"
+        -image "pipeline\\upShelf.png"
+//        -image1 "vacantCell.png"
+        -style "iconOnly"
+        -command "zwUpdateShelf \"OCTPipeline\" \"shelf_OCTPipeline\""
+    ;
+//前期
+	shelfButton
+		-width 34
+		-height 34
+		-font "smallPlainLabelFont"
+		-style "iconOnly"
+		-image1 "pipeline\\shelfIcon_ppl_pro.png"
+		//-imageOverlayLabel "       前"
+		-label "prophase"
+//        -iol "前"  -olc 0 1 0
+		-command "ben_ShelfChanges \"Pre\""
+		do_SB_Pre
+	;
+
+//
+	shelfButton
+		-width 34
+		-height 34
+		-font "smallPlainLabelFont"
+		-style "iconOnly"
+		-image1 "pipeline\\shelfIcon_ppl_rig.png"
+		//-imageOverlayLabel "       设"
+		-label "rigging kits"
+		-command "ben_ShelfChanges \"Set\""
+//         -iol "setUp"  -olc 0 1 0
+		do_SB_Set
+	;
+
+//动画
+	shelfButton
+		-width 34
+		-height 34
+		-font "smallPlainLabelFont"
+		-style "iconOnly"
+		-image1 "pipeline\\shelfIcon_ppl_an.png"
+		//-imageOverlayLabel "       动画"
+		-label "animation kits"
+		-command "ben_ShelfChanges \"Ani\""
+//         -iol "动"  -olc 0 1 0
+		do_SB_Ani
+	;
+
+//特效
+	shelfButton
+		-width 34
+		-height 34
+		-font "smallPlainLabelFont"
+		-style "iconOnly"
+		-image1 "pipeline\\shelfIcon_ppl_ef.png"
+		//-imageOverlayLabel "       特效"
+		-label "effect kits"
+		-command "ben_ShelfChanges \"Eff\""
+//         -iol "特"  -olc 0 1 0
+		do_SB_Eff
+	;
+
+
+//渲染
+	shelfButton
+		-width 34
+		-height 34
+		-font "smallPlainLabelFont"
+		-style "iconOnly"
+		-image1 "pipeline\\shelfIcon_ppl_rnd.png"
+		-label "渲染工具集"
+		-command "ben_ShelfChanges \"Rnd\""
+//         -iol "渲"  -olc 0 1 0
+		do_SB_Rnd
+	;
+
+
+  //zzj    empty**************************
+  //隐藏面板
+ 	shelfButton -width 34 -height 34 -vis 0
+//	-i1 (zwGetIcon("wxII/it.xpm"))
+	 -c "zzjshelf()";
+
+// ======================================动态工具架 添加 buttom ================================
+// =====  前期====================
+    shelfButton -docTag "Pre"
+        -en 1 -m 1 -font "smallPlainLabelFont"
+        -l "前期用检测工具集"
+        -iol "Check"  -olc 0 1 0
+        -style "iconOnly" -i1 "pipeline\\shelfIcon_ppl_assetChk.png" -stp "python"
+        -c "from OCT_Pipeline.scripts.Minor import menu_cmds;reload(menu_cmds);menu_cmds.call_ppl_ast_win()";
+
+//================= Rigging ====================
+//    shelfButton -docTag "Set"
+//        -en 1 -m 1 -font "smallPlainLabelFont"
+//        -l "清理海龟渲染器节点"
+//        -iol "DelTurtle" -olc 0 1 0   -style "iconOnly" -i1 "do6/clear.png" -stp "python"
+//        -c "from idmt.maya.commonCore.core_mayaCommon import sk_sceneTools;reload(sk_sceneTools);sk_sceneTools.sk_sceneTools().checkDonotNodeCleanBase(0)";
+
+//================= Animation ====================
+//    shelfButton -docTag "Ani"
+//        -en 1 -m 0 -font "smallPlainLabelFont"
+//        -l "导入相机工具"
+//        -iol "Get"  -style "iconOnly" -i1 "commandButton.xpm" -stp "python"
+//        -c "from idmt.maya.commonCore.core_mayaCommon import sk_sceneTools;reload(sk_sceneTools);sk_sceneTools.sk_sceneTools().sk_sceneUICameraTools()"
+//    ;
+//===================VFX===================
+//    shelfButton -docTag "Eff"
+//        -en 1 -m 1 -vis 0 -font "smallPlainLabelFont"
+//        -l "STools" -iol "项目专用小工具集" -style "iconOnly"
+//        -i1 "do6/smallTools.png"
+//        -stp "python"
+//        -c "from idmt.maya.commonPerform.projectTools import sk_projTools_do6;reload(sk_projTools_do6);sk_projTools_do6.sk_projTools_do6().sk_projSmallTools(showDict={'mo':0,'rg':0,'an':0,'fx':1,'lr':0})";
+//===================render================
+//    shelfButton -docTag "Rnd"
+//        -en 1 -m 1 -font "smallPlainLabelFont"
+//        -l "灯光属性管理器"
+//        -iol "ltM"  -olc 0 1 0  -style "iconOnly" -i1 "pythonFamily.xpm" -stp "python"
+//        -c "from idmt.maya.commonPerform.projectTools import sk_lightMangerArPlus;reload(sk_lightMangerArPlus);sk_lightMangerArPlus.MtoALightManager().create()";
+
+
+ben_ShelfChanges `optionVar -query "ben_ShelfSelected"`;
+//testSync
+}
+
+
+global proc ben_ShelfChanges(string $steps)
+{
+	string $childArray[] = `shelfLayout -query -childArray OCTPipeline`;
+	int $size = size($childArray);
+
+	int $index = 7;
+
+	for ($i=0; $i<$size; $i++)
+	{
+		string $docTag = `shelfButton -query -docTag $childArray[$i]`;
+		if ($docTag != "")
+		{
+			if ($docTag == $steps)
+			{
+				shelfButton -edit -visible 1 $childArray[$i];
+				$index ++;
+				shelfLayout -edit -position $childArray[$i] $index OCTPipeline;
+			}
+			else
+			{
+				shelfButton -edit -visible 0 $childArray[$i];
+			}
+		}
+
+		else
+		{
+			if (match($steps,$childArray[$i]) == $steps)
+			{
+			    shelfButton -e -bgc 0 1 1 $childArray[$i];
+			}
+			else
+			    shelfButton -e -ebg 0  $childArray[$i];
+		}
+	}
+	optionVar -stringValue "ben_ShelfSelected" $steps;
+}
+//==========================================================================================

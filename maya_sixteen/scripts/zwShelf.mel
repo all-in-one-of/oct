@@ -1,0 +1,109 @@
+global proc zwShelf()
+{
+	string $version = `zwAboutVersion`;
+//
+////	// 记录上一次选择的shelf
+////	int $activeTab = `optionVar -query "selectedShelf"`;
+////	optionVar -stringValue "zwSelectedShelf" `optionVar -query ("shelfName" + $activeTab)`;
+//
+//	// OCT的shelf
+	global string $OCTShelves[];
+
+	// 升级到赵仲捷模式
+	string $unused[];
+	if (`optionVar -exists "gdcShelfs"`)
+	{
+		$unused = `optionVar -query "gdcShelfs"`;
+		optionVar -clearArray "gdcShelfs";
+	}
+//	string $office_location = `getenv "OFFICE_LOCATION"`;
+	string $office_location = `getenv "STUDIO_LOCATION"`;
+// add by zhangben  20190406   get json file path
+    string $melPath = `whatIs zwShelf`;
+    string $needPath = `match "[^ ]*$" $melPath`;
+    string $pathArray[];
+    $pathArray = stringToStringArray($needPath,"/");
+    $len = size($pathArray);
+    $needId = $len -2;
+    $newPath = "";
+    int $n;
+    for ($n=0;$n<$needId;$n++){
+        $newPath += ($pathArray[$n] + "/");
+    }
+    $newPath += "shelves/Shelf.json";
+    print $newPath;
+
+	python "import json";
+	$pyCmd = "with open(r\"" + $newPath + "\", \"r\") as f:\r\n    shelf_data = json.loads(f.read().decode(\"gbk\"), encoding=\"utf-8\")";
+	print $pyCmd;
+	python $pyCmd;
+//	python "with open(r\"\\\\file-cluster\\GDC\\Resource\\Development\\Maya\\Shelf.json\", \"r\") as f:\r\n    shelf_data = json.loads(f.read().decode(\"gbk\"), encoding=\"utf-8\")";
+	string $currents[] = `python ("shelf_data[\"" + $version + "\"][\"" + $office_location + "\"]")`;
+	clear $OCTShelves;
+	for ($current in $currents)
+	{
+		$OCTShelves[size($OCTShelves)] = $current;
+		$OCTShelves[size($OCTShelves)] = "shelf_" + $current;
+		optionVar -stringValueAppend "gdcShelfs" $current;
+	}
+
+
+
+	// 升级到赵仲捷模式
+	string $delete_shelfs[] = `python ("shelf_data[\"delete_shelf\"]")`;
+	for ($delete_shelf in $delete_shelfs)
+	{
+		$unused[size($unused)] = $delete_shelf;
+	}
+
+	// 删除历史
+	int $nShelves = `optionVar -q numShelves`;
+	for ($i=1; $i<=$nShelves; $i++)
+	{
+		string $shelfName = `optionVar -query ("shelfName" + $i)`;
+		for ($j=0; $j<size($unused); $j++)
+		{
+			if ($shelfName == $unused[$j])
+			{
+				for ($k=$i; $k<$nShelves; $k++)
+				{
+					optionVar
+						-iv ("shelfLoad" + $k) `optionVar -q ("shelfLoad" + ($k+1))`
+						-sv ("shelfName" + $k) `optionVar -q ("shelfName" + ($k+1))`
+						-sv ("shelfFile" + $k) `optionVar -q ("shelfFile" + ($k+1))`;
+				}
+				optionVar
+					-remove ("shelfLoad" + $nShelves)
+					-remove ("shelfName" + $nShelves)
+					-remove ("shelfFile" + $nShelves);
+				$nShelves --;
+				optionVar -iv numShelves $nShelves;
+
+				$i --;
+				break;
+			}
+		}
+	}
+	optionVar -intValue "zwNumShelves" $nShelves;
+
+	// 添加shelf
+	for ($i=0; $i<size($OCTShelves); $i+=2)
+	{
+		$nShelves ++;
+		optionVar
+			-iv ("shelfLoad" + $nShelves) true
+			-sv ("shelfName" + $nShelves) $OCTShelves[$i]
+			-sv ("shelfFile" + $nShelves) $OCTShelves[$i+1];
+		optionVar -iv numShelves $nShelves;
+	}
+
+//	if (((float)$version == 2011 || (float)$version == 2012) && `about -is64`)
+//	{
+//		$nShelves ++;
+//		optionVar
+//			-iv ("shelfLoad" + $nShelves) true
+//			-sv ("shelfName" + $nShelves) "soup"
+//			-sv ("shelfFile" + $nShelves) "shelf_soup";
+//		optionVar -iv numShelves $nShelves;
+//	}
+}

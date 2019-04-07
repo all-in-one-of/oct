@@ -98,8 +98,14 @@ python("import maya.mel as mel");
         -l "前期用检测工具集"
         -iol "Check"  -olc 0 1 0
         -style "iconOnly" -i1 "pipeline\\shelfIcon_ppl_assetChk.png" -stp "python"
-        -c "from OCT_Pipeline.scripts.Minor import menu_cmds;reload(menu_cmds);menu_cmds.call_ppl_ast_win()";
-
+        -c "from OCT_Pipeline.scripts.Minor import menu_cmds;reload(menu_cmds);menu_cmds.call_ppl_ast_win()"
+        assetChk_shlbt;
+    shelfButton -docTag "Pre"
+        -en 1 -m 1 -font "smallPlainLabelFont"
+        -l "重新命名所有材质相关节点（包括SG节点）"
+        -iol "MatRename"  -olc 0 1 0  -style "iconOnly" -i1 "do6/mod.png" -stp "python"
+        -c "from OCT_Pipeline.scripts.past import csl_RenameMatNode;reload(csl_RenameMatNode);csl_RenameMatNode.csl_RenameMatNode().csl_RenameMatNode(nodeName=[])"
+        matRnm_shlbt;
 //================= Rigging ====================
 //    shelfButton -docTag "Set"
 //        -en 1 -m 1 -font "smallPlainLabelFont"

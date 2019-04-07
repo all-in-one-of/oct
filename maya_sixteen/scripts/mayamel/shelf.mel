@@ -109,7 +109,7 @@ global proc loadShelf(int $index)
 					}
 				}
 
-				// 修正赵仲捷模式下的一个bug
+//				 修正赵仲捷模式下的一个bug
 				int $count = 0;
 				string $shelfButtons[] = `shelfLayout -query -childArray $shelfName`;
 				for ($shelfButton in $shelfButtons)

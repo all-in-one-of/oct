@@ -12,7 +12,7 @@ import sqlite3
 import json
 import urllib2
 
-import idmt.pipeline.project
+import project
 
 __database__ = os.path.join(os.path.dirname(__file__), 'idmtPlex.db')
 if os.path.isfile(__database__):

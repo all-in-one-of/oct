@@ -11,7 +11,7 @@ import re
 import sys
 import xml.dom.minidom
 
-import idmt.pipeline.db
+import db
 
 class project(object):
     def __init__(self):

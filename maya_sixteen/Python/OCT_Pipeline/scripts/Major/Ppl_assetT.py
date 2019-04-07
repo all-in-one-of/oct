@@ -15,9 +15,11 @@ import maya.mel as mel
 import pymel.core as pm
 import shiboken
 from ..utility import Kits
+reload(Kits)
 from ..past import sk_checkTools
+reload(sk_checkTools)
 from ..past import sk_sceneTools
-
+reload(sk_sceneTools)
 SCRIPT_LOC = os.path.split(__file__)[0]
 class Ppl_assetT_main(QtGui.QMainWindow):
     def __init__(self):

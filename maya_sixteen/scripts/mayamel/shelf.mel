@@ -77,7 +77,7 @@ global proc loadShelf(int $index)
 	
 	string $varName = "shelfName" + $index;
 	string $shelfName = `optionVar -q $varName`;
-	
+	print ("Ready to load No." + $varName + " shelf -----"+ $shelfName + "\n");
 	if ( `shelfLayout -query -numberOfChildren $shelfName` == 0 )
 	{
         string $shelfFileNum = "shelfFile" + $index;

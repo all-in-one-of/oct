@@ -115,12 +115,12 @@ python("import maya.mel as mel");
 //        -c "from idmt.maya.commonCore.core_mayaCommon import sk_sceneTools;reload(sk_sceneTools);sk_sceneTools.sk_sceneTools().checkDonotNodeCleanBase(0)";
 
 //================= Animation ====================
-//    shelfButton -docTag "Ani"
-//        -en 1 -m 0 -font "smallPlainLabelFont"
-//        -l "导入相机工具"
-//        -iol "Get"  -style "iconOnly" -i1 "commandButton.xpm" -stp "python"
-//        -c "from idmt.maya.commonCore.core_mayaCommon import sk_sceneTools;reload(sk_sceneTools);sk_sceneTools.sk_sceneTools().sk_sceneUICameraTools()"
-//    ;
+    shelfButton -docTag "Ani"
+        -en 1 -m 0 -font "smallPlainLabelFont"
+        -l "导动画工具" //-iol "Get"
+        -style "iconOnly" -i1 "pipeline\\shelfIcon_ppl_aniDataIO.png" -stp "python"
+        -c "from OCT_Pipeline.scripts.Minor import menu_cmds;reload(menu_cmds);menu_cmds.call_ppl_ainmDataIO()"
+        aniDataIO_shlbt;
 //===================VFX===================
 //    shelfButton -docTag "Eff"
 //        -en 1 -m 1 -vis 0 -font "smallPlainLabelFont"

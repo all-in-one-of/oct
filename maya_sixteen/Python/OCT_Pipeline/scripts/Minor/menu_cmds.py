@@ -8,7 +8,8 @@ __mtime__ = 2019/3/28 : 14:05
 I love animals. They taste delicious.
 """
 import maya.cmds as mc
-import os
+import maya.mel as mel
+import os,re
 print("I am menu command config file")
 from ..past import sk_checkTools
 
@@ -19,7 +20,7 @@ import maya.OpenMayaUI as mui
 from PySide import __version__
 from shiboken import wrapInstance
 
-
+SCRIPT_LOC = os.path.split(__file__)[0]
 class add_menuItem(object):#添加菜单项
     def __init__(self):
         pass
@@ -65,6 +66,10 @@ def main():# pipeline menu 添加 菜单项
     ins_pplms = pipeline_menu_set()
     ins_pplms._add('Action', 'assetCk_mi', u'asset check工具', asset_check_tools, menuLys=['OCT_Pipeline_mi'])
     ins_pplms._add('Action', 'assetT_mi', u'asset 规范整理工具', call_ppl_ast_win, menuLys=['OCT_Pipeline_mi'])
+    # ins_pplms._add()
+    ins_pplms._add('Action', 'animDataIO', u'动画导入导出插件', call_ppl_ainmDataIO, menuLys=['OCT_Pipeline_mi'])
+
+
 def asset_check_tools():
     asckt = sk_checkTools.sk_checkTools()
     asckt.sk_sceneUICheckTools()
@@ -74,3 +79,14 @@ def call_ppl_ast_win():
     reload(Ppl_assetT)
     if mc.window('ppl_asset_win', exists=True): mc.deleteUI('ppl_asset_win')
     pplast = Ppl_assetT.Ppl_assetT_main()
+
+def call_ppl_ainmDataIO():
+    # print("CALL ANIMATION EXPROT TOOLS")
+    # print SCRIPT_LOC
+    melDir = os.path.join(os.path.dirname(SCRIPT_LOC),r'MEL\dkAnim_v0.7.mel')
+    # print melDir
+    melDir_sub = re.sub("{0}{0}".format(os.sep),"/",melDir)
+    mel_Cmd = "source \"{}\"".format(melDir_sub)
+    # print mel_Cmd
+    mel.eval(mel_Cmd)
+    mel.eval("dkAnim()")

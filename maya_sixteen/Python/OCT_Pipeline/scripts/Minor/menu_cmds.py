@@ -37,6 +37,7 @@ class add_menuItem(object):#添加菜单项
                 print("There is not a childe menu name:{}".format(ea_arg))
                 break
             else: p_menu = tmp_ch_menu
+        p_menu.setStype
         if item_type in ['seperator', 'Seperator']:
             p_menu.addSeparator()
         elif item_type == 'menu':

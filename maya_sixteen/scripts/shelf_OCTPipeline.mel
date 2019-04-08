@@ -99,14 +99,14 @@ python("import maya.mel as mel");
         //-iol "Check"  -olc 0 1 0
         -style "iconOnly" -i1 "pipeline\\shelfIcon_ppl_assetChk.png" -stp "python"
         -c "from OCT_Pipeline.scripts.Minor import menu_cmds;reload(menu_cmds);menu_cmds.call_ppl_ast_win()"
-        assetChk_shlbt;
+        assetChk_pro_shlbt;
     shelfButton -docTag "Pre"
         -en 1 -m 1 -font "smallPlainLabelFont"
         -l "重新命名所有材质相关节点（包括SG节点）"
         //-iol "MatRename"  -olc 0 1 0
         -style "iconOnly" -i1 "pipeline\\shelfIcon_ppl_matRnm.png" -stp "python"
         -c "from OCT_Pipeline.scripts.past import csl_RenameMatNode;reload(csl_RenameMatNode);csl_RenameMatNode.csl_RenameMatNode().csl_RenameMatNode(nodeName=[])"
-        matRnm_shlbt;
+        matRnm_pro_shlbt;
 //================= Rigging ====================
 //    shelfButton -docTag "Set"
 //        -en 1 -m 1 -font "smallPlainLabelFont"
@@ -120,7 +120,7 @@ python("import maya.mel as mel");
         -l "导动画工具" //-iol "Get"
         -style "iconOnly" -i1 "pipeline\\shelfIcon_ppl_aniDataIO.png" -stp "python"
         -c "from OCT_Pipeline.scripts.Minor import menu_cmds;reload(menu_cmds);menu_cmds.call_ppl_ainmDataIO()"
-        aniDataIO_shlbt;
+        aniDataIO_an_shlbt;
 //===================VFX===================
 //    shelfButton -docTag "Eff"
 //        -en 1 -m 1 -vis 0 -font "smallPlainLabelFont"
@@ -134,7 +134,12 @@ python("import maya.mel as mel");
 //        -l "灯光属性管理器"
 //        -iol "ltM"  -olc 0 1 0  -style "iconOnly" -i1 "pythonFamily.xpm" -stp "python"
 //        -c "from idmt.maya.commonPerform.projectTools import sk_lightMangerArPlus;reload(sk_lightMangerArPlus);sk_lightMangerArPlus.MtoALightManager().create()";
-
+    shelfButton -docTag "Rnd"
+            -en 1 -m 0 -font "smallPlainLabelFont"
+            -l "重新赋材质" //-iol "Get"
+            -style "iconOnly" -i1 "pipeline\\shelfIcon_ppl_reAsMat.png.png" -stp "python"
+            -c "from OCT_Pipeline.scripts.Minor import menu_cmds;reload(menu_cmds);menu_cmds.call_ppl_reassignMat()"
+            reAsMat_rnd_shlbt;
 
 ben_ShelfChanges `optionVar -query "ben_ShelfSelected"`;
 //testSync

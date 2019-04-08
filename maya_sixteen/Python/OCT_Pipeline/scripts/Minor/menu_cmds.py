@@ -37,7 +37,7 @@ class add_menuItem(object):#添加菜单项
                 print("There is not a childe menu name:{}".format(ea_arg))
                 break
             else: p_menu = tmp_ch_menu
-        p_menu.setStype
+        # p_menu.setStype
         if item_type in ['seperator', 'Seperator']:
             p_menu.addSeparator()
         elif item_type == 'menu':
@@ -67,9 +67,13 @@ def main():# pipeline menu 添加 菜单项
     ins_pplms = pipeline_menu_set()
     ins_pplms._add('Action', 'assetCk_mi', u'asset check工具', asset_check_tools, menuLys=['OCT_Pipeline_mi'])
     ins_pplms._add('Action', 'assetT_mi', u'asset 规范整理工具', call_ppl_ast_win, menuLys=['OCT_Pipeline_mi'])
-    # ins_pplms._add()
+    ins_pplms._add('seperator', 'sep_01', u'en..',whatEver , menuLys=['OCT_Pipeline_mi'])
     ins_pplms._add('Action', 'animDataIO', u'动画导入导出插件', call_ppl_ainmDataIO, menuLys=['OCT_Pipeline_mi'])
+    ins_pplms._add('seperator', 'sep_02', u'en..', whatEver, menuLys=['OCT_Pipeline_mi'])
+    ins_pplms._add('Action', 'Re assign materials', u'材质指定', call_ppl_reassignMat, menuLys=['OCT_Pipeline_mi'])
 
+def whatEver():
+    print("En...")
 
 def asset_check_tools():
     asckt = sk_checkTools.sk_checkTools()
@@ -91,3 +95,8 @@ def call_ppl_ainmDataIO():
     # print mel_Cmd
     mel.eval(mel_Cmd)
     mel.eval("dkAnim()")
+def call_ppl_reassignMat():
+    import Ppl_ReassignMaterial_Ben
+    reload(Ppl_ReassignMaterial_Ben)
+    octRM = Ppl_ReassignMaterial_Ben.PPC_ReassignMatUI()
+    octRM.call_ui()

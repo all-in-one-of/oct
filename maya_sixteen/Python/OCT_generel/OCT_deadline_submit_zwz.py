@@ -953,6 +953,11 @@ class AssetDeadline():
             mc.outlinerEditor('outlinerPanel1', e=True, ssm=False)
         except:
             pass
+        #  (Use 'cycleCheck -e off' to disable this warning.) 优化渲染日志
+        try:
+            mc.cycleCheck(e=0)
+        except:
+            pass
         return True
 
     #modelEditor的show改为none

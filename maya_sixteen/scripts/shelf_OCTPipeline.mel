@@ -137,7 +137,7 @@ python("import maya.mel as mel");
     shelfButton -docTag "Rnd"
             -en 1 -m 0 -font "smallPlainLabelFont"
             -l "ÖØÐÂ¸³²ÄÖÊ" //-iol "Get"
-            -style "iconOnly" -i1 "pipeline\\shelfIcon_ppl_reAsMat.png.png" -stp "python"
+            -style "iconOnly" -i1 "pipeline\\shelfIcon_ppl_reAsMat.png" -stp "python"
             -c "from OCT_Pipeline.scripts.Minor import menu_cmds;reload(menu_cmds);menu_cmds.call_ppl_reassignMat()"
             reAsMat_rnd_shlbt;
 

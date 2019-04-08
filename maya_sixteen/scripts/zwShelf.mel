@@ -11,10 +11,10 @@ global proc zwShelf()
 
 	// 升级到赵仲捷模式
 	string $unused[];
-	if (`optionVar -exists "gdcShelfs"`)
+	if (`optionVar -exists "octShelfs"`)
 	{
-		$unused = `optionVar -query "gdcShelfs"`;
-		optionVar -clearArray "gdcShelfs";
+		$unused = `optionVar -query "octShelfs"`;
+		optionVar -clearArray "octShelfs";
 	}
 //	string $office_location = `getenv "OFFICE_LOCATION"`;
 	string $office_location = `getenv "STUDIO_LOCATION"`;
@@ -25,17 +25,20 @@ global proc zwShelf()
     $pathArray = stringToStringArray($needPath,"/");
     $len = size($pathArray);
     $needId = $len -2;
-    $newPath = "//";
+    $newPath = "";
+    if (startsWith($needPath,"//")){
+      $newPath =  "//";
+    }
     int $n;
     for ($n=0;$n<$needId;$n++){
         $newPath += ($pathArray[$n] + "/");
     }
     $newPath += "shelves/Shelf.json";
-    print $newPath;
+    print ($newPath + "\n");
 
 	python "import json";
 	$pyCmd = "with open(r\"" + $newPath + "\", \"r\") as f:\r\n    shelf_data = json.loads(f.read().decode(\"gbk\"), encoding=\"utf-8\")";
-	print $pyCmd;
+	print ($pyCmd + "\n");
 	python $pyCmd;
 //	python "with open(r\"\\\\file-cluster\\GDC\\Resource\\Development\\Maya\\Shelf.json\", \"r\") as f:\r\n    shelf_data = json.loads(f.read().decode(\"gbk\"), encoding=\"utf-8\")";
 	string $currents[] = `python ("shelf_data[\"" + $version + "\"][\"" + $office_location + "\"]")`;
@@ -44,7 +47,7 @@ global proc zwShelf()
 	{
 		$OCTShelves[size($OCTShelves)] = $current;
 		$OCTShelves[size($OCTShelves)] = "shelf_" + $current;
-		optionVar -stringValueAppend "gdcShelfs" $current;
+		optionVar -stringValueAppend "octShelfs" $current;
 	}
 
 

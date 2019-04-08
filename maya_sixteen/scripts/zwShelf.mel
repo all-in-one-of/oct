@@ -25,7 +25,7 @@ global proc zwShelf()
     $pathArray = stringToStringArray($needPath,"/");
     $len = size($pathArray);
     $needId = $len -2;
-    $newPath = "";
+    $newPath = "//";
     int $n;
     for ($n=0;$n<$needId;$n++){
         $newPath += ($pathArray[$n] + "/");

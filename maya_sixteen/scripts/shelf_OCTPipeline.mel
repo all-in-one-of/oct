@@ -24,7 +24,7 @@ python("import maya.mel as mel");
 		//-imageOverlayLabel "       前"
 		-label "prophase"
 //        -iol "前"  -olc 0 1 0
-		-command "ben_ShelfChanges \"Pre\""
+		-command "Ppl_ShelfChanges \"Pre\""
 		do_SB_Pre
 	;
 
@@ -37,7 +37,7 @@ python("import maya.mel as mel");
 		-image1 "pipeline\\shelfIcon_ppl_rig.png"
 		//-imageOverlayLabel "       设"
 		-label "rigging kits"
-		-command "ben_ShelfChanges \"Set\""
+		-command "Ppl_ShelfChanges \"Set\""
 //         -iol "setUp"  -olc 0 1 0
 		do_SB_Set
 	;
@@ -51,7 +51,7 @@ python("import maya.mel as mel");
 		-image1 "pipeline\\shelfIcon_ppl_an.png"
 		//-imageOverlayLabel "       动画"
 		-label "animation kits"
-		-command "ben_ShelfChanges \"Ani\""
+		-command "Ppl_ShelfChanges \"Ani\""
 //         -iol "动"  -olc 0 1 0
 		do_SB_Ani
 	;
@@ -65,7 +65,7 @@ python("import maya.mel as mel");
 		-image1 "pipeline\\shelfIcon_ppl_ef.png"
 		//-imageOverlayLabel "       特效"
 		-label "effect kits"
-		-command "ben_ShelfChanges \"Eff\""
+		-command "Ppl_ShelfChanges \"Eff\""
 //         -iol "特"  -olc 0 1 0
 		do_SB_Eff
 	;
@@ -79,7 +79,7 @@ python("import maya.mel as mel");
 		-style "iconOnly"
 		-image1 "pipeline\\shelfIcon_ppl_rnd.png"
 		-label "渲染工具集"
-		-command "ben_ShelfChanges \"Rnd\""
+		-command "Ppl_ShelfChanges \"Rnd\""
 //         -iol "渲"  -olc 0 1 0
 		do_SB_Rnd
 	;
@@ -141,12 +141,12 @@ python("import maya.mel as mel");
             -c "from OCT_Pipeline.scripts.Minor import menu_cmds;reload(menu_cmds);menu_cmds.call_ppl_reassignMat()"
             reAsMat_rnd_shlbt;
 
-ben_ShelfChanges `optionVar -query "ben_ShelfSelected"`;
+Ppl_ShelfChanges `optionVar -query "Ppl_ShelfSelected"`;
 //testSync
 }
 
 
-global proc ben_ShelfChanges(string $steps)
+global proc Ppl_ShelfChanges(string $steps)
 {
 	string $childArray[] = `shelfLayout -query -childArray OCTPipeline`;
 	int $size = size($childArray);
@@ -180,6 +180,6 @@ global proc ben_ShelfChanges(string $steps)
 			    shelfButton -e -ebg 0  $childArray[$i];
 		}
 	}
-	optionVar -stringValue "ben_ShelfSelected" $steps;
+	optionVar -stringValue "Ppl_ShelfSelected" $steps;
 }
 //==========================================================================================

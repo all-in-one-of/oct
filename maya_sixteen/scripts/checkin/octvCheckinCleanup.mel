@@ -559,6 +559,7 @@ proc zwCheckCopyShaveCache(string $destFolder){
 // checkin callback，用于文件检查、优化
 global proc octvCheckinCleanup(string $args[])
 {
+    $st_tm = `date -time`;
 	eval "source zwCopyTextureImage.mel";
 	eval "source zwSysFile.mel";
 	eval "source zwNamespace.mel";
@@ -1643,6 +1644,9 @@ global proc octvCheckinCleanup(string $args[])
 	string $cmd = $invokepath + "cmdMsgPush.exe \"" + "sendFileSysNotice"  + "\" \""  +  $prefName + "\" \""  + "文件系统有新的文件上传了,文件名:" + $filename + "\"";
 	print ("\n------*******---------" + $cmd + "\n");
 	string $sysCmd = `system $cmd`;
+    $end_tm = `date -time`;
+    print ("CHECKIN  Started  at ------------------------  " + $st_tm + "\n");
+    print ("CHECKIN  Finished at ------------------------  " + $end_tm + "\n");
 
 }
 

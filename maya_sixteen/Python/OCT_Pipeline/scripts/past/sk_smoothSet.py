@@ -23,7 +23,7 @@ class sk_smoothSet(object):
         smoothSetUI = mc.window('setSmooth_UI', t=(unicode('smoothSet工具','utf8')), wh=[300, 100], mb=True)
 
         UI_win_formL = mc.formLayout()
-        UI_slider_frameL = mc.frameLayout(lv=False, bv=True, bs='etchedOut', p=UI_win_formL)
+        UI_slider_frameL = mc.frameLayout('main_frmlyt',lv=False, bv=True,  p=UI_win_formL)
         UI_slider_formL = mc.formLayout()
         UI_smoothLvl_intSG = mc.intSliderGrp('intSliderGrp_intsmoothSetLevel',l='Smooth Level: ', field=1, min=0, max=3)
         mc.setParent('..')

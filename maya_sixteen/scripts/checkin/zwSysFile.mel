@@ -21,9 +21,17 @@ global proc string zwSysFile(
 	$cmd = `tolower $cmd`;
 	$source = `substituteAllString $source "/" "\\"`;
 	$dest = `substituteAllString $dest "/" "\\"`;
-
-
-	if ($useProxy)
+	$dir_copy = false;
+	if($username == "qiaol"||$username == "zhangben")
+	{
+      string $fn_buf[];
+      tokenize $filename "." $fn_buf;
+      if( $fn_buf[size($fn_buf)-1] != "ma" || $fn_buf[size($fn_buf)-1] != "mb")
+      {
+        $dir_copy = true;
+      }
+	}
+ 	if ($useProxy)
 	{
 	}
 	else
@@ -40,21 +48,18 @@ global proc string zwSysFile(
 				{
 					$cmd = $invokepath + "\"" + "COPY /Y \\\"" + $source + "\\\" \\\"" + $dest + "\\\"" + "\" -lwp -c -nowarn -wait";
 				//	$cmd = $invokepath + "\"" + "COPY " + $source + " " + $dest + "\" -lwp -k";
-				    if($username == "qiaol"||$username == "zhangben"){
-				        $dest = $dest + $filename;
-   					    $cmd = "copy /Y " + $source + " " + $dest ;
-				    }
+				    if ($dir_copy){
+                            $cmd = "copy /Y " + $source + " " + $dest ;}
 					print ("\n--copy command:   " + $cmd + "\n");
-
 					$rs = `system $cmd`;
-
 					if(`filetest -f $dest`){
-
 						print ("\n-destination file :  " + $dest  + "\n");
 						$rs = "";
-
 					}
-
+					else if (`filetest -f ($dest + $filename)`){
+    					print ("\n-destination file :  " + $dest + $filename + "\n");
+						$rs = "";
+					}
 					/*string $testList[] = `getFileList -folder $dest`;
 					if (size($testList))
 					{

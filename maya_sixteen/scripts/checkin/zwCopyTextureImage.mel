@@ -508,7 +508,7 @@ global proc zwCopyTextureImage(string $version, string $args[])
 				print ($dest + "\n");*/
 
 			while(true){
-			    //add by zhangben test copy direct
+			    //add by zhangben test copy direct dest
                 string $rs = "";
                 if ($usename == "qiaol"||$usename == "zhangben"){
 					$rs = `zwSysFile "copy" $source $destFolder 0`;

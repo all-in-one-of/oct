@@ -10,36 +10,36 @@
 //
 //////////////////////////////////////////////////////////
 
-//global proc  slReferenceEditorSelToOutlineSel()
-//{
-//	global string $gReferenceEditorPanel;
-//	string $refs[] = `sceneEditor -q -sr $gReferenceEditorPanel`;
-//	select -cl;
-//	for ($ref in $refs )
-//	{
-//		if (`objExists $ref`)
-//		{
-//			//string $objs[] = `listConnections -s false -d true -type "transform" $ref`;
-//			//select -add $objs;
-//			string $nodes[] = `referenceQuery -n -dagPath $ref`;
-//			string $add="";
-//			for($n in $nodes)
-//			{
-//			    float $bb[] = `xform -q -ws -bb $n`;
-//			    if($bb[0] || $bb[1] || $bb[2])
-//			    {
-//			        $add = $n;
-//			        break;
-//			    }
-//			}
-//			//string $objs[] = `listConnections -s false -d true -type "transform" $ref`;
-//			if (size($add))
-//				select -add $add;
-//		}
-//	}
-//}
-global proc  slReferenceEditorSelToOutlineSel(){
-python("import OCT_Pipeline.scripts.Minor.Ref2Node_ben as r2n");
-python("reload(r2n)");
-python("r2n.sel_ref_topTrans()");
+global proc  slReferenceEditorSelToOutlineSel()
+{
+	global string $gReferenceEditorPanel;
+	string $refs[] = `sceneEditor -q -sr $gReferenceEditorPanel`;
+	select -cl;
+	for ($ref in $refs )
+	{
+		if (`objExists $ref`)
+		{
+			//string $objs[] = `listConnections -s false -d true -type "transform" $ref`;
+			//select -add $objs;
+			string $nodes[] = `referenceQuery -n -dagPath $ref`;
+			string $add="";
+			for($n in $nodes)
+			{
+			    float $bb[] = `xform -q -ws -bb $n`;
+			    if($bb[0] || $bb[1] || $bb[2])
+			    {
+			        $add = $n;
+			        break;
+			    }
+			}
+			//string $objs[] = `listConnections -s false -d true -type "transform" $ref`;
+			if (size($add))
+				select -add $add;
+		}
+	}
 }
+//global proc  slReferenceEditorSelToOutlineSel(){
+//python("import OCT_Pipeline.scripts.Minor.Ref2Node_ben as r2n");
+//python("reload(r2n)");
+//python("r2n.sel_ref_topTrans()");
+//}

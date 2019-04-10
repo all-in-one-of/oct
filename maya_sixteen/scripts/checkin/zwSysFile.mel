@@ -17,6 +17,7 @@ global proc string zwSysFile(
 	string $rs = "Upload fails!";
 	string $folder, $buf[];
 
+	string $username=`getenv username`;
 	$cmd = `tolower $cmd`;
 	$source = `substituteAllString $source "/" "\\"`;
 	$dest = `substituteAllString $dest "/" "\\"`;
@@ -39,14 +40,19 @@ global proc string zwSysFile(
 				{
 					$cmd = $invokepath + "\"" + "COPY /Y \\\"" + $source + "\\\" \\\"" + $dest + "\\\"" + "\" -lwp -c -nowarn -wait";
 				//	$cmd = $invokepath + "\"" + "COPY " + $source + " " + $dest + "\" -lwp -k";
-				
-					print ("\n---------------" + $cmd + "\n");
+				    if($username == "qiaol"||$username == "zhangben"){
+				        $dest = $dest + $filename;
+   					    $cmd = "copy /Y " + $source + " " + $dest ;
+				    }
+					print ("\n--copy command:   " + $cmd + "\n");
 
 					$rs = `system $cmd`;
 
 					if(`filetest -f $dest`){
-						print ("\n---------destfile---" + $dest  + "\n");
+
+						print ("\n-destination file :  " + $dest  + "\n");
 						$rs = "";
+
 					}
 
 					/*string $testList[] = `getFileList -folder $dest`;

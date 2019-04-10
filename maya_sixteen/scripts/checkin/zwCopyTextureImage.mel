@@ -517,7 +517,7 @@ global proc zwCopyTextureImage(string $version, string $args[])
                     $rs = `zwSysFile "fcopy" $source $destFolder 0`;
                 }
 //			    $rs = `zwSysFile "fcopy" $source $dest 0`;
-			    if ($rs != "")
+			    if ($rs != "" && $rs != "已复制         1 个文件。")
 				{
 					$message = "拷贝文件出错：" + $node + "." + $attr + "\n" + $rs + "\n" + $source + $dest+ "请检查网络？";
 					if ($errorStop)

@@ -694,7 +694,12 @@ global proc octvCheckinCleanup(string $args[])
 	{
 		zjRemoveNamespace;
 	}
-
+// add to check  maya evironment
+print("l 698=====================CHECK MAYA ENVIROMENT==============\n")
+$path = `whatIs cleanUp_RegisterUserCleanUps`;
+print $path；
+print("========================================================");
+// check end
 	//string $allDisplacement[]=`ls -type "displacementShader"`;
 	//if(size($allDisplacement)>0){
 		//confirmDialog -title "displacementShader" -message ("文件中存在置换节点(displacementShader),请清除置换节点！");
@@ -728,6 +733,13 @@ global proc octvCheckinCleanup(string $args[])
 	string $pattern = `substitute "/scenes$" $scenes "/*"`;
 	string $Shpattern = `substitute ("/" + $project + "/") $pattern ("/" + "SHARED" + "/")`;	//each project can reference content form shared project
 
+// add to check  maya evironment
+print("l 732=====================CHECK MAYA ENVIROMENT==============\n")
+$path = `whatIs cleanUp_RegisterUserCleanUps`;
+print $path；
+print("========================================================");
+
+// check end
 //2016.4.5新添加了一个群众通用元素作为参考
 	string $Gepattern=`substitute ("/" + $project + "/") $pattern ("/" + "GENERAL" + "/")`;
 
@@ -782,6 +794,12 @@ global proc octvCheckinCleanup(string $args[])
 	sysFile -delete $temp;
 	file -rename $temp;
 
+// add to check  maya evironment
+print("l 786=====================CHECK MAYA ENVIROMENT==============\n")
+$path = `whatIs cleanUp_RegisterUserCleanUps`;
+print $path；
+print("========================================================");
+// check end
 
 	if ($optimizeImagePlane)	// 删imagePlane
 	{
@@ -795,7 +813,12 @@ global proc octvCheckinCleanup(string $args[])
 			}
 		}
 	}
-
+// add to check  maya evironment
+print("l 805 =====================CHECK MAYA ENVIROMENT==============\n")
+$path = `whatIs cleanUp_RegisterUserCleanUps`;
+print $path；
+print("========================================================");
+// check end
 	if ($optimize)
 	{
 		cleanUpScene 0;
@@ -870,7 +893,9 @@ global proc octvCheckinCleanup(string $args[])
 			zwCheckArnoldTx();
 		}
 		
-		//
+		//add by zhangben check copy texture arguments value
+		print("-------check copy texture arguments------------\n");
+		print("zwCheckinCopyTexure("+ $project+","+ $mode+"," + $destFolder+"," + $progress +")\n";
 		zwCheckinCopyTextureImage($project, $mode, $destFolder, $progress);
 	}
 
@@ -1757,7 +1782,9 @@ global proc zwCheckinCopyTextureImage(string $project, string $mode, string $des
 			warning $error;
 		}
 	}
-
+    //add check proc arguments
+    print("line 1786 ===check zwCopyTextureImage process argumens====\n");
+    print("zwCopyTextureImage(3, {\"file\", \"" + fileTextureName + "\"," + $maps + ", \"1\", \"1\"," + $progress + "," +  $project +", \"0\"})");
 	zwCopyTextureImage(3, {"file", "fileTextureName", $maps, "1", "1", $progress, $project, "0"});
 	if (`pluginInfo -query -loaded "Mayatomr"`)
 	{
@@ -2175,7 +2202,7 @@ global proc  zwCheckArnoldTx(){
 			string $buffer1=`substring $fileTextureName 1 (size($fileTextureName) - size($ext))`;
 			if($ext=="JPG" || $ext=="jpg"){
 				if(!(`filetest -f ($buffer1+"tx")` || `filetest -f ($buffer1+"TX")`)){
-					$info=$info+($fileTextureName+"缺少相应的tx贴图，因为场景中含有arnold代理文件或者当前渲染器为arnold\n");
+					$info=$info+($file + $fileTextureName+"缺少相应的tx贴图，因为场景中含有arnold代理文件或者当前渲染器为arnold\n");
 					//confirmDialog -title "tx贴图" -message ($fileTextureName+"当前层为arnold渲染器,缺少tx贴图");
 					//error ($fileTextureName+"当前层为arnold渲染器,缺少tx贴图");	
 				} 

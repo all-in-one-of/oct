@@ -56,9 +56,13 @@ global proc string zwSysFile(
 						print ("\n-destination file :  " + $dest  + "\n");
 						$rs = "";
 					}
-					else if (`filetest -f ($dest + $filename)`){
+					else
+					{
+					 print("----destinate file name ::: " + $dest + "\\" + $filename + "\n");
+					 if (`filetest -f ($dest +"\\\\" + $filename)`){
     					print ("\n-destination file :  " + $dest + $filename + "\n");
 						$rs = "";
+					    }
 					}
 					/*string $testList[] = `getFileList -folder $dest`;
 					if (size($testList))

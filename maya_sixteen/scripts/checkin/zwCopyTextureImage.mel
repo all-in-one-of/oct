@@ -75,12 +75,12 @@ global proc zwCopyTextureImage(string $version, string $args[])
 								$map = `zwFullPath $map`;
 								//add by zhangben test copy direct
 
-                                if ($usename == "qiaol"||$usename == "zhangben"){
-								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
-                                }
-                                else{
-								    $sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
-								}
+//                                if ($usename == "qiaol"||$usename == "zhangben"){
+//								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
+//                                }
+//                                else{
+								 $sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
+//								}
 								string $basename = basename($map, "");
 
 								string $destFolder_tmp = `substitute "//octvision.com/CG/Themes" $destFolder "Z:/Themes"`;
@@ -102,12 +102,12 @@ global proc zwCopyTextureImage(string $version, string $args[])
 								$map = `zwFullPath $map`;
 								//add by zhangben test copy direct
 
-                                if ($usename == "qiaol"||$usename == "zhangben"){
-								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
-                                }
-                                else{
-								    $sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
-								}
+//                                if ($usename == "qiaol"||$usename == "zhangben"){
+//								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
+//                                }
+//                                else{
+								$sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
+//								}
 								string $basename = basename($map, "");
 
 								string $destFolder_tmp = `substitute "//octvision.com/CG/Themes" $destFolder "Z:/Themes"`;
@@ -152,12 +152,12 @@ global proc zwCopyTextureImage(string $version, string $args[])
 								$map = `zwFullPath $map`;
 								//add by zhangben test copy direct
 
-                                if ($usename == "qiaol"||$usename == "zhangben"){
-								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
-                                }
-                                else{
-								    $sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
-								}
+//                                if ($usename == "qiaol"||$usename == "zhangben"){
+//								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
+//                                }
+//                                else{
+								$sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
+//								}
 								string $basename = basename($map, "");
 
 								string $destFolder_tmp = `substitute "//octvision.com/CG/Themes" $destFolder "Z:/Themes"`;
@@ -180,12 +180,12 @@ global proc zwCopyTextureImage(string $version, string $args[])
 								$map = `zwFullPath $map`;
 								//add by zhangben test copy direct
 
-                                if ($usename == "qiaol"||$usename == "zhangben"){
-								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
-                                }
-                                else{
-								    $sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
-								}
+//                                if ($usename == "qiaol"||$usename == "zhangben"){
+//								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
+//                                }
+//                                else{
+								$sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
+//								}
 								string $basename = basename($map, "");
 
 								string $destFolder_tmp = `substitute "//octvision.com/CG/Themes" $destFolder "Z:/Themes"`;
@@ -208,12 +208,12 @@ global proc zwCopyTextureImage(string $version, string $args[])
 								$map = `zwFullPath $map`;
 								//add by zhangben test copy direct
 
-                                if ($usename == "qiaol"||$usename == "zhangben"){
-								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
-                                }
-                                else{
-								    $sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
-								}
+//                                if ($usename == "qiaol"||$usename == "zhangben"){
+//								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
+//                                }
+//                                else{
+								$sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
+//								}
 								string $basename = basename($map, "");
 
 								string $destFolder_tmp = `substitute "//octvision.com/CG/Themes" $destFolder "Z:/Themes"`;
@@ -236,12 +236,12 @@ global proc zwCopyTextureImage(string $version, string $args[])
 								$map = `zwFullPath $map`;
 								//add by zhangben test copy direct
 
-                                if ($usename == "qiaol"||$usename == "zhangben"){
-								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
-                                }
-                                else{
-								    $sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
-								}
+//                                if ($usename == "qiaol"||$usename == "zhangben"){
+//								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
+//                                }
+//                                else{
+								$sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
+//								}
 								string $basename = basename($map, "");
 
 								string $destFolder_tmp = `substitute "//octvision.com/CG/Themes" $destFolder "Z:/Themes"`;
@@ -264,12 +264,12 @@ global proc zwCopyTextureImage(string $version, string $args[])
 								$map = `zwFullPath $map`;
 								//add by zhangben test copy direct
 
-                                if ($usename == "qiaol"||$usename == "zhangben"){
-								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
-                                }
-                                else{
-								    $sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
-								}
+//                                if ($usename == "qiaol"||$usename == "zhangben"){
+//								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
+//                                }
+//                                else{
+								$sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
+//								}
 								string $basename = basename($map, "");
 
 								string $destFolder_tmp = `substitute "//octvision.com/CG/Themes" $destFolder "Z:/Themes"`;
@@ -517,7 +517,7 @@ global proc zwCopyTextureImage(string $version, string $args[])
                     $rs = `zwSysFile "fcopy" $source $destFolder 0`;
                 }
 //			    $rs = `zwSysFile "fcopy" $source $dest 0`;
-			    if ($rs != "" && $rs != "已复制         1 个文件。")
+			    if ($rs != "")
 				{
 					$message = "拷贝文件出错：" + $node + "." + $attr + "\n" + $rs + "\n" + $source + $dest+ "请检查网络？";
 					if ($errorStop)

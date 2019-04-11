@@ -17,11 +17,11 @@ class Kits(object):
     def __init__(self):
         pass
     @staticmethod
-    def get_dir(path,index=1):
-        get_backslash = re.findall(r"\\",path)
-        get_slash = re.findall('/',path)
+    def get_dir(fpth,index=1):#根据 索引值 返回 路径上一层 或上几层
+        get_backslash = re.findall(r"\\",fpth)
+        get_slash = re.findall('/',fpth)
         cur_sep = r'\\' if len(get_backslash)>len(get_slash) else '/'
-        pth_abs = os.path.abspath(path)
+        pth_abs = os.path.abspath(fpth)
         pth_spl = pth_abs.split(os.sep)
         spll = len(pth_spl)
         res_pth_spl = []
@@ -29,6 +29,23 @@ class Kits(object):
         res_pth_spl = pth_spl[:id]
         res_path_abs = os.sep.join(res_pth_spl)
         return re.sub(repr(os.sep),cur_sep,res_path_abs)
+
+    @staticmethod
+    def splitf(fpth,folder):#根据文件夹的名字把路径切割为三段
+        get_backslash = re.findall(r"\\", fpth)
+        get_slash = re.findall('/', fpth)
+        cur_sep = r'\\' if len(get_backslash) > len(get_slash) else '/'
+        pth_abs = os.path.abspath(fpth)
+        pth_spl = pth_abs.split(os.sep)
+        pth_spl_lw = [ea_f.lower() for ea_f in pth_spl]
+        if folder.lower() not in pth_spl_lw: return fpth
+        id = pth_spl_lw.index(folder.lower())
+        forepart = cur_sep.join(pth_spl[:id])
+        posterior = cur_sep.join(pth_spl[id + 1:])
+        return forepart, folder, posterior,cur_sep
+
+
+
     @staticmethod
     def renameIt(self,obj,newNm,suffix='',cur_num=None):#挺有用的重命名工具
         if not cur_num: cur_num = 0
@@ -52,4 +69,3 @@ class Kits(object):
             num += 1
             name_again = Kits.unique_name(new_nm, num, suff)
             return name_again
-

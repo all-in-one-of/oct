@@ -18,9 +18,10 @@ import time
 import copy
 import sip
 import maya.OpenMayaUI as mui
-import OCT_proxy.uis.exProxy_win_ui as exprxy
-reload(exprxy)
-
+from OCT_proxy.uis import exProxy_win_ui
+reload(exProxy_win_ui)
+import OCT_Pipeline.scripts.utility.Kits as Kits
+reload(Kits)
 import PyQt4.QtCore as qc
 import PyQt4.QtGui as qg
 from stat import ST_ATIME, ST_CTIME, ST_MTIME
@@ -35,9 +36,7 @@ def getMayaWindow():
     return sip.wrapinstance(long(ptr),qc.QObject)
 
 
-
-
-class OCT_ExchangeProxy(qg.QMainWindow,exprxy.Ui_exchProxyWin):
+class OCT_ExchangeProxy(qg.QMainWindow,exProxy_win_ui.Ui_exchProxyWin):
     """
     大的场景，很多代理在布置场景的时候用的instance 的方式，之前的代理替换工具对于关联复制的代理物体替换存在位置不能正确匹配的情况
     重写
@@ -60,8 +59,8 @@ class OCT_ExchangeProxy(qg.QMainWindow,exprxy.Ui_exchProxyWin):
         #item 1  导入对应的文件后，会有导入的节点的记录，判断节点的类型如果是 对应的节点，就要修改属性 vr代理的
         #item 2  对应节点要重设的属性名字
         self.prx_need_assign = {'VR': ['.vrmesh', 'VRayMesh', 'fileName', 'VRay', 'mesh'], 'AR': ['.ass', 'aiStandIn', 'dso', 'Arnold', 'aiStandIn'],
-                                'VR_MOD': ['.jpg', 'file', 'fileName', 'Model', 'mesh'], 'AR_MOD': ['.jpg', 'file', 'fileName', 'Model', 'mesh'],
-                                '_MOD': ['.jpg', 'file', 'fileName', 'Model', 'mesh']}
+                                'VR_MOD': ['.mb', '.', 'fileName', 'Model', 'mesh'], 'AR_MOD': ['.mb', '.', 'fileName', 'Model', 'mesh'],
+                                '_MOD': ['.jpg', '.', 'fileName', 'Model', 'mesh'],'MOD': ['.mb', '.mb', 'fileName', 'Model', 'mesh']}
 
         self.prx_ext_dic = {'AR': '.ass', 'aiStandIn': '.ass', 'VR': '.vrmesh', 'VRayMesh': '.vrmesh', 'AR_MOD': '_AR.mb', 'VR_MOD': '_VR.mb', 'MOD': '_MOD.mb'}
         self.prx_f_ext_dic = {'AR': '.ass', 'aiStandIn': '.ass', '_VR.ma': '.vrmesh', 'VRayMesh': '.vrmesh'}
@@ -96,7 +95,7 @@ class OCT_ExchangeProxy(qg.QMainWindow,exprxy.Ui_exchProxyWin):
         targ_pr_tp = self.targGrp.checkedButton().text()
         if targ_pr_tp == 'Arnold Proxy':trg_type = 'AR'
         elif targ_pr_tp == 'VRay Proxy':trg_type = 'VR'
-        elif targ_pr_tp == 'Model':trg_type = 'MOD'
+        elif targ_pr_tp == 'Model':trg_type = "{}_MOD".format(self.ui2prxy[str(src_pr_tp)])
         rep_count = self.ExchangeProxy(prx_type,trg_type,ifAll)
         #re_str = unicode(qc.QString(self.re_lb.text()), 'utf-8', 'ignor')
         re_str_new = u'共替换了：{:d}个{}代理'.format(rep_count,src_pr_tp)
@@ -211,6 +210,8 @@ class OCT_ExchangeProxy(qg.QMainWindow,exprxy.Ui_exchProxyWin):
             move2Dir_sub = os.path.abspath(os.path.join(move2Dir, sub_str_2))
             if trg_type in ['VR']:
                 need_cp_src.append(os.path.abspath("{}{}/sourceimages/{}_txt".format(prx_proj_pth, self.path_spl_ch[trg_type], prx_f_bsnm_nornder)))
+            if trg_type in ['AR_MOD']:
+                need_cp_src = [os.path.abspath("{}{}/sourceimages/arnoldtex".format(prx_proj_pth, self.path_spl_ch[trg_type]))]
             lst_needCp = self.listNeedCopy(need_cp_src)
             # print(lst_needCp)
             # raise Exception ("TD TEST")
@@ -246,7 +247,7 @@ class OCT_ExchangeProxy(qg.QMainWindow,exprxy.Ui_exchProxyWin):
         # raise Exception("TD Check")
         im_grp_dict = {}
         for ea_im in im_grp:  # ea_im = im_grp[5]
-            print ea_im.type()
+            print("{}::{}".format(ea_im, ea_im.type()))
             #print self.prx_need_assign[trg_type][4]
             #print ea_im.type() == self.prx_need_assign[trg_type][4]
             if ea_im.type() == self.prx_need_assign[trg_type][1]:
@@ -270,7 +271,12 @@ class OCT_ExchangeProxy(qg.QMainWindow,exprxy.Ui_exchProxyWin):
             elif ea_im.type() == 'file':
                 modify_attr = ea_im.attr(self.prx_file_attr[ea_im.type()])
                 current_attr_v = modify_attr.get()
-                new_attr = [infoDcit['txt'][os.path.split(current_attr_v)[-1]][1]]
+                tx_fnm = os.path.split(current_attr_v)[-1]
+                new_attr = None
+                if os.path.split(current_attr_v)[-1] in infoDcit['txt']:
+                    new_attr = infoDcit['txt'][os.path.split(current_attr_v)[-1]][1]
+                else:
+                    new_attr = self.check_tx_and_packed(current_attr_v)
                 modify_attr.set(new_attr[0])
             nnm = ea_im.stripNamespace().strip()
             try:
@@ -282,6 +288,19 @@ class OCT_ExchangeProxy(qg.QMainWindow,exprxy.Ui_exchProxyWin):
         self.cleanUp_Namespace(im_ns)
         print im_grp_dict
         return im_grp_dict
+
+    def check_tx_and_packed(self,srcTx):# 如果file 节点引用的贴图在当前工程不存在 就copy 过来，并返回新的贴图 全路径
+        # srcTx = current_attr_v
+        prj_srcImgs = os.path.abspath(os.path.join(self.cur_prj, 'sourceImages'))
+        tx_fnm = os.path.split(srcTx)[-1]
+        src_spltf = Kits.Kits().splitf(srcTx, 'sourceimages')
+        targTx = os.path.abspath(os.path.join(prj_srcImgs, src_spltf[2]))
+        targTx_fold = os.path.split(targTx)
+        if not os.path.isfile(targTx):
+            if not os.path.exists(targTx_fold[0]): os.makedirs(targTx_fold[0])
+            shutil.copy2(srcTx, targTx)
+        re.sub('{0}{0}'.format(os.sep), '{}'.format(src_spltf[3]), targTx)
+        return targTx
 
     def list_prxys_dict(self, prxy_lst):  # 返回一个字典 key ：代理文件名字 value  代理文件路径
         resDic = {}
@@ -352,18 +371,21 @@ class OCT_ExchangeProxy(qg.QMainWindow,exprxy.Ui_exchProxyWin):
         print need_asign_msg
         return need_asign_msg
 
-    def listNeedCopy(self, src_dir_s,st=0,copy_files={'tmp':{},'cp': {}, 'ncp': {}}):##列出需要复制的 和不用复制的 代理相关文件(.vraymesh,.jpg贴图等)
+    def listNeedCopy(self,src_dir_s, st=0, copy_files={'tmp': {}, 'cp': {}, 'ncp': {}}):  ##列出需要复制的 和不用复制的 代理相关文件(.vraymesh,.jpg贴图等)
         # copy_fils = {}
         # src_dir = r"\\octvision.com\CG\Resource\Material_Library\Proxy\ProxySeed\Flowers\flower018\sourceimages\Vray_DL"
+        # src_dir_s = [cp_copy_fils['tmp'][ea_cp][0]]
         # src_dir_s = need_cp_src
         print(">>>>>>>>>>start parse {:05d}>>>>>>>>>>>>>>".format(st))
         print ("cp :::{}".format(copy_files['cp']))
         print ("ncp :::{}".format(copy_files['ncp']))
         print ("tmp':::{}".format(copy_files['tmp']))
         if st == 5: raise Exception("TD test")
-        if not isinstance(src_dir_s,list):raise Exception("you wrong")
+        if not isinstance(src_dir_s, list): raise Exception("you wrong")
+        src_prx_name = ''
+        ret_dict = {}
         for src_dir in src_dir_s:
-            print ("----{}-----{}".format(st,src_dir))
+            print ("----{}-----{}".format(st, src_dir))
             if not os.path.isdir(src_dir):
                 self.nowayEx.append("++++There is no texture folder CHECK! == {}".format(src_dir))
                 continue
@@ -376,14 +398,16 @@ class OCT_ExchangeProxy(qg.QMainWindow,exprxy.Ui_exchProxyWin):
                 # move2Dir_sub = os.path.abspath(os.path.join(move2Dir, targ_folder))
                 src_dir_spl = src_dir.split('\\')
                 srcimg_indx = src_dir_spl.index('sourceimages')
+                src_prx_name = src_dir_spl[srcimg_indx - 1]
                 need_dir = "\\".join(src_dir_spl[srcimg_indx:])
                 # print (" ---------- {} ------------".format(need_dir))
                 if ext_str in self.needCopy_ext:
-                    copy_pair = [os.path.join(src_dir, eaobj), os.path.abspath(os.path.join(os.path.join(self.cur_prj, need_dir),eaobj))]
+                    copy_pair = [os.path.join(src_dir, eaobj), os.path.abspath(os.path.join(os.path.join(self.cur_prj, need_dir), eaobj))]
                     copy_files['tmp'][eaobj] = copy_pair
         cp_copy_fils = copy.deepcopy(copy_files)
         print("Check : {}".format(cp_copy_fils['tmp']))
         for ea_cp in cp_copy_fils['tmp']:
+            # ea_cp = 'CDMSSSshuA_AR.ass'
             # targ_file_name_full = os.path.join(targ_dir, ea_cp)
             if not os.path.exists(cp_copy_fils['tmp'][ea_cp][1]):
                 copy_files['cp'][ea_cp] = [cp_copy_fils['tmp'][ea_cp][0], cp_copy_fils['tmp'][ea_cp][1]]
@@ -401,20 +425,22 @@ class OCT_ExchangeProxy(qg.QMainWindow,exprxy.Ui_exchProxyWin):
                     copy_files['cp'][ea_cp] = [cp_copy_fils['tmp'][ea_cp][0], cp_copy_fils['tmp'][ea_cp][1]]
                     copy_files['tmp'].pop(ea_cp)
             elif os.path.isdir(cp_copy_fils['tmp'][ea_cp][1]):
-                if re.search("_txt$",cp_copy_fils['tmp'][ea_cp][1]):
+                if re.search("(_txt$)|({}$)".format(src_prx_name), cp_copy_fils['tmp'][ea_cp][1]):
                     st += 1
                     tmpDict = {}
                     print(copy_files['cp'])
                     print(copy_files['ncp'])
                     tmpDict['cp'] = copy.deepcopy(copy_files['cp'])
-                    tmpDict['ncp'] = copy.deepcopy(copy_files['cp'])
+                    tmpDict['ncp'] = copy.deepcopy(copy_files['ncp'])
                     tmpDict['tmp'] = {}
-                    self.listNeedCopy([cp_copy_fils['tmp'][ea_cp][0]],st,tmpDict)
+                    # copy_files['tmp'].pop(ea_cp)
+                    ret_dict = copy.deepcopy(self.listNeedCopy([cp_copy_fils['tmp'][ea_cp][0]], st, tmpDict))
+                    copy_files['cp'] = ret_dict['cp']
+                    copy_files['ncp'] = ret_dict['ncp']
+                    copy_files['tmp'].pop(ea_cp)
                 # raise Exception("td test")
-                else: copy_files['tmp'].pop(ea_cp)
-
-            # else:
-            #     cp_copy_fils['cp'][ea_cp] = []
+                else:
+                    copy_files['tmp'].pop(ea_cp)
         print ("============================================")
         for ea in copy_files['cp'].values():
             print ("cp :::{}".format(ea))
@@ -424,7 +450,6 @@ class OCT_ExchangeProxy(qg.QMainWindow,exprxy.Ui_exchProxyWin):
         # print ("tmp':::{}".format(copy_files['tmp'].values()))
         print("<<<<<<<End parse {:05d}<<<<<<<<<".format(st))
         return copy_files
-
 
     def get_prxs(self, proxyType='aiStandIn', selObj=None):  # get all specify proxy shape node list
         all_need_prxy = []

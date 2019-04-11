@@ -62,6 +62,13 @@
              <enum>QFrame::Raised</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_5">
+             <item row="1" column="0">
+              <widget class="QPushButton" name="smoothSetT_bt">
+               <property name="text">
+                <string>SmoothSet Tools</string>
+               </property>
+              </widget>
+             </item>
              <item row="0" column="1">
               <widget class="QPushButton" name="waiting_bt">
                <property name="enabled">
@@ -79,13 +86,6 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="0">
-              <widget class="QPushButton" name="smoothSetT_bt">
-               <property name="text">
-                <string>SmoothSet Tools</string>
-               </property>
-              </widget>
-             </item>
             </layout>
            </widget>
           </item>
@@ -98,16 +98,51 @@
              <enum>QFrame::Raised</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_2">
-             <item row="0" column="0">
+             <item row="1" column="0">
               <layout class="QGridLayout" name="gridLayout">
-               <item row="2" column="1">
+               <item row="2" column="0">
+                <widget class="QPushButton" name="dsly_tidy_bt">
+                 <property name="text">
+                  <string>display Layer 清理</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <widget class="QPushButton" name="nmsp_tidy_bt">
+                 <property name="text">
+                  <string>name space 工具</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QPushButton" name="suff_tidy_bt">
+                 <property name="text">
+                  <string>选取添加 _ 后缀</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="QPushButton" name="set_tidy_bt">
+                 <property name="text">
+                  <string>标记set组</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QPushButton" name="nm_tidy_bt">
+                 <property name="text">
+                  <string>Object Name 整理</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="2">
                 <widget class="QPushButton" name="emgrp_tidy_bt">
                  <property name="text">
                   <string>自动清理空组</string>
                  </property>
                 </widget>
                </item>
-               <item row="3" column="1">
+               <item row="6" column="2">
                 <widget class="QPushButton" name="inac_tidy_bt">
                  <property name="enabled">
                   <bool>false</bool>
@@ -123,45 +158,17 @@
                  </property>
                 </widget>
                </item>
-               <item row="3" column="0">
+               <item row="5" column="2">
+                <widget class="QPushButton" name="selSmth_tidy_bt">
+                 <property name="text">
+                  <string>选取物体smooth</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="0">
                 <widget class="QPushButton" name="anlab_tidy_bt">
                  <property name="text">
                   <string>模型添加ct_an标记</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="0">
-                <widget class="QPushButton" name="nm_tidy_bt">
-                 <property name="text">
-                  <string>Object Name 整理</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QPushButton" name="set_tidy_bt">
-                 <property name="text">
-                  <string>标记set组</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QPushButton" name="suff_tidy_bt">
-                 <property name="text">
-                  <string>选取添加 _ 后缀</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QPushButton" name="nmsp_tidy_bt">
-                 <property name="text">
-                  <string>name space 工具</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QPushButton" name="dsly_tidy_bt">
-                 <property name="text">
-                  <string>display Layer 清理</string>
                  </property>
                 </widget>
                </item>

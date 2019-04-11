@@ -47,6 +47,7 @@ def proxyChanges():
 
 def ExchangeProxy4Instance():
 	import OCT_ExchangeProxy_v1 as oep
+	reload(oep)
 	if (mc.window('exchProxyWin', exists=True, q=True)):
 		mc.deleteUI('exchProxyWin')
 	inWin = oep.OCT_ExchangeProxy()

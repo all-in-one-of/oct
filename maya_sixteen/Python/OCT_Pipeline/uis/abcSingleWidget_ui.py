@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'abcSingleWidget.ui'
 #
-# Created: Wed Mar 27 20:32:09 2019
+# Created: Fri Apr 12 18:42:43 2019
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,9 +26,10 @@ except AttributeError:
 class Ui_abcS_form(object):
     def setupUi(self, abcS_form):
         abcS_form.setObjectName(_fromUtf8("abcS_form"))
-        abcS_form.resize(513, 418)
+        abcS_form.resize(428, 376)
+        self.gridLayout = QtGui.QGridLayout(abcS_form)
+        self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.abcFrm = QtGui.QFrame(abcS_form)
-        self.abcFrm.setGeometry(QtCore.QRect(10, 10, 421, 351))
         self.abcFrm.setMinimumSize(QtCore.QSize(410, 300))
         self.abcFrm.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.abcFrm.setFrameShape(QtGui.QFrame.Panel)
@@ -99,15 +100,15 @@ class Ui_abcS_form(object):
         self.label_4 = QtGui.QLabel(self.abcFrm)
         self.label_4.setObjectName(_fromUtf8("label_4"))
         self.verticalLayout.addWidget(self.label_4)
+        self.sel_cc_bt = QtGui.QPushButton(self.abcFrm)
+        self.sel_cc_bt.setObjectName(_fromUtf8("sel_cc_bt"))
+        self.verticalLayout.addWidget(self.sel_cc_bt)
         self.im_lst_tx = QtGui.QTextEdit(self.abcFrm)
         self.im_lst_tx.setMaximumSize(QtCore.QSize(16777215, 50))
         self.im_lst_tx.setLineWrapMode(QtGui.QTextEdit.NoWrap)
         self.im_lst_tx.setReadOnly(False)
         self.im_lst_tx.setObjectName(_fromUtf8("im_lst_tx"))
         self.verticalLayout.addWidget(self.im_lst_tx)
-        self.sel_cc_bt = QtGui.QPushButton(self.abcFrm)
-        self.sel_cc_bt.setObjectName(_fromUtf8("sel_cc_bt"))
-        self.verticalLayout.addWidget(self.sel_cc_bt)
         self.line = QtGui.QFrame(self.abcFrm)
         self.line.setFrameShape(QtGui.QFrame.HLine)
         self.line.setFrameShadow(QtGui.QFrame.Sunken)
@@ -137,6 +138,7 @@ class Ui_abcS_form(object):
         self.im_cc_bt.setObjectName(_fromUtf8("im_cc_bt"))
         self.horizontalLayout_3.addWidget(self.im_cc_bt)
         self.verticalLayout.addLayout(self.horizontalLayout_3)
+        self.gridLayout.addWidget(self.abcFrm, 0, 0, 1, 1)
 
         self.retranslateUi(abcS_form)
         QtCore.QMetaObject.connectSlotsByName(abcS_form)

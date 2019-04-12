@@ -417,6 +417,7 @@ def stuffShuffleSimple():
         p.addBooleanCheckBox(layer, False)
     if not p.show():
         print("Nothing selected")
+        return None
     foundLy = [ea for ea in lys if p.value(ea) ]
     foundLy.sort()
     for ea_rd in read_node:

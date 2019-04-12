@@ -424,7 +424,7 @@ def stuffShuffleSimple():
         px,py = ea_rd.xpos() -130,ea_rd.ypos() + 135
         ea_rd.setSelected(False)
         h_bias = 140
-        v_bias = 50
+        v_bias = 40
         pos_index = len(foundLy)
         bd_nm_str = "{}_channles".format(ea_rd.name())
         bd = None
@@ -444,10 +444,10 @@ def stuffShuffleSimple():
             shuf_1.setInput(0,ea_rd)
             shuf_1['hide_input'].setValue(True)
             shuf_1.setName("{}_".format(foundLy[i]))
-            shuf_1.knob('label').setValue("ExShf_{}_{}".format(ea_rd.name().upper(),foundLy[i]))
+            #shuf_1.knob('label').setValue("ExShf_{}_{}".format(ea_rd.name().upper(),foundLy[i]))
             shuf_1.setXYpos(px + h_bias*((i+exist_shfs)%3),py + v_bias*((i+exist_shfs)/3))
             shuf_1.setSelected(True)
     sel_shf_nm = len(nuke.selectedNodes("Shuffle"))
-    newH =  38 + ((sel_shf_nm-1)/3 + 1)*50
+    newH =  38 + ((sel_shf_nm-1)/3 + 1)*40
     bd.knob('bdheight').setValue(newH)
     for ea in nuke.selectedNodes(): ea.setSelected(False)

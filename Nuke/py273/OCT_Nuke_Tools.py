@@ -405,3 +405,35 @@ def setAllReadsOnError():
 
 def helpDoc():
     os.startfile(r'\\OCTVISION.com\cg\Tech\Nuke\Docs\OCT_Nuke_Tools_help.htm')
+
+def stuffShuffleSimple():
+    read_node = nuke.selectedNodes('Read')
+    sel0 = read_node[0]
+    chnls = sel0.channels()
+    lys = list(set([ech.split('.')[0] for ech in chnls]))
+    lys.sort()
+    p=nuke.Panel('Merge Selected Cameras and Create Channels')
+    for layer in lys:
+        p.addBooleanCheckBox(layer, False)
+    if not p.show():
+        print("Nothing selected")
+    foundLy = [ea for ea in lys if p.value(ea) ]
+    foundLy.sort()
+    for ea_rd in read_node:
+        px,py = ea_rd.xpos() -100,ea_rd.ypos() + 135
+        ea_rd.setSelected(False)
+        h_bias = 115
+        v_bias = 36
+        for i in range(len(foundLy)):
+            shuf_1=nuke.nodes.Shuffle()
+            shuf_1['in'].setValue(foundLy[i])
+            shuf_1.setInput(0,ea_rd)
+            shuf_1['hide_input'].setValue(True)
+            shuf_1.setName("{}".format(foundLy[i]))
+            shuf_1.setXYpos(px + h_bias*(i%3),py + v_bias*(i/3))
+            shuf_1.setSelected(True)
+        bd = nukescripts.autoBackdrop()
+        bd.knob('name').setValue("{}_channles".format(ea_rd.name()))
+        bd.knob('bdheight').setValue((len(foundLy)/3 + 1)*42 )
+        bd.knob('bdwidth').setValue(350)
+        bd.setYpos(py -25)

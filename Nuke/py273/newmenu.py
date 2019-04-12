@@ -45,6 +45,7 @@ if UserName:
         m.addCommand('&MSS_SC14 MergSelected Cameras', 'newmenu.MSS_SC14MergCamTool()')
         
         m.addCommand("&Add Exr Read's Shuffles", 'newmenu.AddExrShuffles()')
+        m.addCommand("&Add Exr Read's Shuffles Simple", 'newmenu.suffleSimple()')
         # m.addCommand("&New Add Exr Read's Shuffles", 'newmenu.AddExrShuffles_two()')
         m.addCommand('&Interval_Frame_Read', 'OCT_Nuke_Tools.Interval_frame_read_zwz()')
         m.addCommand(u'Import Right Images', 'OCT_AddRightImages_zwz.do_AddRightImages_zwz()')
@@ -238,3 +239,7 @@ def pickStr():
     import zb_PickStuffs_tools
     reload(zb_PickStuffs_tools)
     zb_PickStuffs_tools.main()
+def suffleSimple():# cryptomatte   shuffle simple edition
+    import OCT_Nuke_Tools as octnt
+    reload(octnt)
+    octnt.stuffShuffleSimple()

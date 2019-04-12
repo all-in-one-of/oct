@@ -421,20 +421,33 @@ def stuffShuffleSimple():
     foundLy = [ea for ea in lys if p.value(ea) ]
     foundLy.sort()
     for ea_rd in read_node:
-        px,py = ea_rd.xpos() -100,ea_rd.ypos() + 135
+        px,py = ea_rd.xpos() -130,ea_rd.ypos() + 135
         ea_rd.setSelected(False)
-        h_bias = 115
-        v_bias = 36
-        for i in range(len(foundLy)):
+        h_bias = 140
+        v_bias = 50
+        pos_index = len(foundLy)
+        bd_nm_str = "{}_channles".format(ea_rd.name())
+        bd = None
+        if nuke.exists(bd_nm_str):
+            bd = nuke.toNode(bd_nm_str)
+        else:
+            bd = nukescripts.autoBackdrop()
+            bd.knob('name').setValue("{}_channles".format(ea_rd.name()))
+            bd.setXpos(px-25)
+            bd.setYpos(py - 25)
+            bd.knob('bdwidth').setValue(420)
+        bd.selectNodes()
+        exist_shfs = len(nuke.selectedNodes("Shuffle"))
+        for i in range(pos_index):
             shuf_1=nuke.nodes.Shuffle()
             shuf_1['in'].setValue(foundLy[i])
             shuf_1.setInput(0,ea_rd)
             shuf_1['hide_input'].setValue(True)
-            shuf_1.setName("{}".format(foundLy[i]))
-            shuf_1.setXYpos(px + h_bias*(i%3),py + v_bias*(i/3))
+            shuf_1.setName("{}_".format(foundLy[i]))
+            shuf_1.knob('label').setValue("ExShf_{}_{}".format(ea_rd.name().upper(),foundLy[i]))
+            shuf_1.setXYpos(px + h_bias*((i+exist_shfs)%3),py + v_bias*((i+exist_shfs)/3))
             shuf_1.setSelected(True)
-        bd = nukescripts.autoBackdrop()
-        bd.knob('name').setValue("{}_channles".format(ea_rd.name()))
-        bd.knob('bdheight').setValue((len(foundLy)/3 + 1)*42 )
-        bd.knob('bdwidth').setValue(350)
-        bd.setYpos(py -25)
+    sel_shf_nm = len(nuke.selectedNodes("Shuffle"))
+    newH =  38 + ((sel_shf_nm-1)/3 + 1)*50
+    bd.knob('bdheight').setValue(newH)
+    for ea in nuke.selectedNodes(): ea.setSelected(False)

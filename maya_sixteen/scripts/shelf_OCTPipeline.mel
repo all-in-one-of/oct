@@ -145,6 +145,13 @@ python("import maya.mel as mel");
         -style "iconOnly" -i1 "pipeline\\shelfIcon_ppl_aniDataIO.png" -stp "python"
         -c "from OCT_Pipeline.scripts.Minor import menu_cmds;reload(menu_cmds);menu_cmds.call_ppl_ainmDataIO()"
         aniDataIO_an_shlbt;
+
+    shelfButton -docTag "Ani"
+        -en 1 -m 0 -font "smallPlainLabelFont"
+        -l "单个角色缓存工具" //-iol "Get"
+        -style "iconOnly" -i1 "pipeline\\shIcn_ppl_an_caSigCha.png" -stp "python"
+        -c "import OCT_anim\nOCT_anim.OCT_abcSglEdition()"
+        cachSingleEdt_an_shlbt;
 //===================VFX===================
 //    shelfButton -docTag "Eff"
 //        -en 1 -m 1 -vis 0 -font "smallPlainLabelFont"

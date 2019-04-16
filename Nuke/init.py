@@ -30,8 +30,7 @@ if not os.path.exists(localpath):
 
 nuke.pluginAddPath(localpath)
 
-import cryptomatte_utilities
-cryptomatte_utilities.setup_cryptomatte()
+
 
 
 sys.path.append(r"C:\Python27\Lib\site-packages")

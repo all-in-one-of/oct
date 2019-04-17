@@ -15,8 +15,8 @@ from ..Major import Ppl_pubCheck
 reload(Ppl_pubCheck)
 from ..Major import Ppl_scInfo
 reload(Ppl_scInfo)
-from ..utility import Kits
-reload(Kits)
+from ..utility import Kits4maya
+reload(Kits4maya)
 # scinf = pc.major.Pc_scInfo.Pc_scInfo()
 # reload(ppc)
 # chk = ppc.Pc_pubCheck()
@@ -215,7 +215,7 @@ def new_names(nodeObj, prifix=u'MSH', suffix=u'_',precision= None, pk_sid = None
         new_name_str = re.sub(u'[_]+$', u'', new_name_str)
     else:
         new_name_str += suffix
-    final_nm = Kits.Kits.unique_name(new_name_str,suff='_')
+    final_nm = Kits4maya.Kits.unique_name(new_name_str,suff='_')
     return final_nm
 
 def get_name_membs(nm_str,pk_sid=None): # return a dict, contains the new name needs membership

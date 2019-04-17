@@ -8,7 +8,6 @@ __mtime__ = 2019/4/2 : 9:55
 I love animals. They taste delicious.
 """
 import os,re,sys
-import pymel.core as pm
 class Kits(object):
     """
     some kits  little procedures are collected here

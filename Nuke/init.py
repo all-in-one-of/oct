@@ -21,15 +21,20 @@ else:
 # add plugin
 #------------------------------
 
-if not os.path.exists(r'C:\Program Files\Common Files\OFX\Plugins\NukeToolSet_master'):
+localpath = r'C:\Program Files\Common Files\OFX\Plugins\NukeToolSet_master'
+
+if not os.path.exists(localpath):
     bat_path = r'NukeToolSet_master\install\copy.bat'
     full_path = os.path.join(NUKE_ENVIRON_PATH, bat_path)
     os.system(full_path)
 
-nuke.pluginAddPath(r"C:\Program Files\Common Files\OFX\Plugins\NukeToolSet_master")
+nuke.pluginAddPath(localpath)
 
-import cryptomatte_utilities
-cryptomatte_utilities.setup_cryptomatte()
+
 
 
 sys.path.append(r"C:\Python27\Lib\site-packages")
+
+gizmo_localpath = os.path.join(localpath,'gizmos')
+for root,dir,file in os.walk(gizmo_localpath):
+    nuke.pluginAddPath(root)

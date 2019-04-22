@@ -827,7 +827,7 @@ global proc addRefEdPanel( string $whichPanel )
 	button
 		-label "ReShading" 
 		-w 60 -h $iconsize
-		-annotation "将选择的reference恢复材质连接"
+		-annotation "reference recover shadering"
 		-command "zwShadingEngineIO \":\""
 		zwShadingEngineIOButton;
 

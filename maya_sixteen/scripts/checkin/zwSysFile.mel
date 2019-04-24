@@ -1,6 +1,66 @@
 
+// 修改copy  模式  CPAU 登录一次 执行copy 所有 贴图操作
+global proc string zwSysFilePartial(string $cmd,		// 命令：copy、move、ren、del、md、rd
+			string $sourcePerNode[],
+			string $dest,
+			int $useProxy,	// 应用代理
+			string $execFile)
+{
 
-// 文件系统命令
+
+    string $OCTV_TECH = `getenv "OCTV_TECH"`;	//OCTV Tech folder
+    string $invokepath = $OCTV_TECH + "/bin/CPAU.exe -u octvision\\supermaya -p supermaya -ex ";
+
+    string $rs = "Upload fails!";
+    string $folder, $buf[];
+
+    string $username=`getenv username`;
+    $cmd = `tolower $cmd`;
+
+    for($source in $sourcePerNode)
+    {
+        string $filename = basename($source, "");
+
+        $source = `substituteAllString $source "/" "\\"`;
+
+        $sorce_spl = `stringToStringArray $source " "`;
+
+        $source_dir = dirname($sorce_spl[0]);
+
+        $dest = `substituteAllString $dest "/" "\\"`;
+
+        string $str1= `zwFullPath $source_dir`;
+        string $str2= `zwFullPath $dest`;
+
+        if (tolower($str1) == tolower($str2))
+        {
+            return 0;
+        }
+        tokenize $dest "\\" $buf;
+        $folder = `substring $dest 1 (size($dest) - size($buf[size($buf) - 1]))`;
+        string	$cmdvar = substituteAllString($OCTV_TECH, "\/", "\\");
+
+        $wrtCmd = $cmdvar + "\\bin\\FastCopy341\\FastCopy.exe" + " /force_close /cmd=sync  -nowarn -wait "+ $source + " /to=\"" + $dest + "\"\n";
+        print ("\nPERFORM COMMAND :\n" + $wrtCmd + "\n");
+//    $exampleFileName = ( `internalVar -userTmpDir` + "example.tmp" );
+        print $execFile;
+        $fileId=`fopen $execFile "a"`;
+        fprint $fileId $wrtCmd;
+        fclose $fileId;
+    }
+
+    $cmd = $invokepath + $execFile;
+    $rs = `system $cmd`;
+    string $testList[] = `getFileList -folder $dest`;
+    if (size($testList))
+    {
+//        print ("\ndestfile---" + $dest + "\\" + $filename + "\n");
+        $rs = "";
+    }
+    return $rs;
+}
+
+
 
 global proc string zwSysFile(
 			string $cmd,		// 命令：copy、move、ren、del、md、rd
@@ -21,16 +81,19 @@ global proc string zwSysFile(
 	$cmd = `tolower $cmd`;
 	$source = `substituteAllString $source "/" "\\"`;
 	$dest = `substituteAllString $dest "/" "\\"`;
-	$dir_copy = false;
-	if($username == "qiaol"||$username == "zhangben")
-	{
-      string $fn_buf[];
-      tokenize $filename "." $fn_buf;
-      if( $fn_buf[size($fn_buf)-1] != "ma" || $fn_buf[size($fn_buf)-1] != "mb")
-      {
-        $dir_copy = true;
-      }
-	}
+//	$dir_copy = false;
+//	if($username == "qiaol"||$username == "zhangben")
+//	{
+//      string $fn_buf[];
+//      tokenize $filename "." $fn_buf;
+//      if( $fn_buf[size($fn_buf)-1] != "ma" || $fn_buf[size($fn_buf)-1] != "mb")
+//      {
+//        //$dir_copy = true;
+//        $dir_copy = false;
+//      }
+//	}
+	// check copy
+//	print("lien 36 =====" + $dest + "\n");
  	if ($useProxy)
 	{
 	}
@@ -48,19 +111,19 @@ global proc string zwSysFile(
 				{
 					$cmd = $invokepath + "\"" + "COPY /Y \\\"" + $source + "\\\" \\\"" + $dest + "\\\"" + "\" -lwp -c -nowarn -wait";
 				//	$cmd = $invokepath + "\"" + "COPY " + $source + " " + $dest + "\" -lwp -k";
-				    if ($dir_copy){
-                            $cmd = "copy /Y " + $source + " " + $dest ;}
+//				    if ($dir_copy){
+//                            $cmd = "copy /Y " + $source + " " + $dest ;}
 					print ("\n--copy command:   " + $cmd + "\n");
 					$rs = `system $cmd`;
 					if(`filetest -f $dest`){
-						print ("\n-destination file :  " + $dest  + "\n");
+//						print ("\n-destination file :  " + $dest  + "\n");
 						$rs = "";
 					}
 					else
 					{
-					 print("----destinate file name ::: " + $dest + "\\" + $filename + "\n");
+//					 print("----destinate file name ::: " + $dest + "\\" + $filename + "\n");
 					 if (`filetest -f ($dest +"\\\\" + $filename)`){
-    					print ("\n-destination file :  " + $dest + $filename + "\n");
+//    					print ("\n-destination file :  " + $dest + $filename + "\n");
 						$rs = "";
 					    }
 					}
@@ -87,14 +150,14 @@ global proc string zwSysFile(
 
 					$cmd = $invokepath + "\"" + $cmdvar + "\\bin\\FastCopy341\\FastCopy.exe" + " /force_close /cmd=sync \\\"" + $source + "\\\" /to=\\\"" + $dest + "\\\"\" -nowarn -wait";
 
-					print ("\n---------------" + $cmd + "\n");
+					print ("\nPERFORM COMMAND :\n" + $cmd + "\n");
 
 					$rs = `system $cmd`;
 					
 					string $testList[] = `getFileList -folder $dest`;
 					if (size($testList))
 					{
-						print ("\n---------destfile---" + $dest + "\\" + $filename + "\n");
+//						print ("\n-destfile---" + $dest + "\\" + $filename + "\n");
 						$rs = "";
 					}
 				//}
@@ -171,7 +234,7 @@ global proc string zwSysFile(
 			{
 				//$cmd = $invokepath + "DEL/F/Q \"" + $source + "\"";
 				$cmd = $invokepath + "\"" + "DEL /F /Q \\\"" + $source + "\\\"" + "\" -lwp -c -nowarn -wait";
-				print ("\n---------------" + $cmd + "\n");
+				print ("\nDELETE COMMAND :\n" + $cmd + "\n");
 				$rs = `system $cmd`;
 				if (!`filetest -f $source`)
 					$rs = "";

@@ -47,7 +47,7 @@ global proc zwCopyTextureImage(string $version, string $args[])
 	string $exceptFolder;	// 排除的目录
 	string $project;
 	int $selectionOnly = false;
-    string $usename=`getenv username`;
+    string $username=`getenv username`;
 	//deal with photo map and final gather map
 	if ($version == 2)
 	{
@@ -73,14 +73,7 @@ global proc zwCopyTextureImage(string $version, string $args[])
 							{
 								
 								$map = `zwFullPath $map`;
-								//add by zhangben test copy direct
-
-//                                if ($usename == "qiaol"||$usename == "zhangben"){
-//								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
-//                                }
-//                                else{
 								 $sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
-//								}
 								string $basename = basename($map, "");
 
 								string $destFolder_tmp = `substitute "//octvision.com/CG/Themes" $destFolder "Z:/Themes"`;
@@ -100,14 +93,7 @@ global proc zwCopyTextureImage(string $version, string $args[])
 							if(`filetest -f $map`)
 							{
 								$map = `zwFullPath $map`;
-								//add by zhangben test copy direct
-
-//                                if ($usename == "qiaol"||$usename == "zhangben"){
-//								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
-//                                }
-//                                else{
 								$sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
-//								}
 								string $basename = basename($map, "");
 
 								string $destFolder_tmp = `substitute "//octvision.com/CG/Themes" $destFolder "Z:/Themes"`;
@@ -147,17 +133,9 @@ global proc zwCopyTextureImage(string $version, string $args[])
 						{
 							if(`filetest -f $map`)
 							{
-								
-								print ("\n---------------$destFolder:" + $destFolder);
+								print ("\ndestFolder:" + $destFolder);
 								$map = `zwFullPath $map`;
-								//add by zhangben test copy direct
-
-//                                if ($usename == "qiaol"||$usename == "zhangben"){
-//								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
-//                                }
-//                                else{
 								$sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
-//								}
 								string $basename = basename($map, "");
 
 								string $destFolder_tmp = `substitute "//octvision.com/CG/Themes" $destFolder "Z:/Themes"`;
@@ -178,14 +156,7 @@ global proc zwCopyTextureImage(string $version, string $args[])
 							{
 								
 								$map = `zwFullPath $map`;
-								//add by zhangben test copy direct
-
-//                                if ($usename == "qiaol"||$usename == "zhangben"){
-//								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
-//                                }
-//                                else{
 								$sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
-//								}
 								string $basename = basename($map, "");
 
 								string $destFolder_tmp = `substitute "//octvision.com/CG/Themes" $destFolder "Z:/Themes"`;
@@ -206,14 +177,7 @@ global proc zwCopyTextureImage(string $version, string $args[])
 							{
 								
 								$map = `zwFullPath $map`;
-								//add by zhangben test copy direct
-
-//                                if ($usename == "qiaol"||$usename == "zhangben"){
-//								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
-//                                }
-//                                else{
 								$sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
-//								}
 								string $basename = basename($map, "");
 
 								string $destFolder_tmp = `substitute "//octvision.com/CG/Themes" $destFolder "Z:/Themes"`;
@@ -234,14 +198,7 @@ global proc zwCopyTextureImage(string $version, string $args[])
 							{
 								
 								$map = `zwFullPath $map`;
-								//add by zhangben test copy direct
-
-//                                if ($usename == "qiaol"||$usename == "zhangben"){
-//								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
-//                                }
-//                                else{
 								$sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
-//								}
 								string $basename = basename($map, "");
 
 								string $destFolder_tmp = `substitute "//octvision.com/CG/Themes" $destFolder "Z:/Themes"`;
@@ -262,14 +219,7 @@ global proc zwCopyTextureImage(string $version, string $args[])
 							{
 								
 								$map = `zwFullPath $map`;
-								//add by zhangben test copy direct
-
-//                                if ($usename == "qiaol"||$usename == "zhangben"){
-//								     $sysrs = `zwSysFile "copy" $map $destFolder 0`;
-//                                }
-//                                else{
 								$sysrs = `zwSysFile "fcopy" $map $destFolder 0`;
-//								}
 								string $basename = basename($map, "");
 
 								string $destFolder_tmp = `substitute "//octvision.com/CG/Themes" $destFolder "Z:/Themes"`;
@@ -297,6 +247,24 @@ global proc zwCopyTextureImage(string $version, string $args[])
 		$project	= $args[6];
 		$selectionOnly	= $args[7];
 	}
+    // add by zhangben 2019 04 23  for new copy mode
+    //=============================================================
+    int $newCopyMode = 0;
+  	string $all_valid_copys[]; //所有需要copy 的 贴图 存储进，用来判断 多个节点如果有重复贴图就不进行copy
+    string $rec_txs_by_node[]; // 按节点方式 记录 ：每个node 关联的贴图们 写在一起 为一条 fastCopy 命令的参数
+	string $ALL_COPY_FILES_STR; // 只执行一次copy 的模式  把所有要copy的贴图 写入一条 fastcopy
+    string $mis_nm;             // 新添加的 传入的参数 用来 生成 bat 文件命名
+    string $dest_txs_by_node[]; // 把目标贴图存储起来，跟Node 一一对应，用于重新指定 attribute
+    if (size($args) > 8) {
+        $newCopyMode = 1;
+        $mis_nm = $args[8];
+    }
+    string $testUSER[] = {"zhangben"};
+    if(`stringArrayCount $username $testUSER`){
+        $newCopyMode = 2;
+        print("***********NEW COPY MODE CHECK****************");
+    }
+    //==============================================================
 
 	int $batchMode = `about -batch`;
 
@@ -328,6 +296,10 @@ global proc zwCopyTextureImage(string $version, string $args[])
 		progressWindow -progress $progress -max $max -title "Copy Maps" -status ($progress + "/" + $max) -isInterruptable true;
 	for ($node in $nodes)
 	{
+		// add by zhangben for new copy mode
+		string $cpFils_;
+        string $valid_copys[];
+        //==============================================
 		if (!$batchMode)
 		{
 			if (`progressWindow -query -isCancelled`)
@@ -352,7 +324,6 @@ global proc zwCopyTextureImage(string $version, string $args[])
 		}
 
 		$file = `workspace -expandName $file`;
-
 
 		if (!`filetest -f $file`)
 		{
@@ -381,7 +352,6 @@ global proc zwCopyTextureImage(string $version, string $args[])
 				}
 			}
 
-
 			$message = "贴图/代理丢失：" + $node + "." + $attr + "\t" + $file;
 			if ($errorStop)
 			{
@@ -402,22 +372,22 @@ global proc zwCopyTextureImage(string $version, string $args[])
 		$file = `zwFullPath $file`;
 		string $texture = $file;
 		
-		print ("\n---------------texture:" + $texture);
+		print ("\nSourceTEXTURE:" + $texture);
 
 		int $except = false;
 		if (`gmatch (tolower($file)) (tolower($exceptFolder))`||`gmatch (tolower($texture)) (tolower($OCTV_PROJECTS  + "/" + $project + "/Project/sourceimages/*"))`||`gmatch (tolower($texture)) (tolower("${OCTV_PROJECTS}/" + $project + "/Project/sourceimages/*"))`)
 			$except = true;
-		print ("\n---------------except:" + $except);
-
 		clear $buf4;
 		//
 		string $filename = `match "[^/\\]+$" $file`;
 		string $folder = `substring $file 1 (size($file) - size($filename))`;
 		$texture = $destFolder + "/" + $filename;
+		//add by zhangben 2019 04 23 for new copy mode
+		$dest_txs_by_node[size($dest_txs_by_node)] = $texture;
 
 		if(!$except)	// 需要上传
 		{
-			print ("\n---------------desttexture:" + $texture);
+			print ("\nDestTexture:" + $texture);
 			$buf4[size($buf4)] = $file;
 			if (`attributeExists "useFrameExtension" $node`)
 			{
@@ -430,8 +400,6 @@ global proc zwCopyTextureImage(string $version, string $args[])
 					}
 				}
 			}
-
-			//
 
 			if (`attributeExists "uvTilingMode" $node`){
 
@@ -462,105 +430,134 @@ global proc zwCopyTextureImage(string $version, string $args[])
 		}
 		else
 			$modifyPath = 0;
-
+        
 		for ($source in $buf4)
 		{
-			if (!$batchMode)
+            // add by zhangben 2019 04 23 for new copy mode
+			if ($newCopyMode)
 			{
-				if (`progressWindow -query -isCancelled`)
-				{
-					progressWindow -endProgress;
-					error "";
-				}
-			}
-
-			if(`stringArrayCount $source $all`)
-				continue;
-
-			$all[size($all)] = $source;
-
-			string $filename = `match "[^/\\]+$" $source`;
-			string $dest = $destFolder;
-
-			print ("\n---------------dest:" + $dest);
-
-			/*$rs = `zwSysFile "fcopy" $source $dest 0`;
-
-			if ($rs != "")
-			{
-				$message = "拷贝文件出错：" + $node + "." + $attr + "\n" + $rs;
-				if ($errorStop)
-				{
-					if (!$batchMode)
-						progressWindow -endProgress;
-					if ($percentage >= 100)
-						error $message;
-					else
-						warning $message;
-				}
-				else
-				{
-					warning $message;
-					continue;
-				}
-			}
-			else
-				print ($dest + "\n");*/
-
-			while(true){
-			    //add by zhangben test copy direct dest ........
-                string $rs = "";
-                if ($usename == "qiaol"||$usename == "zhangben"){
-					$rs = `zwSysFile "copy" $source $destFolder 0`;
+                if(`stringArrayCount $source $all_valid_copys`)
+                {
+                    continue;
                 }
-                else{
+                string $filename = `match "[^/\\]+$" $source`;
+                string $dest = $destFolder;
+                print("\nCOPY TEXTURE : " + $source);
+                print ("\nTO DESTINATION:" + $dest);
+                $temp = substituteAllString ($source,"/","\\");
+                $tmp_2 = "\"" + $temp + "\"";
+
+                $valid_copys[size($valid_copys)] = $tmp_2;
+                $all_valid_copys[size($all_valid_copys)] = $tmp_2;
+                print ("\nWRITE TO COPY CMD ::::" + $tmp_2);
+			}
+            // =======================================================
+            else
+            {
+                if (!$batchMode)
+                {
+                    if (`progressWindow -query -isCancelled`)
+                    {
+                        progressWindow -endProgress;
+                        error "";
+                    }
+                }
+
+                if(`stringArrayCount $source $all`)
+                    continue;
+
+                $all[size($all)] = $source;
+
+                string $filename = `match "[^/\\]+$" $source`;
+                string $dest = $destFolder;
+                /*$rs = `zwSysFile "fcopy" $source $dest 0`;
+
+                if ($rs != "")
+                {
+                    $message = "拷贝文件出错：" + $node + "." + $attr + "\n" + $rs;
+                    if ($errorStop)
+                    {
+                        if (!$batchMode)
+                            progressWindow -endProgress;
+                        if ($percentage >= 100)
+                            error $message;
+                        else
+                            warning $message;
+                    }
+                    else
+                    {
+                        warning $message;
+                        continue;
+                    }
+                }
+                else
+                    print ($dest + "\n");*/
+                while(true){
+                    //add by zhangben test copy direct dest ........
+                    string $rs = "";
+//                    if ($username == "qiaol"||$username == "zhangben"){
+//                        $rs = `zwSysFile "copy" $source $destFolder 0`;
+//                    }
+//                    else{
                     $rs = `zwSysFile "fcopy" $source $destFolder 0`;
-                }
-//			    $rs = `zwSysFile "fcopy" $source $dest 0`;
-			    if ($rs != "")
-				{
-					$message = "拷贝文件出错：" + $node + "." + $attr + "\n" + $rs + "\n" + $source + $dest+ "请检查网络？";
-					if ($errorStop)
-					{
-						if (!$batchMode)
-							progressWindow -endProgress;
-						if ($percentage >= 100){
-							error $message;
-							break;
-						}else{
-						   string $result=`confirmDialog -title "警告" -message $message -button "Continue" -button "stop"`;
-						    if($result=="stop"){
-						        error $message;
-						        break;    
-						    }
-							//warning $message;
-						}
-					}
-					else
-					{
-					    string $result=`confirmDialog -title "警告" -message $message -button "Continue" -button "stop"`;
-			    	    if($result=="stop"){
-			    		     error $message;
-			    		     break;    
-			    		}
-						//warning $message;
-						//continue;
-					}
-				}
-				else{
-				   print ($dest + "\n"); 
-				   break;
-				}		
+//                    }
+    //			    $rs = `zwSysFile "fcopy" $source $dest 0`;
+                    if ($rs != "")
+                    {
+                        $message = "拷贝文件出错：" + $node + "." + $attr + "\n" + $rs + "\n" + $source + $dest+ "请检查网络？";
+                        if ($errorStop)
+                        {
+                            if (!$batchMode)
+                                progressWindow -endProgress;
+                            if ($percentage >= 100){
+                                error $message;
+                                break;
+                            }else{
+                               string $result=`confirmDialog -title "警告" -message $message -button "Continue" -button "stop"`;
+                                if($result=="stop"){
+                                    error $message;
+                                    break;
+                                }
+                                //warning $message;
+                            }
+                        }
+                        else
+                        {
+                            string $result=`confirmDialog -title "警告" -message $message -button "Continue" -button "stop"`;
+                            if($result=="stop"){
+                                 error $message;
+                                 break;
+                            }
+                            //warning $message;
+                            //continue;
+                        }
+                    }
+                    else{
+                       print ($dest + "\n");
+                       break;
+                    }
+                 }
+             }
+			if(!$newCopyMode){
+			    pause -sec 3;
 			}
-			pause -sec 3;
 		}
 
+        // add by zhangben 2019 04 23 for new copy mode
+        $cpFils_ = stringArrayToString($valid_copys," ");
+        if ($newCopyMode)
+        {
+            $ALL_COPY_FILES_STR += ($cpFils_ + " ");
+            $rec_txs_by_node[size($rec_txs_by_node)] = $cpFils_;
+            continue;
+        }
+        // =======================================================
 		string $sourceUrl = `getAttr ($node + "." + $attr)`;
 		$sourceUrl = `substituteAllString $sourceUrl "\\" "/"`;
 		string $destUrl = $texture;
 	
-		print ("\nmodifyPath:" + $modifyPath);
-		print("---------------------------\n");
+//		print ("\nmodifyPath:" + $modifyPath);
+//		print("---------------------------\n");
 		//if ($modifyPath && `filetest -f $texture` && tolower($sourceUrl) != tolower($destUrl))
 
 		//2015.6.5
@@ -574,8 +571,8 @@ global proc zwCopyTextureImage(string $version, string $args[])
 
 		//2016.12.14
 		if($modifyPath && `filetest -f $texture`){
-			print("node:"+$node);
-			print("seting:"+$destUrl+"\n");
+//			print("node:"+$node);
+//			print("seting:"+$destUrl+"\n");
 
 			$destUrl = `zwFullPath $destUrl`;
 			string $destUrl_tmp = `substitute "//octvision.com/CG/Themes" $destUrl "Z:/Themes"`;
@@ -590,6 +587,97 @@ global proc zwCopyTextureImage(string $version, string $args[])
 		}
 
 	}
+	//======================add by zhangben 2019 04 23 for new copy mode
+	if($newCopyMode)
+	{
+//        if ($newCopyMode == 1){
+//            print("\n======START NEW COPY MODE ===========\n");
+//            print("\n" + $ALL_COPY_FILES_STR + "\n");
+////            $rs = `zwSysFilePartial "fcopy" $ALL_COPY_FILES_STR $destFolder 0 0`;
+//            }
+        if ($newCopyMode == 2)
+        {
+            string $SYS_tmp = `getenv TEMP`;
+            string $mis_pth_shn = `file -q -sn -shn`;
+            string $buf_tmp[];
+            $ii = `tokenize $mis_pth_shn "." $buf_tmp`;
+
+            string $runBatfile = $SYS_tmp +"/" +  $buf_tmp[0] + ".bat";
+            print("\n=============print copy files per node =====================\n");
+            print("\n============================================================\n");
+            for($each in $rec_txs_by_node){
+                print ($each+"\n");
+            }
+            print("\n=|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||=\n");
+
+
+            $rs = `zwSysFilePartial "fcopy" $rec_txs_by_node $destFolder 0 $runBatfile`;
+
+        }
+        if ($rs != "")
+        {
+            $message = "拷贝文件出错：请检查网络？";
+            if ($errorStop)
+            {
+                if (!$batchMode)
+                    progressWindow -endProgress;
+                if ($percentage >= 100){
+                    error $message;
+                }else{
+                   string $result=`confirmDialog -title "警告" -message $message -button "Continue" -button "stop"`;
+                    if($result=="stop"){
+                        error $message;
+                    }
+                    //warning $message;
+                }
+            }
+            else
+            {
+                string $result=`confirmDialog -title "警告" -message $message -button "Continue" -button "stop"`;
+                if($result=="stop"){
+                     error $message;
+                }
+                //warning $message;
+                //continue;
+            }
+        }
+        else{
+           print ($destFolder + "\n");
+        }
+
+
+        for ($n=0;$n<size($nodes);$n++)
+        {
+            pause -sec 3;
+            $node = $nodes[$n];
+            $texture = $dest_txs_by_node[$n];
+            string $sourceUrl = `getAttr ($node + "." + $attr)`;
+            $sourceUrl = `substituteAllString $sourceUrl "\\" "/"`;
+            string $destUrl = $texture;
+            print("\nSET TEXTURE PATH:\n");
+            print("\nNODE NAME : " + $node + "\n");
+            print("\nTEXTURE   : " + $texture + "\n");
+            print("\nMODIFYPATH: " + $modifyPath + "\n");
+
+            //2016.12.14
+            if($modifyPath && `filetest -f $texture`){
+                print("ENTER FIRSTTIME SETATTRIBUTE\n");
+                $destUrl = `zwFullPath $destUrl`;
+                string $destUrl_tmp = `substitute "//octvision.com/CG/Themes" $destUrl "Z:/Themes"`;
+                $destUrl_tmp = `substituteAllString $destUrl_tmp "${OCTV_PROJECTS}" "Z:/Themes"`;
+                setAttr ($node + "." + $attr) -type "string" $destUrl_tmp;
+
+
+            }else if($modifyPath && (!`filetest -f $texture`)){
+                print("FISRT TIME SET TEXTURE FAILED\n");
+                $allnoSetNodePath[size($allnoSetNodePath)] = $node;
+                $allnoSetNodePath[size($allnoSetNodePath)] = $attr;
+                $allnoSetNodePath[size($allnoSetNodePath)] = $destUrl;
+            }
+        }
+
+	}
+//	===================================================================
 	string $allNodePath[];
 	string $tempNode[];
 	clear $allNodePath;
@@ -598,7 +686,8 @@ global proc zwCopyTextureImage(string $version, string $args[])
 
 	string $infos = "";
 	string $message = "";
-	while(size($allNodePath)>0){
+	while(size($allNodePath)>0)
+	{
 		$infos = "";
 		for($i=0; $i<size($allNodePath); $i = $i+3){
 			if(`filetest -f $allNodePath[$i+2]`){
@@ -607,8 +696,9 @@ global proc zwCopyTextureImage(string $version, string $args[])
 				string $destPath_tmp = `substitute "//octvision.com/CG/Themes" $dest_t "Z:/Themes"`;
 				$destPath_tmp = `substituteAllString $destPath_tmp "${OCTV_PROJECTS}" "Z:/Themes"`;
 				setAttr ($allNodePath[$i] + "." + $allNodePath[$i+1]) -type "string" $destPath_tmp;
-				print("node:"+$allNodePath[$i]);
-				print("seting:"+$allNodePath[$i+2]+"\n");
+				print("\nNODE: "+$allNodePath[$i]);
+				print("\nATTR:"+$allNodePath[$i+2]);
+				print("\nPATH:"+$destPath_tmp + "\n");
 			}else{
 				$tempNode[size($tempNode)] = $allNodePath[$i];
 				$tempNode[size($tempNode)] = $allNodePath[$i+1];
@@ -620,8 +710,9 @@ global proc zwCopyTextureImage(string $version, string $args[])
 			$message = "设置贴图出错：" + $infos +"请检查贴图是否存在或网络是否正常？";
 			string $result=`confirmDialog -title "警告" -message $message -button "Continue" -button "stop"`;
 		    if($result=="stop"){
+		        progressWindow -endProgress;
 		        error $message;
-		        break;    
+		        break;
 		    }
 		}
 		clear $allNodePath;

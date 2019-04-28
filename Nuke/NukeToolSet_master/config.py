@@ -95,6 +95,13 @@ nuke_config = {
                     "type": "gizmo"
                 },
                 {
+                    "name": "Channel/pgBokeh",
+                    "command": "pgBokeh",
+                    "shortcut": "",
+                    "icon": "pgBokeh.png",
+                    "type": "gizmo"
+                },
+                {
                     "name": "Channel/akromatism_stRub",
                     "command": "akromatism_stRub",
                     "shortcut": "",

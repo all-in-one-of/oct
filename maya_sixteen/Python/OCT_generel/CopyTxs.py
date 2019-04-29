@@ -40,7 +40,7 @@ class CopyTxs(object):
         self.in_txs_num = len(self.recTxsList)
         if not self.in_txs_num:
             self.resultStr = "{0}>>> No Textrue need copy???!!!{0}".format(os.linesep)
-            print("{0}>>> No Textrue need copy???!!!{0}".format(os.linesep))
+            print(self.resultStr)
         # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         # print(len(self.recTxsList))
         # for ea in self.recTxsList:
@@ -129,7 +129,7 @@ class CopyTxs(object):
                     # time.sleep(1.5)
             # mc.progressWindow(cpProgressWin, endProgress=1)
         if self.copy_count < self.in_txs_num:
-            self.resultStr = u">>>!!!ATTENTION PLEASE>>>!!!!本次只更新了 [ {} ] 张贴图中的 [{}] 张贴图".format(self.in_txs_num,self.copy_count)
+            self.resultStr = u">>>!!!ATTENTION PLEASE>>>!!!! 本次只更新了 [ {} ] 张贴图中的 [{}] 张贴图".format(self.in_txs_num,self.copy_count)
             print(self.resultStr)
         else:
             self.resultStr =u">>>共上传了 [{}]  张贴图".format(self.copy_count)
@@ -162,8 +162,8 @@ class CopyTxs(object):
     def wr_bat(self):#生成相关文件
         # print("COPY EXECU COMMAND NUMBER : {}".format(self.exec_count))
         if not self.exec_count:
-            self.resultStr = "{0}>>>ALL TEXTRUE FILES EXISTS! COPY UNNECESSARY{0}".format(os.linesep)
-            print(self.resultStr)
+            print("{0}>>>ALL TEXTRUE FILES EXISTS! COPY UNNECESSARY{0}".format(os.linesep))
+            self.resultStr = u">>>!!!ATTENTION PLEASE>>>!!!! 本次上传没有贴图更新！！！！！".format(os.linesep)
             return None
         print("rec_cptimes_f :::::{}".format(self.rec_cptimes_f))
         if os.path.isfile(self.rec_cptimes_f): os.remove(self.rec_cptimes_f)

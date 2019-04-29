@@ -13,8 +13,6 @@ reload(Kits)
 import maya.mel as mel
 import maya.cmds as mc
 import string
-
-
 class CopyTxs(object):
     """
     重构copy texture file 可接受mel 传递的参数  也可以 直接传 参数调用

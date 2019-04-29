@@ -266,9 +266,6 @@ global proc zwCopyTextureImage(string $version, string $args[])
         string $testUSER[] = {"zhangben"};
         if(`stringArrayCount $username $testUSER`){
             $newCopyMode = 2;
-            print("\n***********NEW COPY MODE CHECK****************\n");
-//            print("node type      ::" + $nodeType + "\n");
-//            print("attribute name ::" + $attr + "\n");
         }
     }
     //==============================================================
@@ -325,8 +322,6 @@ global proc zwCopyTextureImage(string $version, string $args[])
 		{
 			continue;
 		}
-
-		//print ("\n---------------node:" + $node);
 
 		string $file = `getAttr ($node + "." + $attr)`;
 		if ($file == "")
@@ -400,7 +395,6 @@ global proc zwCopyTextureImage(string $version, string $args[])
 
 		if(!$except)	// 需要上传
 		{
-//			print ("\nDestTexture:" + $texture);
 			$buf4[size($buf4)] = $file;
 			if (`attributeExists "useFrameExtension" $node`)
 			{
@@ -455,14 +449,11 @@ global proc zwCopyTextureImage(string $version, string $args[])
                 }
                 string $filename = `match "[^/\\]+$" $source`;
                 string $dest = $destFolder;
-//                print("\nCOPY TEXTURE : " + $source);
-//                print ("\nTO DESTINATION:" + $dest);
                 $temp = substituteAllString ($source,"/","\\");
                 $tmp_2 = "\"" + $temp + "\"";
 
                 $valid_copys[size($valid_copys)] = $tmp_2;
                 $all_valid_copys[size($all_valid_copys)] = $tmp_2;
-//                print ("\nWRITE TO COPY CMD ::::" + $tmp_2);
 
 			}
             // =======================================================
@@ -553,7 +544,6 @@ global proc zwCopyTextureImage(string $version, string $args[])
 
         // add by zhangben 2019 04 23 for new copy mode
         $cpFils_ = stringArrayToString($valid_copys," ");
-//        print ("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++line 554\n" + $cpFils_);
         if ($newCopyMode)
         {
             $ALL_COPY_FILES_STR += ($cpFils_ + " ");
@@ -565,8 +555,6 @@ global proc zwCopyTextureImage(string $version, string $args[])
 		$sourceUrl = `substituteAllString $sourceUrl "\\" "/"`;
 		string $destUrl = $texture;
 	
-//		print ("\nmodifyPath:" + $modifyPath);
-//		print("---------------------------\n");
 		//if ($modifyPath && `filetest -f $texture` && tolower($sourceUrl) != tolower($destUrl))
 
 		//2015.6.5
@@ -580,8 +568,6 @@ global proc zwCopyTextureImage(string $version, string $args[])
 
 		//2016.12.14
 		if($modifyPath && `filetest -f $texture`){
-//			print("node:"+$node);
-//			print("seting:"+$destUrl+"\n");
 
 			$destUrl = `zwFullPath $destUrl`;
 			string $destUrl_tmp = `substitute "//octvision.com/CG/Themes" $destUrl "Z:/Themes"`;
@@ -602,40 +588,11 @@ global proc zwCopyTextureImage(string $version, string $args[])
         progressWindow -endProgress ;
         if ($newCopyMode == 2)
         {
-
-//            print("MEL =====copye texture count :" + size($REC_TXS_BY_NODE)+"\n");
-//            print("MEL ===== CECK texture number \n");
-//            for ($n in $REC_TXS_BY_NODE){
-//                print ($n+"\n");
-//            }
-//            print("\nMEL CHECKED FINISHIED\n")
             python("import OCT_generel.CopyTxs as cptxs\nreload(cptxs)");
             string $mis_pth_shn = `file -q -sn -shn`;
             string $deliverArgStr = "doCp = cptxs.CopyTxs(\"fastCopy\",\"$ALL_FILE_NODES\",\"$REC_TXS_BY_NODE\",\"" + $destFolder + "\",\"" + $mis_pth_shn + "\")";
             python($deliverArgStr);
             python("doCp.copytxs()");
-
-
-//            string $SYS_tmp = `getenv TEMP`;
-//              string $mis_pth_shn = `file -q -sn -shn`;
-//            string $buf_tmp[];
-//            $ii = `tokenize $mis_pth_shn "." $buf_tmp`;
-//            string $runBatfile = $SYS_tmp +"/" +  $buf_tmp[0] + ".bat";
-//            print("\n=============print copy files per node =====================\n");
-//            print("\n============================================================\n");
-//            for($each in $REC_TXS_BY_NODE){
-//                print ($each+"\n");
-//            }
-//            print("\n=|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||=\n");
-//            print("\nNODES LIST:==================================\n");
-//            print($ALL_FILE_NODES);
-//            print("\n" + size($ALL_FILE_NODES));
-//            print("\n");
-//            print("\nSHADER LIST:==================================\n");
-//            print($REC_TXS_BY_NODE);
-//            print("\n" + size($REC_TXS_BY_NODE));
-//            print("\n");
-//            $rs = `zwSysFilePartial "fcopy" $REC_TXS_BY_NODE $destFolder 0 $runBatfile`;
 
         }
 

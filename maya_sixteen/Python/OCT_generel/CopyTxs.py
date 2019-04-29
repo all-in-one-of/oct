@@ -142,8 +142,6 @@ class CopyTxs(object):
         self.copy_count = len(self.colect_allTxs)
         self.tidy_lst = [self.colect_allTxs[x:x + txNumPerGrp] for x in range(0, self.copy_count, txNumPerGrp)]
         self.exec_count = len(self.tidy_lst)
-
-
     def wr_bat(self):#生成相关文件
         print("rec_cptimes_f :::::{}".format(self.rec_cptimes_f))
         if os.path.isfile(self.rec_cptimes_f): os.remove(self.rec_cptimes_f)
@@ -170,8 +168,6 @@ class CopyTxs(object):
                     rec_cp_tm_str = "echo \"{}\">{}{}".format(exec_idx + 2, self.rec_cptimes_f, os.linesep)
                     f.write(rec_cp_tm_str)
 
-
-
     def check_copyTimes(self):
         res = 0
         with open(self.rec_cptimes_f, 'r') as f_cptm:
@@ -181,7 +177,6 @@ class CopyTxs(object):
     def ref_pr_bar(self,cur_cp_num, exec_count, cpProgressWin):# 更新进度条
         prg_num_tmp = (cur_cp_num / float(exec_count)) * 100
         mc.progressWindow(cpProgressWin, e=True, progress=prg_num_tmp, status="Copy perform: {}%".format(prg_num_tmp))
-
 
     def filetest(self,filePth,destDir):# determins whether a file needs bo be copied.
         #filePth = new_ea_02
@@ -198,14 +193,6 @@ class CopyTxs(object):
         else: return None
 
 
-
-
-
-
-
-
-# cmd = shlex.split(searchPr_cmd)
-# print cmd
 
 
 

@@ -14,8 +14,7 @@ import OCT_Associate_attribute_zwz
 import ui_Checkin
 import OCT_xGPUCache
 import OCT_edit_vrayZDepth_deadline
-from OCT_changeToBlinn import *
-
+import OCT_changeToBlinn
 
 def renameTexture_temp():
     fileNodeNameList = mc.ls(typ='file')

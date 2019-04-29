@@ -62,7 +62,7 @@ def makeMenu():
     mc.menuItem(d=1, parent="OCT_Generel")
     mc.menuItem('UnloadPlugin', l=u'插件卸载器', ann=u'插件卸载器', c="OCT_generel.Unload_Plugins()", parent="OCT_Generel")
     mc.menuItem(d=1, parent="OCT_Generel")
-    mc.menuItem('changeToBlinn', l=u'转换成blinn材质', ann=u'转换成blinn材质', c="OCT_generel.changeToBlinn().do()", parent="OCT_Generel")
+    mc.menuItem('changeToBlinn', l=u'转换成blinn材质', ann=u'转换成blinn材质', c="OCT_generel.OCT_changeToBlinn.changeToBlinn().do()", parent="OCT_Generel")
 
 
     #检查工具

@@ -27,14 +27,20 @@ class CopyTxs(object):
         :param my_f_nm:  当前maya文件的名字 或者 要通过CPAU 执行的bat 文件的路径
         :return:
         """
-        print("ENTER NEW COPY MODE -------------------------------------")
+        print("{}ENTER NEW COPY MODE -------------------------------------".format(os.linesep))
+        # ==========返回值:
+        self.resultStr = None
         # === process argumets
         self.allFileNodes = [re.sub("\"", "", ea_item) for ea_item in mel.eval("global string {0}[];string $tmp_list[] = {0}".format(var_fileNods))] if isinstance(var_fileNods,str) else var_fileNods
         # for ea in self.allFileNodes: print ea
-        filesLst_read = mel.eval("global string {0}[];string $tmp_list2[] = {0}".format(var_copyTxsList))
+        self.recTxsList = [re.sub("\"", "", ea_item) for ea_item in mel.eval("global string {0}[];string $tmp_list2[] = {0}".format(var_copyTxsList))] if isinstance(var_copyTxsList,str) else var_copyTxsList
+        # filesLst_read = mel.eval("global string {0}[];string $tmp_list2[] = {0}".format(var_copyTxsList))
         # for ea_item in filesLst_read:
         #     print ea_item
-        self.recTxsList = [re.sub("\"", "", ea_item) for ea_item in filesLst_read] if isinstance(var_copyTxsList,str) else var_copyTxsList
+        self.in_txs_num = len(self.recTxsList)
+        if not self.in_txs_num:
+            self.resultStr = "{0}>>> No Textrue need copy???!!!{0}".format(os.linesep)
+            print("{0}>>> No Textrue need copy???!!!{0}".format(os.linesep))
         # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         # print(len(self.recTxsList))
         # for ea in self.recTxsList:
@@ -69,19 +75,22 @@ class CopyTxs(object):
         self.tidy_lst = []
         self.exec_count = 0
         self.tidyFiles()
+
     def copytxs(self):#copy
-        self.wr_bat()
+        if not self.wr_bat(): return self.resultStr
+        print("\n:::::RUN COMMAND::::\n")
+        print("{}".format(self.exec_cmd))
         EXEC_COPY = self.k.run_subpr(self.exec_cmd)
         cp_stTm = time.ctime()
         cp_endTm = time.ctime()
-        print("START COPY AT :{}{}".format(cp_stTm, os.linesep))
+        print(">>> START COPY AT :{}{}".format(cp_stTm, os.linesep))
         runingFcpy = self.k.monitoringPro('FastCopy.exe')
         new_fcp_pr = None
         copy_time = 1
         prg_num = (copy_time / float(self.exec_count)) * 100
         cpProgressWin = mc.progressWindow(title="Copy Textrues", progress=prg_num, status="Copy perform: {}%".format(prg_num), isInterruptable=True)
         while True:
-            print"ENTER MONITORING!!!!!!!!!!!!!!:{}".format(copy_time)
+            print"\t>>> ENTER MONITORING!!!!!!!!!!!!!!:{}{}".format(copy_time,os.linesep)
             cur_cp_num = self.check_copyTimes()
             if cur_cp_num != copy_time:
                 self.ref_pr_bar(cur_cp_num, self.exec_count, cpProgressWin)
@@ -91,26 +100,26 @@ class CopyTxs(object):
                 fcp_pr_2 = self.k.monitoringPro('FastCopy.exe', 0, runingFcpy)
                 if not fcp_pr_2:
                     if self.check_copyTimes() == self.exec_count + 1:
-                        print("COPY OPERATION DONE!!!!!!\n")
+                        print(">>> COPY OPERATION DONE!!!!!!\n")
                         cp_endTm = time.ctime()
-                        print("END TIME: {}".format(cp_endTm))
+                        print(">>> END TIME: {}{}".format(cp_endTm,os.linesep))
                         mc.progressWindow(cpProgressWin, endProgress=1)
                         break
                     else:
-                        mc.warning("COPY DONS'T PERFORM!!!PLEASE CHECK TEXTURES IN DESTINATION")
+                        mc.warning("\t>>> COPY DONS'T PERFORM!!!PLEASE CHECK TEXTURES IN DESTINATION\n")
                         mc.progressWindow(cpProgressWin, endProgress=1)
-                        mc.error("COPYE TERMINATIONED AT TIME ::::: {}/{} ".format(cur_cp_num, self.exec_count))
+                        mc.error("\t>>> COPYE TERMINATIONED AT TIME ::::: {}/{} \n".format(cur_cp_num, self.exec_count))
                         break
                 else:
                     new_fcp_pr = fcp_pr_2
             else:
                 if fcp_pr == new_fcp_pr:
                     if self.check_copyTimes() < self.exec_count + 1:
-                        print("THE SYSTEM WORK HARD AT COPYING......PLEASE WAIT  >>>>>>>>>>>\n")
+                        print(">>>.... THE SYSTEM WORK HARD AT COPYING......PLEASE WAIT  >>>>>>>>>>>\n")
                     else:
-                        print("COPY OPERATION DONE!!!!!!\n")
+                        print(">>> COPY OPERATION DONE!!!!!!\n")
                         cp_endTm = time.ctime()
-                        print("END TIME: {}".format(cp_endTm))
+                        print(">>> END TIME: {}".format(cp_endTm))
                         mc.progressWindow(cpProgressWin, endProgress=1)
                         break
                 else:
@@ -119,12 +128,19 @@ class CopyTxs(object):
                 copy_time = cur_cp_num
                     # time.sleep(1.5)
             # mc.progressWindow(cpProgressWin, endProgress=1)
-
-
+        if self.copy_count < self.in_txs_num:
+            self.resultStr = u">>>!!!ATTENTION PLEASE>>>!!!!本次只更新了 [ {} ] 张贴图中的 [{}] 张贴图".format(self.in_txs_num,self.copy_count)
+            print(self.resultStr)
+        else:
+            self.resultStr =u">>>共上传了 [{}]  张贴图".format(self.copy_count)
+            print(self.resultStr)
+        return self.resultStr
+        # raise Exception('td test check')
     def tidyFiles(self,txNumPerGrp=20):#重新整理copy texutre files 每 txNumPerGrp 个贴图分为一组
+        # print("L125: Tidy need copy texture {}  files".format(len(self.recTxsList)))
         for ea in self.recTxsList:
             # ea= recTxsList[16] # ea= recTxsList[5]
-            # print("=!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            # print(">>>=!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             # print ea
             ea_spl = ea.split(' ')
             tmp_list = []
@@ -135,12 +151,20 @@ class CopyTxs(object):
                 if new_ea_02 not in tmp_list: tmp_list.append(new_ea_02)
                 if new_ea_02 not in self.colect_allTxs and self.filetest(new_ea_02, self.destDir):
                     self.colect_allTxs.append(new_ea_02)
+                else:
+                    print("\ttexture eixists on server : {}".format(new_ea_02))
             idx = self.recTxsList.index(ea)
             self.txs_info_dict[self.allFileNodes[idx]] = tmp_list
         self.copy_count = len(self.colect_allTxs)
         self.tidy_lst = [self.colect_allTxs[x:x + txNumPerGrp] for x in range(0, self.copy_count, txNumPerGrp)]
         self.exec_count = len(self.tidy_lst)
+        # raise Exception("TD CHECK")
     def wr_bat(self):#生成相关文件
+        # print("COPY EXECU COMMAND NUMBER : {}".format(self.exec_count))
+        if not self.exec_count:
+            self.resultStr = "{0}>>>ALL TEXTRUE FILES EXISTS! COPY UNNECESSARY{0}".format(os.linesep)
+            print(self.resultStr)
+            return None
         print("rec_cptimes_f :::::{}".format(self.rec_cptimes_f))
         if os.path.isfile(self.rec_cptimes_f): os.remove(self.rec_cptimes_f)
         with open(self.rec_cptimes_f, 'w') as f_cptm:
@@ -165,7 +189,7 @@ class CopyTxs(object):
                 if exec_idx == self.exec_count - 1:
                     rec_cp_tm_str = "echo \"{}\">{}{}".format(exec_idx + 2, self.rec_cptimes_f, os.linesep)
                     f.write(rec_cp_tm_str)
-
+        return True
     def check_copyTimes(self):
         res = 0
         with open(self.rec_cptimes_f, 'r') as f_cptm:
@@ -187,6 +211,8 @@ class CopyTxs(object):
         # print targ_f_pth
         if not os.path.isfile(targ_f_pth): return True
         destf_mt = time.localtime(os.stat(targ_f_pth).st_mtime)
+        # print("SOURCE FILE M-Time: {}".format(txf_mt))
+        # print("DEST FILE M-Time  : {}".format(destf_mt))
         if txf_mt != destf_mt: return True
         else: return None
 

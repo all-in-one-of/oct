@@ -455,8 +455,14 @@ global proc octvCheckinMain(string $project,string $filename,string $destFolder,
 
 		string $parameters[] = {$project,$filename,$destFolder,$copyMaps,$copyCache,$optimizeImagePlane,$progress,$optimize,$mode,$destMapFolder,$asset_type,$attached,$desc};
 		octvCheckinCleanup($parameters);
-		
-		print "Checkin Succeeds!";
+
+		global string $cptx_re;
+		if ($cptx_re != ""){
+		    print("Checkin Succeeds!   >>> checkin texture details :" + $cptx_re );
+		}
+		else{
+		    print "Checkin Succeeds!";
+		}
 	}
 	deleteUI ocvtCheckinWindow;
 }

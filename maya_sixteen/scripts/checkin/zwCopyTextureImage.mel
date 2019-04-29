@@ -257,10 +257,13 @@ global proc zwCopyTextureImage(string $version, string $args[])
   	string $all_valid_copys[]; //所有需要copy 的 贴图 存储进，用来判断 多个节点如果有重复贴图就不进行copy
     global string $ALL_FILE_NODES[];
     global string $REC_TXS_BY_NODE[]; // 按节点方式 记录 ：每个node 关联的贴图们 写在一起 为一条 fastCopy 命令的参数
+
 	string $ALL_COPY_FILES_STR; // 只执行一次copy 的模式  把所有要copy的贴图 写入一条 fastcopy
     string $dest_txs_by_node[]; // 把目标贴图存储起来，跟Node 一一对应，用于重新指定 attribute
     clear $ALL_FILE_NODES;
     clear $REC_TXS_BY_NODE;
+    global string $cptx_re = "";
+
     if ($version == 3 && $nodeType == "file" && $attr == "fileTextureName")
     {
         string $testUSER[] = {"dengtao"};
@@ -269,16 +272,12 @@ global proc zwCopyTextureImage(string $version, string $args[])
         }
     }
     //==============================================================
-
 	int $batchMode = `about -batch`;
-
 	string $rs, $message, $iff, $all[], $buf2[], $buf4[];
-
 	string $allnoSetNodePath[];
 	clear $allnoSetNodePath;
 
 	$destFolder = `zwFullPath $destFolder`;
-
 
 	if (`match "OCTVRENDERFARM/" $destFolder` != "")	// Netrender
 	{
@@ -297,15 +296,17 @@ global proc zwCopyTextureImage(string $version, string $args[])
 	int $max = `size $nodes`;
 	int $progress = 0;
 	if ($max && !$batchMode)
-		progressWindow -progress $progress -max $max -title "Copy Maps" -status ($progress + "/" + $max) -isInterruptable true;
+		progressWindow -progress $progress -max $max -title "Copy Maps" copytxs-status ($progress + "/" + $max) -isInterruptable true;
 		if ($newCopyMode){
 		   progressWindow -e -title "TIDY ALL TEXTRUES..." -status ($progress + "/" + $max) -isInterruptable true ;
 		}
 	for ($node in $nodes)
 	{
+//		print("++++++++++++++++++start process node : " + $node + "++++++++++++++++++++++++++++++++++++++++++++++++++\n");
 		// add by zhangben for new copy mode
 		string $cpFils_;
         string $valid_copys[];
+        clear $valid_copys;
         //==============================================
 		if (!$batchMode)
 		{
@@ -387,7 +388,9 @@ global proc zwCopyTextureImage(string $version, string $args[])
 			$except = true;
 		clear $buf4;
 		//
+//		print("\nline 395 $except value ::" + $except + "\n");
 		string $filename = `match "[^/\\]+$" $file`;
+//		print("\nl 396  $filename :" + $filename + "\n");
 		string $folder = `substring $file 1 (size($file) - size($filename))`;
 		$texture = $destFolder + "/" + $filename;
 		//add by zhangben 2019 04 23 for new copy mode
@@ -430,9 +433,7 @@ global proc zwCopyTextureImage(string $version, string $args[])
 					}
 				}
 			}
-			
 			//
-
 			$modifyPath = 1;
 		}
 		else
@@ -443,18 +444,18 @@ global proc zwCopyTextureImage(string $version, string $args[])
             // add by zhangben 2019 04 23 for new copy mode
 			if ($newCopyMode)
 			{
+                print("\n l451 -------check $all_valid_copys  size    : " + size($all_valid_copys));
                 if(`stringArrayCount $source $all_valid_copys`)
                 {
+//                    print("\n----l 456 ::: Don need copy" + $source + "\n");
                     continue;
                 }
                 string $filename = `match "[^/\\]+$" $source`;
                 string $dest = $destFolder;
                 $temp = substituteAllString ($source,"/","\\");
                 $tmp_2 = "\"" + $temp + "\"";
-
                 $valid_copys[size($valid_copys)] = $tmp_2;
                 $all_valid_copys[size($all_valid_copys)] = $tmp_2;
-
 			}
             // =======================================================
             else
@@ -546,8 +547,13 @@ global proc zwCopyTextureImage(string $version, string $args[])
         $cpFils_ = stringArrayToString($valid_copys," ");
         if ($newCopyMode)
         {
+            if($cpFils_ == ""){
+                continue;
+            }
             $ALL_COPY_FILES_STR += ($cpFils_ + " ");
-            $REC_TXS_BY_NODE[size($REC_TXS_BY_NODE)] = $cpFils_;
+            if (!`stringArrayCount $cpFils_ $REC_TXS_BY_NODE`){
+                $REC_TXS_BY_NODE[size($REC_TXS_BY_NODE)] = $cpFils_;
+            }
             continue;
         }
         // =======================================================
@@ -588,11 +594,17 @@ global proc zwCopyTextureImage(string $version, string $args[])
         progressWindow -endProgress ;
         if ($newCopyMode == 2)
         {
+            print("\n========NEW COPY MODE  CHECK===================\n");
+//            print("\nl597    " + size($REC_TXS_BY_NODE) + "\n");
+//            for($n in $REC_TXS_BY_NODE){
+//                print ("\n"+$n);
+//            }
+//            print("\n==================================================\n");
             python("import OCT_generel.CopyTxs as cptxs\nreload(cptxs)");
             string $mis_pth_shn = `file -q -sn -shn`;
             string $deliverArgStr = "doCp = cptxs.CopyTxs(\"fastCopy\",\"$ALL_FILE_NODES\",\"$REC_TXS_BY_NODE\",\"" + $destFolder + "\",\"" + $mis_pth_shn + "\")";
             python($deliverArgStr);
-            python("doCp.copytxs()");
+            $cptx_re = python("doCp.copytxs()");
 
         }
 
@@ -636,14 +648,8 @@ global proc zwCopyTextureImage(string $version, string $args[])
             string $sourceUrl = `getAttr ($node + "." + $attr)`;
             $sourceUrl = `substituteAllString $sourceUrl "\\" "/"`;
             string $destUrl = $texture;
-//            print("\nSET TEXTURE PATH:\n");
-//            print("\nNODE NAME : " + $node + "\n");
-//            print("\nTEXTURE   : " + $texture + "\n");
-//            print("\nMODIFYPATH: " + $modifyPath + "\n");
-
             //2016.12.14
             if($modifyPath && `filetest -f $texture`){
-//                print("ENTER FIRSTTIME SETATTRIBUTE\n");
                 $destUrl = `zwFullPath $destUrl`;
                 string $destUrl_tmp = `substitute "//octvision.com/CG/Themes" $destUrl "Z:/Themes"`;
                 $destUrl_tmp = `substituteAllString $destUrl_tmp "${OCTV_PROJECTS}" "Z:/Themes"`;
@@ -651,7 +657,6 @@ global proc zwCopyTextureImage(string $version, string $args[])
 
 
             }else if($modifyPath && (!`filetest -f $texture`)){
-//                print("FISRT TIME SET TEXTURE FAILED\n");
                 $allnoSetNodePath[size($allnoSetNodePath)] = $node;
                 $allnoSetNodePath[size($allnoSetNodePath)] = $attr;
                 $allnoSetNodePath[size($allnoSetNodePath)] = $destUrl;
@@ -678,9 +683,9 @@ global proc zwCopyTextureImage(string $version, string $args[])
 				string $destPath_tmp = `substitute "//octvision.com/CG/Themes" $dest_t "Z:/Themes"`;
 				$destPath_tmp = `substituteAllString $destPath_tmp "${OCTV_PROJECTS}" "Z:/Themes"`;
 				setAttr ($allNodePath[$i] + "." + $allNodePath[$i+1]) -type "string" $destPath_tmp;
-				print("\nNODE: "+$allNodePath[$i]);
-				print("\nATTR:"+$allNodePath[$i+2]);
-				print("\nPATH:"+$destPath_tmp + "\n");
+//				print("\nNODE: "+$allNodePath[$i]);
+//				print("\nATTR:"+$allNodePath[$i+2]);
+//				print("\nPATH:"+$destPath_tmp + "\n");
 			}else{
 				$tempNode[size($tempNode)] = $allNodePath[$i];
 				$tempNode[size($tempNode)] = $allNodePath[$i+1];
@@ -704,5 +709,6 @@ global proc zwCopyTextureImage(string $version, string $args[])
 	
 	if ($max && !$batchMode)
 		progressWindow -endProgress ;
+
 }
 

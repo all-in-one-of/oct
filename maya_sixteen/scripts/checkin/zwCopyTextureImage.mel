@@ -263,7 +263,7 @@ global proc zwCopyTextureImage(string $version, string $args[])
     clear $REC_TXS_BY_NODE;
     if ($version == 3 && $nodeType == "file" && $attr == "fileTextureName")
     {
-        string $testUSER[] = {"zhangben"};
+        string $testUSER[] = {"dengtao"};
         if(`stringArrayCount $username $testUSER`){
             $newCopyMode = 2;
         }

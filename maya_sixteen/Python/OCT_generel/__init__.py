@@ -14,6 +14,7 @@ import OCT_Associate_attribute_zwz
 import ui_Checkin
 import OCT_xGPUCache
 import OCT_edit_vrayZDepth_deadline
+from OCT_changeToBlinn import *
 
 
 def renameTexture_temp():

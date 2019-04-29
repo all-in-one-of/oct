@@ -61,6 +61,8 @@ def makeMenu():
     mc.menuItem('importExportShaderCon', l=u'导入导出材质连接信息(导出材质连接保存txt)', ann=u'导入导出材质连接信息', c="mm.eval('shadingGroupConnectionImportExport;')", parent="OCT_Generel")
     mc.menuItem(d=1, parent="OCT_Generel")
     mc.menuItem('UnloadPlugin', l=u'插件卸载器', ann=u'插件卸载器', c="OCT_generel.Unload_Plugins()", parent="OCT_Generel")
+    mc.menuItem(d=1, parent="OCT_Generel")
+    mc.menuItem('changeToBlinn', l=u'转换成blinn材质', ann=u'转换成blinn材质', c="OCT_generel.changeToBlinn().do()", parent="OCT_Generel")
 
 
     #检查工具

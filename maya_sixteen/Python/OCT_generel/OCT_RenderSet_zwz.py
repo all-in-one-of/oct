@@ -25,7 +25,7 @@ def OCT_RenderSet_zwz_UI():
 
     mc.rowLayout('oneRow',numberOfColumns = 3,columnAttach3 = ['left','left','left'],columnWidth3 = [5,260,35],columnOffset3 =[2,2,2],adjustableColumn3 = True,parent = 'First_Set')
     mc.text(label=u'一般渲染名：',w = 68,parent = 'oneRow')
-    mc.textField('RederAddress',text = '<Scene>/<RenderLayer>/<Camera>/<Camera>',width = 250,alwaysInvokeEnterCommandOnReturn= True,parent = 'oneRow')
+    mc.textField('RederAddress',text = '<Scene>/<RenderLayer>/<Camera>/<RenderPass>/<Camera>.<RenderPass>',width = 250,alwaysInvokeEnterCommandOnReturn= True,parent = 'oneRow')
     mc.button(label =u'设置',width = 35,command = 'OCT_generel.OCT_RenderSet_zwz.SetRenderAddress_zwz()',backgroundColor = (0.9,0.5,0),annotation =u"请输入渲染层名",parent = 'oneRow')
 
     mc.rowLayout('twoRow',numberOfColumns = 3,columnAttach3 = ['left','left','left'],columnWidth3 = [5,260,35],columnOffset3 =[2,2,2],adjustableColumn3 = True,parent = 'First_Set')

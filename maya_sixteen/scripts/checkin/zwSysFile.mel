@@ -6,8 +6,6 @@ global proc string zwSysFilePartial(string $cmd,		// √¸¡Ó£∫copy°¢move°¢ren°¢del°
 			int $useProxy,	// ”¶”√¥˙¿Ì
 			string $execFile)
 {
-
-
     string $OCTV_TECH = `getenv "OCTV_TECH"`;	//OCTV Tech folder
     string $invokepath = $OCTV_TECH + "/bin/CPAU.exe -u octvision\\supermaya -p supermaya -ex ";
 
@@ -17,6 +15,9 @@ global proc string zwSysFilePartial(string $cmd,		// √¸¡Ó£∫copy°¢move°¢ren°¢del°
     string $username=`getenv username`;
     $cmd = `tolower $cmd`;
 
+    if(`filetest -f $execFile`){
+        sysFile -delete $execFile;
+    }
     for($source in $sourcePerNode)
     {
         string $filename = basename($source, "");
@@ -41,15 +42,15 @@ global proc string zwSysFilePartial(string $cmd,		// √¸¡Ó£∫copy°¢move°¢ren°¢del°
         string	$cmdvar = substituteAllString($OCTV_TECH, "\/", "\\");
 
         $wrtCmd = $cmdvar + "\\bin\\FastCopy341\\FastCopy.exe" + " /force_close /cmd=sync  -nowarn -wait "+ $source + " /to=\"" + $dest + "\"\n";
-        print ("\nPERFORM COMMAND :\n" + $wrtCmd + "\n");
+        print ("\nWRITE TO BAT FILE COMMAND :\n" + $wrtCmd + "\n");
 //    $exampleFileName = ( `internalVar -userTmpDir` + "example.tmp" );
         print $execFile;
         $fileId=`fopen $execFile "a"`;
         fprint $fileId $wrtCmd;
         fclose $fileId;
     }
-
     $cmd = $invokepath + $execFile;
+    print("\nWILL PERFERM CONMMAND\n" + $cmd + "\n");
     $rs = `system $cmd`;
     string $testList[] = `getFileList -folder $dest`;
     if (size($testList))

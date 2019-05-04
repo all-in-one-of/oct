@@ -94,6 +94,11 @@ class CopyTxs(object):
             cur_cp_num = self.check_copyTimes()
             if cur_cp_num != copy_time:
                 self.ref_pr_bar(cur_cp_num, self.exec_count, cpProgressWin)
+            runingFcpy_2 = self.k.monitoringPro('FastCopy.exe')
+            if runingFcpy_2 == runingFcpy:
+                if self.check_copyTimes() < self.exec_count + 1:
+                    print(">>>.... THE SYSTEM WORK HARD AT COPYING......PLEASE WAIT  >>>>>>>>>>>\n")
+                    continue
             fcp_pr = self.k.monitoringPro('FastCopy.exe', 0, runingFcpy)
             if not fcp_pr:
                 time.sleep(3)
@@ -149,16 +154,26 @@ class CopyTxs(object):
                 if re.search("\w\\\\\\\\", ea_02): endChar = re.sub("\\\\\\\\", "", re.search("\w\\\\\\\\", ea_02).group())
                 new_ea_02 = re.sub("\w\\\\\\\\", "{}\\\\".format(endChar), ea_02)
                 if new_ea_02 not in tmp_list: tmp_list.append(new_ea_02)
-                if new_ea_02 not in self.colect_allTxs and self.filetest(new_ea_02, self.destDir):
-                    self.colect_allTxs.append(new_ea_02)
-                else:
-                    print("\ttexture eixists on server : {}".format(new_ea_02))
+                if new_ea_02 not in self.colect_allTxs and self.filetest(new_ea_02, self.destDir): self.colect_allTxs.append(new_ea_02)
+                else: print("\ttexture eixists on server : {}".format(new_ea_02))
+                print("\n=========================\n{}".format(new_ea_02))
+                new_ea_02_txf = self.get_ArTx(new_ea_02)
+                if new_ea_02_txf:
+                    print new_ea_02_txf
+                    if new_ea_02_txf not in tmp_list: tmp_list.append(new_ea_02_txf)
+                    if new_ea_02_txf not in self.colect_allTxs and self.filetest(new_ea_02_txf, self.destDir): self.colect_allTxs.append(new_ea_02_txf)
+                    else: print("\ttexture eixists on server : {}".format(new_ea_02_txf))
             idx = self.recTxsList.index(ea)
             self.txs_info_dict[self.allFileNodes[idx]] = tmp_list
         self.copy_count = len(self.colect_allTxs)
         self.tidy_lst = [self.colect_allTxs[x:x + txNumPerGrp] for x in range(0, self.copy_count, txNumPerGrp)]
         self.exec_count = len(self.tidy_lst)
         # raise Exception("TD CHECK")
+    def get_ArTx(self,src):#把arnold tx文件加入copy列表
+        if not mc.getAttr("defaultRenderGlobals.currentRenderer") =="arnold": return None
+        fileSpl = os.path.splitext(src)
+        return re.sub(fileSpl[-1],'.tx',src)
+
     def wr_bat(self):#生成相关文件
         # print("COPY EXECU COMMAND NUMBER : {}".format(self.exec_count))
         if not self.exec_count:

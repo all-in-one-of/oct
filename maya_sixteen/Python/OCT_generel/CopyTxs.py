@@ -150,22 +150,26 @@ class CopyTxs(object):
             # print ea
             ea_spl = ea.split(' ')
             tmp_list = []
+            idx = self.recTxsList.index(ea)
+            f_nd = self.allFileNodes[idx]
             for ea_02 in ea_spl:
                 endChar = None
                 if re.search("\w\\\\\\\\", ea_02): endChar = re.sub("\\\\\\\\", "", re.search("\w\\\\\\\\", ea_02).group())
                 new_ea_02 = re.sub("\w\\\\\\\\", "{}\\\\".format(endChar), ea_02)
+                # print("\nCHECK texture: {} \n".format(new_ea_02))
+                if not os.path.isfile(new_ea_02):
+                    mc.error(u"{0}贴图命名请仅 使用字母\数字\下划线{0}请检查 file 节点< {1} >指向的贴图，程序解析出来的贴图命名可能存有异常：{2}{0}".format(os.linesep,f_nd,new_ea_02))
                 if new_ea_02 not in tmp_list: tmp_list.append(new_ea_02)
                 if new_ea_02 not in self.colect_allTxs and self.filetest(new_ea_02, self.destDir): self.colect_allTxs.append(new_ea_02)
                 else: print("\ttexture eixists on server : {}".format(new_ea_02))
-                print("\n=========================\n{}".format(new_ea_02))
+                # print("\n==={}\n".format(new_ea_02))
                 new_ea_02_txf = self.get_ArTx(new_ea_02)
                 if new_ea_02_txf:
-                    print new_ea_02_txf
+                    # print new_ea_02_txf
                     if new_ea_02_txf not in tmp_list: tmp_list.append(new_ea_02_txf)
                     if new_ea_02_txf not in self.colect_allTxs and self.filetest(new_ea_02_txf, self.destDir): self.colect_allTxs.append(new_ea_02_txf)
                     else: print("\ttexture eixists on server : {}".format(new_ea_02_txf))
-            idx = self.recTxsList.index(ea)
-            self.txs_info_dict[self.allFileNodes[idx]] = tmp_list
+            self.txs_info_dict[f_nd] = tmp_list
         self.copy_count = len(self.colect_allTxs)
         self.tidy_lst = [self.colect_allTxs[x:x + txNumPerGrp] for x in range(0, self.copy_count, txNumPerGrp)]
         self.exec_count = len(self.tidy_lst)

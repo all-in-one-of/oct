@@ -98,6 +98,7 @@ class CopyTxs(object):
             if runingFcpy_2 == runingFcpy:
                 if self.check_copyTimes() < self.exec_count + 1:
                     print(">>>.... THE SYSTEM WORK HARD AT COPYING......PLEASE WAIT  >>>>>>>>>>>\n")
+                    time.sleep(3)
                     continue
             fcp_pr = self.k.monitoringPro('FastCopy.exe', 0, runingFcpy)
             if not fcp_pr:

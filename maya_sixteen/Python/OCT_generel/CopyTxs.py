@@ -144,28 +144,41 @@ class CopyTxs(object):
         # raise Exception('td test check')
     def tidyFiles(self,txNumPerGrp=20):#重新整理copy texutre files 每 txNumPerGrp 个贴图分为一组
         # print("L125: Tidy need copy texture {}  files".format(len(self.recTxsList)))
+        iffy_txs = {}
         for ea in self.recTxsList:
             # ea= recTxsList[16] # ea= recTxsList[5]
             # print(">>>=!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             # print ea
             ea_spl = ea.split(' ')
             tmp_list = []
+            idx = self.recTxsList.index(ea)
+            f_nd = self.allFileNodes[idx]
             for ea_02 in ea_spl:
                 endChar = None
                 if re.search("\w\\\\\\\\", ea_02): endChar = re.sub("\\\\\\\\", "", re.search("\w\\\\\\\\", ea_02).group())
                 new_ea_02 = re.sub("\w\\\\\\\\", "{}\\\\".format(endChar), ea_02)
+                # print("\nCHECK texture: {} \n".format(new_ea_02))
+                if not os.path.isfile(new_ea_02):
+                    iffy_txs[iffy_txs] = new_ea_02
+                    continue
                 if new_ea_02 not in tmp_list: tmp_list.append(new_ea_02)
                 if new_ea_02 not in self.colect_allTxs and self.filetest(new_ea_02, self.destDir): self.colect_allTxs.append(new_ea_02)
                 else: print("\ttexture eixists on server : {}".format(new_ea_02))
-                print("\n=========================\n{}".format(new_ea_02))
+                # print("\n==={}\n".format(new_ea_02))
                 new_ea_02_txf = self.get_ArTx(new_ea_02)
                 if new_ea_02_txf:
-                    print new_ea_02_txf
+                    # print new_ea_02_txf
                     if new_ea_02_txf not in tmp_list: tmp_list.append(new_ea_02_txf)
                     if new_ea_02_txf not in self.colect_allTxs and self.filetest(new_ea_02_txf, self.destDir): self.colect_allTxs.append(new_ea_02_txf)
                     else: print("\ttexture eixists on server : {}".format(new_ea_02_txf))
-            idx = self.recTxsList.index(ea)
-            self.txs_info_dict[self.allFileNodes[idx]] = tmp_list
+            self.txs_info_dict[f_nd] = tmp_list
+        if len(iffy_txs):
+            erro_msg = u">>>请检查 下列file 节点 的 贴图命名{}".format(os.linesep)
+            for ea in iffy_txs:
+                ea_str = "{}{}{}".format(ea,iffy_txs[ea],os.linesep)
+                erro_msg += ea_str
+            erro_msg += u">>>程序列出贴 贴图命名可能存在异常 的file 节点 及 贴图名字，请打开脚本编辑器查看{}".format(os.linesep)
+            mc.error(erro_msg)
         self.copy_count = len(self.colect_allTxs)
         self.tidy_lst = [self.colect_allTxs[x:x + txNumPerGrp] for x in range(0, self.copy_count, txNumPerGrp)]
         self.exec_count = len(self.tidy_lst)

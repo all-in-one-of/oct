@@ -88,7 +88,7 @@ class CopyTxs(object):
         new_fcp_pr = None
         copy_time = 1
         prg_num = (copy_time / float(self.exec_count)) * 100
-        cpProgressWin = mc.progressWindow(title="Copy Textrues", progress=prg_num, status="Copy perform: {}%".format(prg_num), isInterruptable=True)
+        cpProgressWin = mc.progressWindow(title="Copy Textrues", progress=prg_num, status="Copy perform: {}%".format(prg_num), isInterruptable=True,min=0,max=100)
         while True:
             print"\t>>> ENTER MONITORING!!!!!!!!!!!!!!:{}{}".format(copy_time,os.linesep)
             cur_cp_num = self.check_copyTimes()
@@ -159,15 +159,20 @@ class CopyTxs(object):
                 new_ea_02 = re.sub("\w\\\\\\\\", "{}\\\\".format(endChar), ea_02)
                 # print("\nCHECK texture: {} \n".format(new_ea_02))
                 if not os.path.isfile(new_ea_02):
-                    iffy_txs[iffy_txs] = new_ea_02
+                    iffy_txs[f_nd] = new_ea_02
                     continue
                 if new_ea_02 not in tmp_list: tmp_list.append(new_ea_02)
-                if new_ea_02 not in self.colect_allTxs and self.filetest(new_ea_02, self.destDir): self.colect_allTxs.append(new_ea_02)
-                else: print("\ttexture eixists on server : {}".format(new_ea_02))
-                # print("\n==={}\n".format(new_ea_02))
+                if new_ea_02 not in self.colect_allTxs:
+                    if self.filetest(new_ea_02, self.destDir): self.colect_allTxs.append(new_ea_02)
+                    else: print("\ttexture eixists on server : {}".format(new_ea_02))
+                # print("\n==={}\n".format(new_ea_02)) v
                 new_ea_02_txf = self.get_ArTx(new_ea_02)
                 if new_ea_02_txf:
                     # print new_ea_02_txf
+                    if not os.path.isfile(os.path.abspath(new_ea_02_txf)):
+                        print("\n====texture ???========\n\"{} ---->>>> {}\"".format(os.path.abspath(new_ea_02),os.path.abspath(new_ea_02_txf)))
+                        iffy_txs[f_nd] = new_ea_02_txf
+                        continue
                     if new_ea_02_txf not in tmp_list: tmp_list.append(new_ea_02_txf)
                     if new_ea_02_txf not in self.colect_allTxs and self.filetest(new_ea_02_txf, self.destDir): self.colect_allTxs.append(new_ea_02_txf)
                     else: print("\ttexture eixists on server : {}".format(new_ea_02_txf))
@@ -175,7 +180,7 @@ class CopyTxs(object):
         if len(iffy_txs):
             erro_msg = u">>>请检查 下列file 节点 的 贴图命名{}".format(os.linesep)
             for ea in iffy_txs:
-                ea_str = "{}{}{}".format(ea,iffy_txs[ea],os.linesep)
+                ea_str = "{} --- {}  {}".format(ea,iffy_txs[ea],os.linesep)
                 erro_msg += ea_str
             erro_msg += u">>>程序列出贴 贴图命名可能存在异常 的file 节点 及 贴图名字，请打开脚本编辑器查看{}".format(os.linesep)
             mc.error(erro_msg)
@@ -185,8 +190,14 @@ class CopyTxs(object):
         # raise Exception("TD CHECK")
     def get_ArTx(self,src):#把arnold tx文件加入copy列表
         if not mc.getAttr("defaultRenderGlobals.currentRenderer") =="arnold": return None
+        # print(" sorce _imag : {} =====> abs path :{}".format(src,os.path.abspath(src)))
         fileSpl = os.path.splitext(src)
-        return re.sub(fileSpl[-1],'.tx',src)
+        # print("PATH SPLIT TO :{}|||{} ".format(fileSpl[0],fileSpl[1]))
+        # txf_pth = re.sub('{!r}'.format(fileSpl[-1]),'.tx',src)
+        txf_pth = fileSpl[0] + u'.tx'
+        # print(" tx file imag: {} =====> abs path :{}".format(txf_pth,os.path.abspath(txf_pth)))
+        if txf_pth == src:return None
+        else: return txf_pth
 
     def wr_bat(self):#生成相关文件
         # print("COPY EXECU COMMAND NUMBER : {}".format(self.exec_count))

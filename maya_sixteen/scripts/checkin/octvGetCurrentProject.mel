@@ -9,7 +9,8 @@ global proc string octvGetCurrentProject(string $path)
 	string $filename = `match "[^/\\]+$" $path`;
 	string $shortName = `match "^[^_]+" $filename`;
 	$shortName = tolower($shortName);
-	
+	string $octvGetProjectPath = "//octvision.com/cg/Tech/maya_sixteen/scripts/checkin/octvGetProjects.mel";
+	eval ("source \"" + $octvGetProjectPath + "\"");
 	string $projects[] = octvGetProjects();
 	for ($item in $projects)
 	{

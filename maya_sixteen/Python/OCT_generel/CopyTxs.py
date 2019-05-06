@@ -166,21 +166,23 @@ class CopyTxs(object):
                     if self.filetest(new_ea_02, self.destDir): self.colect_allTxs.append(new_ea_02)
                     else: print("\ttexture eixists on server : {}".format(new_ea_02))
                 # print("\n==={}\n".format(new_ea_02)) v
+                if os.path.splitext(new_ea_02)[-1] in ['.tx',u'.tx']: continue
                 new_ea_02_txf = self.get_ArTx(new_ea_02)
                 if new_ea_02_txf:
                     # print new_ea_02_txf
                     if not os.path.isfile(os.path.abspath(new_ea_02_txf)):
-                        print("\n====texture ???========\n\"{} ---->>>> {}\"".format(os.path.abspath(new_ea_02),os.path.abspath(new_ea_02_txf)))
+                        # print("\n====texture ???========\n\"{} ---->>>> {}\"".format(os.path.abspath(new_ea_02),os.path.abspath(new_ea_02_txf)))
                         iffy_txs[f_nd] = new_ea_02_txf
                         continue
                     if new_ea_02_txf not in tmp_list: tmp_list.append(new_ea_02_txf)
-                    if new_ea_02_txf not in self.colect_allTxs and self.filetest(new_ea_02_txf, self.destDir): self.colect_allTxs.append(new_ea_02_txf)
-                    else: print("\ttexture eixists on server : {}".format(new_ea_02_txf))
+                    if new_ea_02_txf not in self.colect_allTxs:
+                        if self.filetest(new_ea_02_txf, self.destDir): self.colect_allTxs.append(new_ea_02_txf)
+                        else: print("\ttexture eixists on server : {}".format(new_ea_02_txf))
             self.txs_info_dict[f_nd] = tmp_list
         if len(iffy_txs):
-            erro_msg = u">>>请检查 下列file 节点 的 贴图命名{}".format(os.linesep)
+            erro_msg = u"{0}>>>请检查 下列file 节点 的 贴图命名{0}".format(os.linesep)
             for ea in iffy_txs:
-                ea_str = "{} --- {}  {}".format(ea,iffy_txs[ea],os.linesep)
+                ea_str = "\t{:<20} --- {}  {}".format(ea,iffy_txs[ea],os.linesep)
                 erro_msg += ea_str
             erro_msg += u">>>程序列出贴 贴图命名可能存在异常 的file 节点 及 贴图名字，请打开脚本编辑器查看{}".format(os.linesep)
             mc.error(erro_msg)

@@ -147,7 +147,7 @@ class MayaBatchTools(QtGui.QMainWindow, MayaBatchTools_base_ui.Ui_MayaBatchT_win
         cmdStr = self.cmdGather[actnm]['command'] if self.cmdGather[actnm].has_key('command') else self.cmdGather[actnm]['class']
         _filter = self.cmdGather[actnm]['filter'] if self.cmdGather[actnm].has_key('filter') else 'All Files (*)'
         # exec_cmd = "{} -command \"{}\" -log \"e:/dev_output/wtfwtfwtf.log\"".format(maya_batch_path,cmdStr)
-        exec_cmd = "{} -command \"{}\" ".format(maya_batch_path,cmdStr) if commandMode == 'Maya Batch' else cmdStr
+        exec_cmd = "\"{}\" -command \"{}\" ".format(maya_batch_path,cmdStr) if commandMode == 'Maya Batch' else cmdStr
         pfm_cmd = {actnm:[exec_cmd,commandMode]}
         print ("line 132 ",pfm_cmd)
         # self.slot_btn_chooseMutiFile()

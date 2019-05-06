@@ -192,12 +192,8 @@ class CopyTxs(object):
         # raise Exception("TD CHECK")
     def get_ArTx(self,src):#把arnold tx文件加入copy列表
         if not mc.getAttr("defaultRenderGlobals.currentRenderer") =="arnold": return None
-        # print(" sorce _imag : {} =====> abs path :{}".format(src,os.path.abspath(src)))
         fileSpl = os.path.splitext(src)
-        # print("PATH SPLIT TO :{}|||{} ".format(fileSpl[0],fileSpl[1]))
-        # txf_pth = re.sub('{!r}'.format(fileSpl[-1]),'.tx',src)
         txf_pth = fileSpl[0] + u'.tx'
-        # print(" tx file imag: {} =====> abs path :{}".format(txf_pth,os.path.abspath(txf_pth)))
         if txf_pth == src:return None
         else: return txf_pth
 

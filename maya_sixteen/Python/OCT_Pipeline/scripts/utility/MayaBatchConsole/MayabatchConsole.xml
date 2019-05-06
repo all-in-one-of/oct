@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" ?>
+<idmtTray>
+	<menu label="Maya Batch">
+		<menu label="Common Tools">
+			<menuItem label="[通用]很快就来..." command="source &#92;&quot;OCT_consoleCMD.mel&#92;&quot;;mayabatchCmd %s 5002;" />
+			<menuItem divider="true" />
+		</menu>
+		<menu label="TD ">
+			<menuItem label="[通用]rg转anim" command="source &#92;&quot;OCT_consoleCMD.mel&#92;&quot;;mayabatchCmd %s 98001;" />
+			<menuItem label="[通用]rg转render" command="source &#92;&quot;OCT_consoleCMD.mel&#92;&quot;;mayabatchCmd %s 98002;" />
+			<menuItem label="[通用]tx转anim" command="source &#92;&quot;OCT_consoleCMD.mel&#92;&quot;;mayabatchCmd %s 98003;" />
+			<menuItem label="[通用]tx转render" command="source &#92;&quot;OCT_consoleCMD.mel&#92;&quot;;mayabatchCmd %s 98004;" />
+			<menuItem label="[通用]本地fs测试" command="source &#92;&quot;OCT_consoleCMD.mel&#92;&quot;;mayabatchCmd %s 69;" />
+			<menuItem label="[临时]TD Test 1|GPS OFF" command="source &#92;&quot;OCT_consoleCMD.mel&#92;&quot;;mayabatchCmd %s 66;" />
+			<menuItem label="[临时]TD Test 2|GPS ON" command="source &#92;&quot;OCT_consoleCMD.mel&#92;&quot;;mayabatchCmd %s 67;" />
+			<menuItem label="[临时]TD Test 3|Blade" command="source &#92;&quot;OCT_consoleCMD.mel&#92;&quot;;mayabatchCmd %s 68;" />
+			<menuItem label="[UE] 导出前期FBX" command="source &#92;&quot;ue_pipeline.mel&#92;&quot;;ue_pipeline_cmd 1001;" />
+			<menuItem label="[UE] 导出abc和相机" command="source &#92;&quot;ue_pipeline.mel&#92;&quot;;ue_pipeline_cmd 1002;" version="2016" />
+			<menuItem divider="true" />
+		</menu>
+		<menu label="Project Tools">
+			<menu label="little Kits">
+				<menuItem label="defaultLayer1、defaultRenderLayer1" filter="MayaFiles (*.ma *.mb)" command="standalone.defaultLayer1" />
+				<menuItem label="mb 文件另存为ma 文件" filter="mayaBinary(*.mb)" command="zwMb2Ma %s" />
+				<menuItem label="ma 文件另存为mb 文件" filter="mayaAscii (*.ma)" command="zbMa2Mb %s" />
+				<menuItem label="[通用]Asset透明信息输出" command="python(&#92;&quot;import ppl_sceneConfig\nreload(ppl_sceneConfig)\nppl_sceneConfig.ppl_sceneConfig().ppl_sceneGlobalAssetTextureInfoExport()&#92;&quot;)" />
+			</menu>
+			<menuItem divider="true" />
+			<menu label="测试">
+				<menuItem label="TD Test" command="source &#92;&quot;OCT_consoleCMD.mel&#92;&quot;;mayabatchCmd %s  0001" />
+			</menu>
+		</menu>
+	</menu>
+	<menu label="Checkin">
+		<menuItem label="Checkin镜头文件" class="Checkin" filter="mayaBinary (*.mb *.mb)"/>
+		<menuItem label="批量上传素材" class="Checkin"
+				  filter="Stuff Files (*.bmp *.iff *.jpg *.png *.psd *.tga *.tif);;(*.bmp *.iff *.jpeg *.jpg *.png *.psd *.tga *.tif *.tiff)" />
+		<menuItem label="更新avi" filter="Video(*.avi *.mov *.mp4)" command="idmt.standalone.CheckinAvi" />
+	</menu>
+</idmtTray>

@@ -444,7 +444,7 @@ global proc zwCopyTextureImage(string $version, string $args[])
             // add by zhangben 2019 04 23 for new copy mode
 			if ($newCopyMode)
 			{
-                print("\n l451 -------check $all_valid_copys  size    : " + size($all_valid_copys));
+//                print("\n l451 -------check $all_valid_copys  size    : " + size($all_valid_copys));
                 if(`stringArrayCount $source $all_valid_copys`)
                 {
 //                    print("\n----l 456 ::: Don need copy" + $source + "\n");

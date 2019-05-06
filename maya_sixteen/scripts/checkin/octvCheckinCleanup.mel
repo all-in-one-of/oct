@@ -259,8 +259,8 @@ proc CheckinCacheFile(string $project,string $destFolder)
 			//	error $sysrs;	
 			//}
 			if(`filetest -d $dest`){
-				print $dest;
-				print"\n";
+//				print $dest;
+//				print"\n";
 				string $dest_c = `substitute "//octvision.com/CG/Themes" $dest "Z:/Themes"`;
 				$dest_c = `substituteAllString $dest_c "${OCTV_PROJECTS}" "Z:/Themes"`;
 				
@@ -325,11 +325,11 @@ proc CheckinCacheFile(string $project,string $destFolder)
 	
 	
 	
-			print ("\n----cache-dest:" + $dest);
+//			print ("\n----cache-dest:" + $dest);
 			if (!$find)
 			{
-				print ("\n-----$source:" + $source);
-				print ("\n-----$dest:" + $dest);
+//				print ("\n-----$source:" + $source);
+//				print ("\n-----$dest:" + $dest);
 	
 				zwSysFile "md" $dest "" 0;
 	
@@ -644,7 +644,7 @@ global proc octvCheckinCleanup(string $args[])
 	check_RenderPlugin();
 
 //清理无用垃圾
-    deleteUseNode();
+//    deleteUseNode();
 
 // 检查 - 前期
 
@@ -798,19 +798,19 @@ global proc octvCheckinCleanup(string $args[])
 		}
 	}
 
-	if ($optimize)
-	{
-		cleanUpScene 0;
-	}
+//	if ($optimize)
+//	{
+//		cleanUpScene 0;
+//	}
 
 	//检查没有赋材质的物体
 	checkingNoAnyMat();
 	if ($copyMaps)
 	{
-		print ("\nproject:" + $project);
-		print ("\nmode:" + $mode);
-		print ("\ndestFolder:" + $destFolder);
-		print ("\nprogress:" + $progress);
+//		print ("\nproject:" + $project);
+//		print ("\nmode:" + $mode);
+//		print ("\ndestFolder:" + $destFolder);
+//		print ("\nprogress:" + $progress);
 
 		//
 		//检查贴图的大小与格式
@@ -985,7 +985,7 @@ global proc octvCheckinCleanup(string $args[])
 		error "不能保存文件，请检查是否D：盘空间不足";
 	}
 	
-	print ("\nasset_type:" + $asset_type);
+//	print ("\nasset_type:" + $asset_type);
 	int $tdTest = `getenv "OCTV_TDTEST"`;
 	if ( $tdTest!= 0)
 	{
@@ -999,8 +999,8 @@ global proc octvCheckinCleanup(string $args[])
 	string $headName = `match "[^.]+" $onlyfilename`;
 	
 
-	print ("\nnewFile:" + $newFile);
-	print ("\ndestFile:" + $destFolder);
+//	print ("\nnewFile:" + $newFile);
+//	print ("\ndestFile:" + $destFolder);
 
 	int $flagCam=false;
 	string $sysrs = "";
@@ -1059,7 +1059,7 @@ global proc octvCheckinCleanup(string $args[])
 								if (size($sortVerhis))
 									$lastVerfile = $sortVerhis[size($sortVerhis)-1];
 
-								print ("\nlastVerf:" + $lastVerfile);
+//								print ("\nlastVerf:" + $lastVerfile);
 								string $cver = `match "_c[0-9]{3}." $lastVerfile`;
 								int $newver = int(`substring $cver 3 5`) + 1;
 								
@@ -1101,7 +1101,7 @@ global proc octvCheckinCleanup(string $args[])
 			        tokenize $allCam[0] "_" $buffer;
 			        
 			        if((size($buffer)>=4 && size($buffer)<=6) && (`match "_cam" $allCam[0]` != "")){
-			            print ("\nallCam:" + $allCam[0]);
+//			            print ("\nallCam:" + $allCam[0]);
 			            string $sceneNum=$buffer[1];  
 						string $shotNum=$buffer[2];
 						if($buffer[0]==$buf[0] && $sceneNum==$buf[1] && $shotNum==$buf[2]){
@@ -1129,7 +1129,7 @@ global proc octvCheckinCleanup(string $args[])
 								if (size($sortVerhis))
 									$lastVerfile = $sortVerhis[size($sortVerhis)-1];
 
-								print ("\nlastVerf:" + $lastVerfile);
+//								print ("\nlastVerf:" + $lastVerfile);
 								string $cver = `match "_c[0-9]{3}." $lastVerfile`;
 								int $newver = int(`substring $cver 3 5`) + 1;
 								
@@ -1188,7 +1188,7 @@ global proc octvCheckinCleanup(string $args[])
 		if (size($sortVerhis))
 			$lastVerfile = $sortVerhis[size($sortVerhis)-1];
 
-		print ("\nlastVerfile:" + $lastVerfile);
+//		print ("\nlastVerfile:" + $lastVerfile);
 		string $cver = `match "_c[0-9]{3}$" $lastVerfile`;
 		int $onlyver = int(`substring $cver 3 5`);
 
@@ -1211,16 +1211,13 @@ global proc octvCheckinCleanup(string $args[])
 	{
 		$bakfList = `getFileList -folder ($destFolder + "/")`; 
 		$headName = `substring $headName 1 (size($headName)-5)`;
-		print ("\n--------------headename:" + $headName);
 
 
 		string $verhis[];
 		clear $verhis;
 		for ($item in $bakfList)
 		{
-			print ("\nitem:" + $destFolder + "/"+ $item);
-			print ("\nheadName:" + $headName);
-			if (`filetest -f ($destFolder + "/" + $item)` && `gmatch $item ($headName + "*")`) 
+			if (`filetest -f ($destFolder + "/" + $item)` && `gmatch $item ($headName + "*")`)
 			{
 				$verhis[size($verhis)] = $item;
 			}
@@ -1231,7 +1228,6 @@ global proc octvCheckinCleanup(string $args[])
 		if (size($sortVerhis))
 			$lastVerfile = $sortVerhis[size($sortVerhis)-1];
 
-		print ("\nlastVerfile:" + $lastVerfile);
 		string $cver = `match "_c[0-9]{3}." $lastVerfile`;
 		int $onlyver = int(`substring $cver 3 5`);
 
@@ -1351,9 +1347,6 @@ global proc octvCheckinCleanup(string $args[])
 			string $buf[];
 			clear $buf;
 			tokenize $attachedName "_." $buf;
-			print $buf[1];
-			print"\n";
-			print $buf[2];
 			python("import octvDB");
 
 			string $anim="animation";
@@ -1443,7 +1436,7 @@ global proc octvCheckinCleanup(string $args[])
 		}
 		
 		//print $TexFolder;
-		print $msNoTex;
+//		print $msNoTex;
 
 		$sysrs = `zwSysFile "copy" $msNoTexFileName ($TexFolder + "/" + $msNoTex) 0`;
 	}
@@ -1496,7 +1489,7 @@ global proc octvCheckinCleanup(string $args[])
 //		python("raise Exception("td check")
 
 		python("octvDB.delDB('" + $db + "','" + $filename + "')");
-		print ("\nlastVerfile:" + $desc);
+//		print ("\nlastVerfile:" + $desc);
 		python("octvDB.insertDB('" + $db + "','" + $filename + "','" + $fstate + "','" + $ftype + "','" + $upUser + "','" + $fpath + "','" + $checkState + "','" + $checkUser  + "','" + $desc + "')");
 		$fstate = 1;
 		python("octvDB.insertDB('" + $db + "','" + $bakname + "','" + $fstate + "','" + $ftype + "','" + $upUser + "','" + $fpath + "','" + $checkState + "','" + $checkUser  + "','" + $desc + "')");
@@ -1723,14 +1716,14 @@ global proc zwCheckinCopyTextureImage(string $project, string $mode, string $des
 	}
 
 	$maps = `substitute "/scenes/" $maps "/sourceimages/"`;
-	print ("\nmaps:" + $maps);
+//	print ("\nmaps:" + $maps);
 
 	
 	string $OCTV_PROJECTS = tolower(`getenv "OCTV_PROJECTS"`);
 
 	string $production = `getenv "OCTV_PROJECTS"` + "/" + $project + "/Project";
 
-	print ("\nproduction:" + $production);
+//	print ("\nproduction:" + $production);
 
 	string $error = `zwCheckTextureImage 1 {"file", "fileTextureName", $production, $project, $mode, $destFolder}`;
 	if (`pluginInfo -query -loaded "Mayatomr"`)
@@ -1781,7 +1774,7 @@ global proc zwCheckinCopyTextureImage(string $project, string $mode, string $des
 	zwCopyTextureImage(3, {"brush", "leafImage", $maps, "1", "0", $progress, $project, "0"});
 	zwCopyTextureImage(3, {"brush", "flowerImage", $maps, "1", "0", $progress, $project, "0"});
 
-	print ("\nfile texture done" );	
+//	print ("\nfile texture done" );
 }
 
 //Yeti的贴图
@@ -1790,7 +1783,7 @@ global proc string zwYetiCheckCopyTextureImage(string $destFolder, string $proje
 	//yeti上传贴图的路径
 	string $destMapsYeti = `substitute "[^/]*$" $destFolder "sourceimages/Yeti"`;
 	$destMapsYeti=`substitute "/scenes/" $destMapsYeti "/sourceimages/"`;
-	//print($mapsYeti+"\n");
+	print($mapsYeti+"\n");
 
 	//建文件夹
 	string $dir = `substitute "[^/]*$" $destMapsYeti ""`;
@@ -1819,8 +1812,8 @@ global proc string zwYetiCheckCopyTextureImage(string $destFolder, string $proje
 			continue;
 			
 		}
-		print $imageYetiPath;
-		print "\n";
+//		print $imageYetiPath;
+//		print "\n";
 		string $buf[];
 		clear $buf;
 		tokenize $imageYetiPath "/\\" $buf;
@@ -2022,7 +2015,7 @@ global proc zwCheckinCheckCache(string $filename, string $project)
 		string $cachePath1 = `getAttr ($cacheFile + ".cachePath")`;
 		string $cachePath2 = $cachePath1;
 		$cachePath2 = `substituteAllString $cachePath2 "\\" "/"`;
-		print $cachePath2;
+//		print $cachePath2;
 		if (`gmatch (tolower($cachePath2)) (tolower($cachePath) + "*")`)
 		{
 			if (tolower($cachePath1) != tolower($cachePath2))
@@ -2139,8 +2132,8 @@ global proc zwCheckinFurAttrMap(string $assetFolder)
 				}
 				string $dest = $furAttrMap + "/" + `match "[^/\\]+$" $source`;
 				string $path = $source;
-				print ("\nfur dest:" + $dest);
-				print ("\nfur source path:" + $path);
+//				print ("\nfur dest:" + $dest);
+//				print ("\nfur source path:" + $path);
 
 				if (tolower($path) != tolower($dest))
 				{
@@ -2206,7 +2199,7 @@ global proc  zwCheckArnoldTx(){
 			}
 			string $buf[];
 			tokenize $arnoldDso "/\\." $buf;
-			print $arnoldDso;
+//			print $arnoldDso;
 			if(($arnoldDso=="") && (size($buf)<2)){
 				error($aiNode[$i]+"代理文件为空!\n");
 			}
@@ -2221,8 +2214,8 @@ global proc  zwCheckArnoldTx(){
 				string $path = "";
 				for($i = 0;$i<size($proxyPath);$i++ ){
 					$path = $OCT_ArnoldPathNew+"/"+$proxyPath[$i]+"/"+$buffer[0]+"/sourceimages/arnoldtex/"+$buf[size($buf)-2]+".ass";
-					print $path;
-					print "sssssss\n";
+//					print $path;
+//					print "sssssss\n";
 	
 					if(!`filetest -f $path`){
 
@@ -2397,7 +2390,7 @@ global proc check_same_name(){
 			}
 		}
 	}
-	print $shapeReNameCout;
+//	print $shapeReNameCout;
 	if($index_MD>0){
 		//error("存在"+$index_MD+"个同名的transstorm物体");
 

@@ -28,6 +28,7 @@
 			<menuItem divider="true" />
 			<menu label="测试">
 				<menuItem label="TD Test" command="source &#92;&quot;OCT_consoleCMD.mel&#92;&quot;;mayabatchCmd %s  0001" />
+				<menuItem label="TD Test" command="source &#92;&quot;OCT_consoleCMD.mel&#92;&quot;;mayabatchCmd %s  0002" />
 			</menu>
 		</menu>
 	</menu>

@@ -1,0 +1,87 @@
+//////////////////////////////////////////////////////////
+//
+//	Script Name: 	批处理器控制台命令
+//	Author: zhangben  修改自 沈公子的脚本
+//	Created: 2019-04-13
+///////////////////////////////////////////////////////////
+global proc py_append_path(){
+    string $melPath = `whatIs OCT_consoleCMD`;
+    string $needPath = `match "[^ ]*$" $melPath`;
+    string $pathArray[];
+    $pathArray = stringToStringArray($needPath,"/");
+    $len = size($pathArray);
+    $needId = $len -3;
+    $newPath = "";
+    if (startsWith($needPath,"//")){
+      $newPath =  "//";
+    }
+    print $newPath;
+    int $n;
+    for ($n=0;$n<$needId;$n++){
+        $newPath += ($pathArray[$n] + "/");
+    }
+    $newPath += "maya_sixteen/Python";
+    print ($newPath + "\n");
+    python("import sys");
+    python("sys.path.append(\"" + $newPath + "\")");
+}
+global proc mayabatchCmd(string $path,int $batchID)
+{
+    py_append_path();
+	//file -force -loadReferenceDepth "all" -open $path;
+	// 环境
+	//返回值
+	int $result = 1;
+	$result = catch(mayabatchCmdPerform($path,$batchID));
+	// 报错信息
+	if($result != 0)
+	{
+		quit -force -exitCode 6 ;
+	}
+}
+global proc int mayabatchCmdPerform(string $path,int $batchID)
+{
+	$st_tm = `date -time`;
+	print("[ " + $st_tm + " ] :: Started process file:" + $path +  "\n");
+//
+	// TD测试1
+	if ($batchID == 0001){
+        file -force -loadReferenceDepth "all" -open $path;
+        print("FILE Opened!!!!!!!");
+        polyCube -n "TEST_CREATE";
+//        python("import sys");
+//        python("import os");
+//        python("print (os.linesep.join(sys.path))");
+        python("from OCT_Pipeline.scripts.utility import con_cmd_test");
+//        python("sys.path.append(\"D:\\Autodesk\\Maya2016\\Python\")");
+//        python("print(\"babababababab\")");
+//        python("import subprocess");
+//        print("-----------------------------------------------------------");
+//        python("print (os.linesep.join(sys.path))");
+//        python("import con_cmd_test");
+        python("reload(con_cmd_test)");
+        python("con_cmd_test.deleteAll()");
+//        file -rename "E:\\work\\JMWC\\csenes\\del_meshes_done.mb";
+//        file -save;
+	}
+
+    else if ($batchID == 0002){
+        file -force -loadReferenceDepth "all" -open $path;
+
+        print("FILE Opened!!!!!!!");
+        python("import sys");
+        python("print(\".\\n\".join(sys.path))");
+        python("import OCT_Pipeline.scripts.ABC_Pipeline.k_ABC_proedure as kabc");
+        python("reload(kabc)");
+        python("mpr = kabc.k_ABC_procedure()");
+        python("mpr.k_export_cache()")
+//        file -rename "E:\\work\\JMWC\\csenes\\del_meshes_done.mb";
+        file -save;
+	}
+
+	$end_tm = `date -time`;
+	print("[ " + $end_tm + " ] :: complete process file:" + $path + "\n");
+
+    return 0 ;
+}
+

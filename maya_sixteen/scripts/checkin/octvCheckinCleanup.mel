@@ -985,7 +985,7 @@ global proc octvCheckinCleanup(string $args[])
 		error "不能保存文件，请检查是否D：盘空间不足";
 	}
 	
-	print ("\nasset_type:" + $asset_type);
+//	print ("\nasset_type:" + $asset_type);
 	int $tdTest = `getenv "OCTV_TDTEST"`;
 	if ( $tdTest!= 0)
 	{
@@ -999,8 +999,8 @@ global proc octvCheckinCleanup(string $args[])
 	string $headName = `match "[^.]+" $onlyfilename`;
 	
 
-	print ("\nnewFile:" + $newFile);
-	print ("\ndestFile:" + $destFolder);
+//	print ("\nnewFile:" + $newFile);
+//	print ("\ndestFile:" + $destFolder);
 
 	int $flagCam=false;
 	string $sysrs = "";
@@ -1496,7 +1496,7 @@ global proc octvCheckinCleanup(string $args[])
 //		python("raise Exception("td check")
 
 		python("octvDB.delDB('" + $db + "','" + $filename + "')");
-		print ("\nlastVerfile:" + $desc);
+//		print ("\nlastVerfile:" + $desc);
 		python("octvDB.insertDB('" + $db + "','" + $filename + "','" + $fstate + "','" + $ftype + "','" + $upUser + "','" + $fpath + "','" + $checkState + "','" + $checkUser  + "','" + $desc + "')");
 		$fstate = 1;
 		python("octvDB.insertDB('" + $db + "','" + $bakname + "','" + $fstate + "','" + $ftype + "','" + $upUser + "','" + $fpath + "','" + $checkState + "','" + $checkUser  + "','" + $desc + "')");
@@ -1723,14 +1723,14 @@ global proc zwCheckinCopyTextureImage(string $project, string $mode, string $des
 	}
 
 	$maps = `substitute "/scenes/" $maps "/sourceimages/"`;
-	print ("\nmaps:" + $maps);
+//	print ("\nmaps:" + $maps);
 
 	
 	string $OCTV_PROJECTS = tolower(`getenv "OCTV_PROJECTS"`);
 
 	string $production = `getenv "OCTV_PROJECTS"` + "/" + $project + "/Project";
 
-	print ("\nproduction:" + $production);
+//	print ("\nproduction:" + $production);
 
 	string $error = `zwCheckTextureImage 1 {"file", "fileTextureName", $production, $project, $mode, $destFolder}`;
 	if (`pluginInfo -query -loaded "Mayatomr"`)

@@ -10,7 +10,10 @@ class k_ABC_procedure():
 	def __init__(self):
 		pass
 		self.DHgroup = '|DH'
-		
+		cc.loadPlugin('AbcImport', qt=1)
+		cc.loadPlugin('AbcExport', qt=1)
+		cc.loadPlugin('animImportExport', qt=1)
+
 	def k_getTargetInfo(self,mode='Group'):
 		"""获取场景信息（目标物体、组，导出类型abc、curve，参考信息），导出到当前目录下的json文件里"""
 		kresult=[]

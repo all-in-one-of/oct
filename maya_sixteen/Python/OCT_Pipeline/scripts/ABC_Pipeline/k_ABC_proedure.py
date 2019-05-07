@@ -10,6 +10,14 @@ class k_ABC_procedure():
 	def __init__(self):
 		pass
 		self.DHgroup = '|DH'
+
+		self.k_re_ch = re.compile(r'^\w+_ch\d+.*')
+		self.k_re_pr = re.compile(r'^\w+_pr\d+.*')
+		self.k_re_geo = re.compile(r'.*:\w*Geo$|.*:\w*Geometry$')
+		self.k_re_cv = re.compile(r'.*:\w*master$')
+		self.k_re_cache = (r'\||:')
+
+
 		cc.loadPlugin('AbcImport', qt=1)
 		cc.loadPlugin('AbcExport', qt=1)
 		cc.loadPlugin('animImportExport', qt=1)
@@ -19,11 +27,7 @@ class k_ABC_procedure():
 		kresult=[]
 		scenesPath = os.path.normpath(os.path.split(cc.file(q=1, sn=1))[0])
 		#导出物体的名字规则
-		k_re_ch = re.compile(r'^\w+_ch\d+.*')
-		k_re_pr = re.compile(r'^\w+_pr\d+.*')
-		k_re_geo = re.compile(r'.*:\w*Geo$|.*:\w*Geometry$')
-		k_re_cv = re.compile(r'.*:\w*master$')
-		k_re_cache = (r'\||:')
+
 
 		if mode == 'Group':
 			if cc.objExists(self.DHgroup):
@@ -33,51 +37,15 @@ class k_ABC_procedure():
 					# eachTars_GeoGroup = [c for i in eachTarGroups for c in cc.listRelatives(i,c=1) if 'Geo' in c]
 					for eachTarGroup in eachTarGroups:
 						#角色ch
-						if k_re_ch.search(cc.ls(eachTarGroup,sn=1)[0]):
-							for TarGeoGroups in cc.listRelatives(eachTarGroup,c=1,f=1):
-								if k_re_geo.search(TarGeoGroups):
-									TarGeoGroup = cc.ls(TarGeoGroups,sn=1)
+						if self.k_re_ch.search(cc.ls(eachTarGroup,sn=1)[0]):
 
-									dictElement = {'targetObject': TarGeoGroup}
-									kresult.append(dictElement)
+							self.getInfoExpression(eachTarGroup,scenesPath,'abc','_AlembicNode',kresult)
 
-									dictElement.update({'type': 'abc'})
-									dictElement.update({'tarGroupName': eachTarGroup})
-									dictElement.update({'targetObject_ln': TarGeoGroups})
-
-									ABCfile = os.path.join(scenesPath,TarGeoGroup[0])
-									ABCfile = ABCfile+'.abc'
-									#修改ABC文件名
-									TarGeoGroup_sub = re.sub(k_re_cache,'_',TarGeoGroup[0])
-									ABCfile_sub = os.path.join(scenesPath, TarGeoGroup_sub)
-									ABCfile_sub = ABCfile_sub + '.abc'
-
-									dictElement.update({'scenesPath': scenesPath})
-									dictElement.update({'ABCfile': ABCfile})
-									dictElement.update({'ABCfile_sub': ABCfile_sub})
-
-									ABCNodename = TarGeoGroup_sub + '_AlembicNode'
-									dictElement.update({'ABCNodename': ABCNodename})
-
-									# 添加reference信息
-									referenceRN = cc.referenceQuery(TarGeoGroup, referenceNode=1)
-									referencePath = cc.referenceQuery(referenceRN, un=1, wcn=1, filename=1)
-									referenceNamespace = cc.referenceQuery(referenceRN, namespace=1)
-
-									dictElement.update({'referenceRN': referenceRN})
-									dictElement.update({'referencePath': referencePath})
-									dictElement.update({'referenceNamespace': referenceNamespace})
-
-
-									referencePath_re = referencePath.replace('_anim', '_render')
-									dictElement.update({'referencePath_re': referencePath_re})
-									referenceNamespace_re = referenceNamespace.replace('_anim', '_render')
-									dictElement.update({'referenceNamespace_re': referenceNamespace_re})
 
 						#道具pr
-						elif k_re_pr.search(cc.ls(eachTarGroup,sn=1)[0]):
+						elif self.k_re_pr.search(cc.ls(eachTarGroup,sn=1)[0]):
 							for TarCvGroups in cc.listRelatives(eachTarGroup, c=1, f=1):
-								if k_re_cv.search(TarCvGroups):
+								if self.k_re_cv.search(TarCvGroups):
 									TarCvGroup = cc.ls(TarCvGroups, sn=1)
 
 									dictElement = {'targetObject': TarCvGroup}
@@ -90,7 +58,7 @@ class k_ABC_procedure():
 									Animfile = os.path.join(scenesPath, TarCvGroup[0])
 									Animfile = Animfile + '.anim'
 									# 修改anim文件名
-									TarCvGroup_sub = re.sub(k_re_cache, '_', TarCvGroup[0])
+									TarCvGroup_sub = re.sub(self.k_re_cache, '_', TarCvGroup[0])
 									Animfile_sub = os.path.join(scenesPath, TarCvGroup_sub)
 									Animfile_sub = Animfile_sub + '.anim'
 
@@ -115,6 +83,8 @@ class k_ABC_procedure():
 									referenceNamespace_re = referenceNamespace.replace('_anim', '_render')
 									dictElement.update({'referenceNamespace_re': referenceNamespace_re})
 
+
+
 				except Exception as e:
 					print (e)
 			else:
@@ -135,6 +105,49 @@ class k_ABC_procedure():
 
 
 		return (kresult)
+
+
+	def getInfoExpression(self,eachTarGroup,scenesPath,format,suffix,kresult):
+		for TarGeoGroups in cc.listRelatives(eachTarGroup, c=1, f=1):
+			if self.k_re_geo.search(TarGeoGroups):
+				TarGeoGroup = cc.ls(TarGeoGroups, sn=1)
+
+				dictElement = {'targetObject': TarGeoGroup}
+				kresult.append(dictElement)
+
+				dictElement.update({'type': format})
+				dictElement.update({'tarGroupName': eachTarGroup})
+				dictElement.update({'targetObject_ln': TarGeoGroups})
+
+				cachefile = os.path.join(scenesPath, TarGeoGroup[0])
+				cachefile = cachefile + '.' + format
+				# 修改ABC文件名
+				TarGeoGroup_sub = re.sub(self.k_re_cache, '_', TarGeoGroup[0])
+				cachefile_sub = os.path.join(scenesPath, TarGeoGroup_sub)
+				cachefile_sub = cachefile_sub + '.' + format
+
+				dictElement.update({'scenesPath': scenesPath})
+				dictElement.update({'{0}file'.format(format): cachefile})
+				dictElement.update({'{0}file_sub'.format(format): cachefile_sub})
+
+				Nodename = TarGeoGroup_sub + suffix
+				dictElement.update({'{0}Nodename'.format(format): Nodename})
+
+				# 添加reference信息
+				referenceRN = cc.referenceQuery(TarGeoGroup, referenceNode=1)
+				referencePath = cc.referenceQuery(referenceRN, un=1, wcn=1, filename=1)
+				referenceNamespace = cc.referenceQuery(referenceRN, namespace=1)
+
+				dictElement.update({'referenceRN': referenceRN})
+				dictElement.update({'referencePath': referencePath})
+				dictElement.update({'referenceNamespace': referenceNamespace})
+
+				referencePath_re = referencePath.replace('_anim', '_render')
+				dictElement.update({'referencePath_re': referencePath_re})
+				referenceNamespace_re = referenceNamespace.replace('_anim', '_render')
+				dictElement.update({'referenceNamespace_re': referenceNamespace_re})
+
+
 
 	def k_getJsonInfo(self,mode ='fs'):
 		"""获取当前路径下的json文件"""

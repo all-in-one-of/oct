@@ -17,10 +17,12 @@ class k_ABC_procedure():
 		self.k_re_cv = re.compile(r'.*:\w*master$')
 		self.k_re_cache = (r'\||:')
 
-
-		cc.loadPlugin('AbcImport', qt=1)
-		cc.loadPlugin('AbcExport', qt=1)
-		cc.loadPlugin('animImportExport', qt=1)
+		if not cc.pluginInfo('AbcImport', q=True, l=1):
+			cc.loadPlugin('AbcImport')
+		if not cc.pluginInfo('AbcExport', q=True, l=1):
+			cc.loadPlugin('AbcExport')
+		if not cc.pluginInfo('AbcExport', q=True, l=1):
+			cc.loadPlugin('animImportExport')
 
 	def k_getTargetInfo(self,mode='Group'):
 		"""获取场景信息（目标物体、组，导出类型abc、curve，参考信息），导出到当前目录下的json文件里"""
@@ -38,51 +40,12 @@ class k_ABC_procedure():
 					for eachTarGroup in eachTarGroups:
 						#角色ch
 						if self.k_re_ch.search(cc.ls(eachTarGroup,sn=1)[0]):
-
-							self.getInfoExpression(eachTarGroup,scenesPath,'abc','_AlembicNode',kresult)
+							self.getInfoExpression(eachTarGroup,scenesPath,self.k_re_geo,'abc','_AlembicNode',kresult)
 
 
 						#道具pr
 						elif self.k_re_pr.search(cc.ls(eachTarGroup,sn=1)[0]):
-							for TarCvGroups in cc.listRelatives(eachTarGroup, c=1, f=1):
-								if self.k_re_cv.search(TarCvGroups):
-									TarCvGroup = cc.ls(TarCvGroups, sn=1)
-
-									dictElement = {'targetObject': TarCvGroup}
-									kresult.append(dictElement)
-
-									dictElement.update({'type': 'curve'})
-									dictElement.update({'tarGroupName': eachTarGroup})
-									dictElement.update({'targetObject_ln': TarCvGroups})
-
-									Animfile = os.path.join(scenesPath, TarCvGroup[0])
-									Animfile = Animfile + '.anim'
-									# 修改anim文件名
-									TarCvGroup_sub = re.sub(self.k_re_cache, '_', TarCvGroup[0])
-									Animfile_sub = os.path.join(scenesPath, TarCvGroup_sub)
-									Animfile_sub = Animfile_sub + '.anim'
-
-									dictElement.update({'scenesPath': scenesPath})
-									dictElement.update({'Animfile': Animfile})
-									dictElement.update({'Animfile_sub': Animfile_sub})
-
-
-
-									# 添加reference信息
-									referenceRN = cc.referenceQuery(TarCvGroup, referenceNode=1)
-									referencePath = cc.referenceQuery(referenceRN, un=1, wcn=1, filename=1)
-									referenceNamespace = cc.referenceQuery(referenceRN, namespace=1)
-
-									dictElement.update({'referenceRN': referenceRN})
-									dictElement.update({'referencePath': referencePath})
-									dictElement.update({'referenceNamespace': referenceNamespace})
-
-
-									referencePath_re = referencePath.replace('_anim', '_render')
-									dictElement.update({'referencePath_re': referencePath_re})
-									referenceNamespace_re = referenceNamespace.replace('_anim', '_render')
-									dictElement.update({'referenceNamespace_re': referenceNamespace_re})
-
+							self.getInfoExpression(eachTarGroup, scenesPath,self.k_re_cv, 'anim', '', kresult)
 
 
 				except Exception as e:
@@ -107,9 +70,9 @@ class k_ABC_procedure():
 		return (kresult)
 
 
-	def getInfoExpression(self,eachTarGroup,scenesPath,format,suffix,kresult):
+	def getInfoExpression(self,eachTarGroup,scenesPath,k_re,format,suffix,kresult):
 		for TarGeoGroups in cc.listRelatives(eachTarGroup, c=1, f=1):
-			if self.k_re_geo.search(TarGeoGroups):
+			if k_re.search(TarGeoGroups):
 				TarGeoGroup = cc.ls(TarGeoGroups, sn=1)
 
 				dictElement = {'targetObject': TarGeoGroup}
@@ -194,7 +157,7 @@ class k_ABC_procedure():
 		"""执行输出ABC  #k_centerpivot为写死的属性名 需要导出 两个版本的参考时加入此属性"""
 		targetObject = kargs['targetObject']
 
-		abcPath = kargs['ABCfile_sub']
+		abcPath = kargs['abcfile_sub']
 		# 返回动画条的帧数范围
 		startFrame = cc.playbackOptions(q=True, minTime=True)
 		endFrame = cc.playbackOptions(q=True, maxTime=True)
@@ -225,8 +188,8 @@ class k_ABC_procedure():
 
 	def excuteImpABC(self, kargs):
 		"""导入ABC缓存"""
-		ABCfile = kargs['ABCfile_sub']
-		ABCNodename = kargs['ABCNodename']
+		ABCfile = kargs['abcfile_sub']
+		ABCNodename = kargs['abcNodename']
 
 
 		if cc.objExists('k_tempGroup'):
@@ -242,7 +205,7 @@ class k_ABC_procedure():
 
 	def excuteExpAnim(self,kargs):
 		#烘焙关键帧
-		animfile = kargs['Animfile_sub']
+		animfile = kargs['animfile_sub']
 		targetObject = kargs['targetObject']
 
 		startFrame = cc.playbackOptions(q=True, minTime=True)
@@ -270,7 +233,7 @@ class k_ABC_procedure():
 
 	def excuteImpAnim(self,kargs):
 
-		animfile = kargs['Animfile_sub']
+		animfile = kargs['animfile_sub']
 
 		targetObject = kargs['targetObject']
 
@@ -287,7 +250,7 @@ class k_ABC_procedure():
 		topGroupName = kargs['tarGroupName']
 
 		#ABCNodename = os.path.splitext(os.path.basename(ABCfile))[0] + '_AlembicNode'
-		ABCNodename = kargs['ABCNodename']
+		ABCNodename = kargs['abcNodename']
 
 		list_abcShapes = cc.listConnections(ABCNodename, s=0, sh=1, type='mesh')
 
@@ -379,7 +342,7 @@ class k_ABC_procedure():
 		for karg in kargs:
 			if karg['type'] == 'abc':
 				self.excuteExpABC(karg)
-			if karg['type'] == 'curve':
+			if karg['type'] == 'anim':
 				self.excuteExpAnim(karg)
 
 	def k_import_cache(self):
@@ -390,7 +353,7 @@ class k_ABC_procedure():
 			if karg['type'] == 'abc':
 				self.excuteImpABC(karg)
 				self.connectABC(karg)
-			elif karg['type'] == 'curve':
+			elif karg['type'] == 'anim':
 				self.excuteImpAnim(karg)
 			self.change_referenceNamespace(karg,k_ref)
 

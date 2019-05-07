@@ -12,6 +12,7 @@ from PySide import QtGui,QtCore,QtUiTools
 import maya.OpenMayaUI as mui
 import sys,os,copy,re
 import maya.mel as mel
+import maya.cmds as mc
 import pymel.core as pm
 import shiboken
 from ..utility import Kits
@@ -133,6 +134,22 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         self.skchk.checkModelDetailsWarning("renderState")
     def cmd_selSmth_tidy_bt(self):#选取物体smooth
         self.sksmth.smoothSetDoSmooth(useSmoothSet = 1,selMode = 1)
+    def cmd_txsnm_chk_bt(self):#check 贴图命名
+        chk_labels = {'noExists': u'贴图不存在', 'iffyName': u'贴图命名 应由 (字母/数字/_/.) 组成', 'seqIffyName': u'序列贴图序号存在异常 正常为 ***.0001.jpg', 'prefIffyName':
+            u'贴图前缀与当前任务不匹配'}
+        res = self.chk_txf_name()
+        res_str = u'>>>请检查列出的file节点 贴图命名 所描述的错误{}'.format(os.linesep)
+        for ea_ck_lb in chk_labels:
+            # print ea_ck_lb
+            if res[ea_ck_lb]:
+                print res[ea_ck_lb]
+                res_str += u'\t{}{}'.format(chk_labels[ea_ck_lb], os.linesep)
+                for ea_fn in res[ea_ck_lb]:
+                    res_str += u"\t\t>>>File Node: {:<32}\t>>>Texture File: {}\t 异常部分: {}{}".format(ea_fn.name(), res[ea_ck_lb][ea_fn].keys()[0],
+                                                                                             res[ea_ck_lb][ea_fn].values()[0], os.linesep)
+        print res_str
+
+
 
     # check all items
     def cmd_all_chk_bt(self):
@@ -177,8 +194,44 @@ class Ppl_assetT_main(QtGui.QMainWindow):
                     else:
                         non_uniques[ndShtNm][ndTyp] = [ea_nd]
 
+    def chk_txf_name(self,proj_abbr=None):  # texture file name check
+        if not proj_abbr:  # project abbreviation
+            fileName_shn = mc.file(q=True, sn=True, shn=True)
+            proj_abbr = re.search('^[^_]*', fileName_shn).group()
+            if proj_abbr == fileName_shn: proj_abbr == None
+        lsfils = pm.ls(type='file')
+        checkRes = {'noExists': {}, 'iffyName': {}, 'seqIffyName': {}, 'prefIffyName': {}}
+        for eaf in lsfils:
+            txfpth = eaf.attr('fileTextureName').get()
+            txf_nm = os.path.basename(txfpth)
+            # check texture file prefix match project abbreviation
+            if proj_abbr and not re.search('^{}_'.format(proj_abbr), txf_nm, re.I):
+                checkRes['prefIffyName'][eaf] = [txfpth]
+            # check file whether exists
+            if not os.path.isfile(txfpth): checkRes['noExists'][eaf] = [txfpth]
+            # check file name whether
+            re_iffynm = re.compile("[^\w_/{}:.]+".format(os.sep), re.I)
+            ckres = re_iffynm.findall(txfpth)
+            if len(ckres): checkRes['iffyName'][eaf] = {txfpth: ckres}
+            # check sequence texture
+            if eaf.attr('useFrameExtension').get() or eaf.attr('uvTilingMode').get() == 3:
+                tx_spl = os.path.splitext(txf_nm)
+                re_seq = re.compile('[._]+\d+$', re.I)
+                if not re_seq.search(tx_spl[0]):
+                    re_seq_comp = re.compile('[^_.]+$', re.I)
+                    if re_seq_comp.search(tx_spl[0]):
+                        checkRes['seqIffyName'][eaf] = {txfpth: re_seq_comp.findall(tx_spl[0])}
+                    else:
+                        checkRes['seqIffyName'][eaf] = {txfpth: [tx_spl[0]]}
+                else:
+                    match_seq = re_seq.search(tx_spl[0]).group()
+                    print match_seq
+                    re_illegal_seq = re.compile('[._]')
+                    redundant_sep = re_illegal_seq.findall(match_seq)[:-1]
+                    if redundant_sep: checkRes['seqIffyName'][eaf] = {txfpth: redundant_sep}
+        return checkRes
 
-#
+
 # def call_it():
 #     if not mc.window('ppl_asset_win',exists=True):
 #         win = Ppl_assetT_main()

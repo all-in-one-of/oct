@@ -42,11 +42,19 @@ class k_ABC_procedure():
 						if self.k_re_ch.search(cc.ls(eachTarGroup,sn=1)[0]):
 							self.getInfoExpression(eachTarGroup,scenesPath,self.k_re_geo,'abc','_AlembicNode',kresult)
 
-
 						#道具pr
 						elif self.k_re_pr.search(cc.ls(eachTarGroup,sn=1)[0]):
 							self.getInfoExpression(eachTarGroup, scenesPath,self.k_re_cv, 'anim', '', kresult)
 
+						else:
+							for sub_eachTarGroup in cc.listRelatives(eachTarGroup,c=1,f=1):
+								if self.k_re_ch.search(cc.ls(sub_eachTarGroup, sn=1)[0]):
+
+									self.getInfoExpression(sub_eachTarGroup, scenesPath, self.k_re_geo, 'abc','_AlembicNode', kresult)
+
+								# 道具pr
+								elif self.k_re_pr.search(cc.ls(sub_eachTarGroup, sn=1)[0]):
+									self.getInfoExpression(sub_eachTarGroup, scenesPath, self.k_re_cv, 'anim', '', kresult)
 
 				except Exception as e:
 					print (e)
@@ -82,12 +90,18 @@ class k_ABC_procedure():
 				dictElement.update({'tarGroupName': eachTarGroup})
 				dictElement.update({'targetObject_ln': TarGeoGroups})
 
-				cachefile = os.path.join(scenesPath, TarGeoGroup[0])
+				typeGroupName = cc.listRelatives(eachTarGroup, p=1, f=1)
+				dictElement.update({'typeGroupName': typeGroupName[0]})
+
+				cachefile = os.path.join(scenesPath,'PipelineCache',TarGeoGroup[0])
 				cachefile = cachefile + '.' + format
 				# 修改ABC文件名
 				TarGeoGroup_sub = re.sub(self.k_re_cache, '_', TarGeoGroup[0])
-				cachefile_sub = os.path.join(scenesPath, TarGeoGroup_sub)
+				cachefile_sub = os.path.join(scenesPath, 'PipelineCache',TarGeoGroup_sub)
 				cachefile_sub = cachefile_sub + '.' + format
+
+				PipelineCachePath = os.path.join(scenesPath,'PipelineCache')
+				dictElement.update({'PipelineCachePath': PipelineCachePath})
 
 				dictElement.update({'scenesPath': scenesPath})
 				dictElement.update({'{0}file'.format(format): cachefile})
@@ -231,6 +245,8 @@ class k_ABC_procedure():
 						"copyKeyCmd=-animation objects -option keys -hierarchy below -controlPoints 0 -shape 1",
 				type="animExport", pr=1, es=1)
 
+
+
 	def excuteImpAnim(self,kargs):
 
 		animfile = kargs['animfile_sub']
@@ -301,25 +317,44 @@ class k_ABC_procedure():
 
 	def createReference(self,kargs):
 		"""根据json信息，创建参考"""
-		k_re_DH = re.compile("^\|DH\|")
+		k_re_group = re.compile("(\|\w+)")
 
-		if not cc.objExists(self.DHgroup):cc.createNode('transform', n=self.DHgroup)
+		if not cc.objExists(self.DHgroup):
+			cc.createNode('transform', n=self.DHgroup)
 
 
 		referenceNamespace=kargs['referenceNamespace']
 		referencePath = kargs['referencePath_re']
 		tarGroupName = kargs['tarGroupName']
+		typeGroupName = kargs['typeGroupName']
 
-		tarGroupName_sub = re.sub(k_re_DH, '',tarGroupName)
+		reGroup = k_re_group.findall(typeGroupName)
 
 		k_referenceResolved = cc.file(referencePath,r=1,type='mayaBinary',iv=1,gl=1,
 							  shd=('displayLayers','shadingNetworks','renderLayersByName'),mnc=0,
 							  options='v=0;',namespace=referenceNamespace)
 
-		try:
-			cc.parent(tarGroupName_sub,self.DHgroup)
-		except Exception as e:
-			print(e)
+		if len(reGroup) == 1 and reGroup[0] == self.DHgroup:
+			tarGroupName_sub = tarGroupName.replace(typeGroupName,'')
+			try:
+				cc.parent(tarGroupName_sub,self.DHgroup)
+			except Exception as e:
+				print(e)
+
+		if len(reGroup) == 2 and reGroup[0] == self.DHgroup:
+			if cc.objExists(reGroup[1]):
+				cc.error()
+			#处理子组
+			if not cc.objExists(typeGroupName):
+				cc.createNode('transform', n=reGroup[1])
+				cc.parent(reGroup[1], self.DHgroup)
+
+			tarGroupName_sub = tarGroupName.replace(typeGroupName, '')
+
+			try:
+				cc.parent(tarGroupName_sub,typeGroupName)
+			except Exception as e:
+				print(e)
 
 		return (k_referenceResolved)
 
@@ -335,11 +370,20 @@ class k_ABC_procedure():
 			except Exception as e:
 				print(e)
 
+	def k_makedir(self,path):
+		path = path.strip()
+		path = path.strip('\\')
+
+		if not os.path.exists(path):
+			os.makedirs(path)
+
 
 	def k_export_cache(self):
 		kargs = self.k_getTargetInfo()
 		self.Hide_NoPrimaryVisiblility()
+
 		for karg in kargs:
+			self.k_makedir(karg['PipelineCachePath'])
 			if karg['type'] == 'abc':
 				self.excuteExpABC(karg)
 			if karg['type'] == 'anim':

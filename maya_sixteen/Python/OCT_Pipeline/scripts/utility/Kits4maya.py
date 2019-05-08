@@ -37,5 +37,5 @@ class Kits4maya(object):
             return new_nm
         else:
             num += 1
-            name_again = Kits.unique_name(new_nm, num, suff)
+            name_again = Kits4maya.unique_name(new_nm, num, suff)
             return name_again

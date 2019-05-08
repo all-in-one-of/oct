@@ -139,15 +139,18 @@ class Kits(object):
         re_pth = re.sub(r"\\",rpl,pathStr)
         re_pth = re.sub('/',rpl,re_pth)
         return re_pth
-    
+
     def filetest(self,filePth,destDir):# determins whether a file needs bo be copied.
         #filePth = new_ea_02
         # print ("CHECK FILE WHETHER EXISTS : {}".format(filePth))
+        if not os.path.exists(destDir): return True
         txf_mt = time.localtime(os.stat(filePth).st_mtime)
         # print txf_mt
         # print destDir
         fnm = os.path.basename(filePth)
-        targ_f_pth = os.path.abspath(os.path.join(destDir,fnm))
+        targ_f_pth = destDir
+        if os.path.isdir(destDir):
+            targ_f_pth = os.path.abspath(os.path.join(destDir,fnm))
         # print targ_f_pth
         if not os.path.isfile(targ_f_pth): return True
         destf_mt = time.localtime(os.stat(targ_f_pth).st_mtime)

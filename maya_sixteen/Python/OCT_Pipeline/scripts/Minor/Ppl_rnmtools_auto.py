@@ -215,7 +215,7 @@ def new_names(nodeObj, prifix=u'MSH', suffix=u'_',precision= None, pk_sid = None
         new_name_str = re.sub(u'[_]+$', u'', new_name_str)
     else:
         new_name_str += suffix
-    final_nm = Kits4maya.Kits.unique_name(new_name_str,suff='_')
+    final_nm = Kits4maya.Kits4maya.unique_name(new_name_str,suff='_')
     return final_nm
 
 def get_name_membs(nm_str,pk_sid=None): # return a dict, contains the new name needs membership

@@ -7,7 +7,7 @@ __mtime__ = 2019/4/1 : 18:24
 # code is far away from bugs with the god animal protecting
 I love animals. They taste delicious.
 """
-
+import shutil
 from PySide import QtGui,QtCore,QtUiTools
 import maya.OpenMayaUI as mui
 import sys,os,copy,re
@@ -22,6 +22,7 @@ reload(sk_checkTools)
 reload(sk_sceneTools)
 reload(sk_smoothSet)
 SCRIPT_LOC = os.path.split(__file__)[0]
+PROJ_DIR = os.getenv('OCTV_PROJECTS')
 class Ppl_assetT_main(QtGui.QMainWindow):
     def __init__(self):#load ui  show it
         """
@@ -46,6 +47,13 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         self.ui.show()
 
         self.makeConnections()
+        # === about porjects information
+        self.k = Kits.Kits()
+        ALL_PROJ_ABBRS = os.listdir(PROJ_DIR)
+        sc_shn = os.path.basename(pm.sceneName())
+        self.proj_abbr = re.search("^[^_]+",sc_shn).group() if re.search("^[^_]+",sc_shn).group() != sc_shn else None
+
+
 
     def makeConnections(self): # connect buttons to fucntions
         for each_bt in self.buttonsList:
@@ -62,6 +70,51 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         src_mel = re.sub(r'\\','/',src_mel)
         mel.eval("source \"{}\"".format(src_mel))
         mel.eval("Quick_rename_tool()")
+
+    def cmd_alterTxsPrf_bt(self):#修改贴图前缀匹配当前项目
+        mod = {'RENAME OLD':'rn','COPIED FOR NEW':'cp'}
+        result = mc.promptDialog(title='Texture Prefix',message='Enter Prefix:',button=['COPIED FOR NEW','RENAME OLD','Cancel'],defaultButton='OK',
+                                 cancelButton='Cancel',
+                                 dismissString='Cancel',text = self.proj_abbr)
+        if result in mod: self.proj_abbr = mc.promptDialog(query=True, text=True)
+        else:return
+        ALL_PROJ_ABBRS = os.listdir(PROJ_DIR)
+        alterFs = pm.selected(type='file')
+        if not alterFs: alterFs = pm.ls(type='file')
+        cur_proj_wsp = pm.workspace(fn=True, q=True)
+        cur_src_dir = "{}/sourceimages/".format(cur_proj_wsp)
+        renmed_txs_cnt = 0
+        for eaf in alterFs:
+            txfpth = eaf.attr('fileTextureName').get()
+            txf_nm = os.path.basename(txfpth)
+            txf_prj_abbr = re.search("^[^_]+", txf_nm).group()
+            if txf_prj_abbr == self.proj_abbr: continue
+            txf_dir = re.sub(txf_nm, '', txfpth)
+            if not txf_dir.startswith(cur_src_dir) and mod[result]=='cp':
+                txf_dir = cur_src_dir
+            new_txf_nm = None
+            if txf_prj_abbr in ALL_PROJ_ABBRS:
+                new_txf_nm = re.sub(txf_prj_abbr, self.proj_abbr, txf_nm)
+                new_txf_pth = "{}{}".format(txf_dir, new_txf_nm)
+                if self.k.filetest(txfpth,new_txf_pth):
+                    # print(">>>--{}{}>>>---{}".format(txfpth,os.linesep,new_txf_pth))
+                    try:
+                        if mod[result] =='cp':
+                            shutil.copy2(txfpth,new_txf_pth)
+                        elif mod[result] =='rn':
+                            os.rename(txfpth,new_txf_pth)
+                        renmed_txs_cnt +=1
+                    except:
+                        print("sorce image: {1}{0}target image: {2}".format(os.linesep,txfpth,new_txf_pth))
+                        print(u">>>请检查 当前工程的sourceimages文件夹 是否存在并且有写入权限")
+                        mc.error(u'{0}>>>请检查 当前工程的sourceimages文件夹 是否存在并且有写入权限{0}\t{1}'.format(os.linesep,txf_dir))
+                    eaf.attr('fileTextureName').set(new_txf_pth)
+                else:
+                    if os.path.exists(new_txf_pth):
+                        eaf.attr('fileTextureName').set(new_txf_pth)
+                        renmed_txs_cnt += 1
+        print(u">>> 本次操作修改了 {} 张贴图前缀 匹配了当前文件 项目 缩写 : {} ".format(renmed_txs_cnt,self.proj_abbr))
+
 
     def cmd_smoothSetT_bt(self): # smooth set 设置工具
         self.sksmth.UI_setSmooth()
@@ -140,13 +193,14 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         res = self.chk_txf_name()
         res_str = u'>>>请检查列出的file节点 贴图命名 所描述的错误{}'.format(os.linesep)
         for ea_ck_lb in chk_labels:
-            # print ea_ck_lb
+            print ea_ck_lb
             if res[ea_ck_lb]:
                 print res[ea_ck_lb]
                 res_str += u'\t{}{}'.format(chk_labels[ea_ck_lb], os.linesep)
                 for ea_fn in res[ea_ck_lb]:
-                    res_str += u"\t\t>>>File Node: {:<32}\t>>>Texture File: {}\t 异常部分: {}{}".format(ea_fn.name(), res[ea_ck_lb][ea_fn].keys()[0],
-                                                                                             res[ea_ck_lb][ea_fn].values()[0], os.linesep)
+                    res_str += u"\t\t>>>File Node >> {:<32}\t>>>Texture File>>  {:<120}\t 异常部分: {}{}".format(ea_fn.name(), res[ea_ck_lb][
+                        ea_fn].keys()[
+                        0],res[ea_ck_lb][ea_fn].values()[0], os.linesep)
         print res_str
 
 
@@ -204,9 +258,10 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         for eaf in lsfils:
             txfpth = eaf.attr('fileTextureName').get()
             txf_nm = os.path.basename(txfpth)
+            txf_prf = re.search("^[^_]+", txf_nm).group()
             # check texture file prefix match project abbreviation
-            if proj_abbr and not re.search('^{}_'.format(proj_abbr), txf_nm, re.I):
-                checkRes['prefIffyName'][eaf] = [txfpth]
+            if proj_abbr and proj_abbr != txf_prf:
+                checkRes['prefIffyName'][eaf] = {txfpth:txf_prf}
             # check file whether exists
             if not os.path.isfile(txfpth): checkRes['noExists'][eaf] = [txfpth]
             # check file name whether

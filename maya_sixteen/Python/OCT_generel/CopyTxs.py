@@ -163,7 +163,7 @@ class CopyTxs(object):
                     continue
                 if new_ea_02 not in tmp_list: tmp_list.append(new_ea_02)
                 if new_ea_02 not in self.colect_allTxs:
-                    if self.filetest(new_ea_02, self.destDir): self.colect_allTxs.append(new_ea_02)
+                    if self.k.filetest(new_ea_02, self.destDir): self.colect_allTxs.append(new_ea_02)
                     else: print("\ttexture eixists on server : {}".format(new_ea_02))
                 # print("\n==={}\n".format(new_ea_02)) v
                 if os.path.splitext(new_ea_02)[-1] in ['.tx',u'.tx']: continue
@@ -176,7 +176,7 @@ class CopyTxs(object):
                         continue
                     if new_ea_02_txf not in tmp_list: tmp_list.append(new_ea_02_txf)
                     if new_ea_02_txf not in self.colect_allTxs:
-                        if self.filetest(new_ea_02_txf, self.destDir): self.colect_allTxs.append(new_ea_02_txf)
+                        if self.k.filetest(new_ea_02_txf, self.destDir): self.colect_allTxs.append(new_ea_02_txf)
                         else: print("\ttexture eixists on server : {}".format(new_ea_02_txf))
             self.txs_info_dict[f_nd] = tmp_list
         if len(iffy_txs):
@@ -238,21 +238,21 @@ class CopyTxs(object):
         prg_num_tmp = (cur_cp_num / float(exec_count)) * 100
         mc.progressWindow(cpProgressWin, e=True, progress=prg_num_tmp, status="Copy perform: {}%".format(prg_num_tmp))
 
-    def filetest(self,filePth,destDir):# determins whether a file needs bo be copied.
-        #filePth = new_ea_02
-        # print ("CHECK FILE WHETHER EXISTS : {}".format(filePth))
-        txf_mt = time.localtime(os.stat(filePth).st_mtime)
-        # print txf_mt
-        # print destDir
-        fnm = os.path.basename(filePth)
-        targ_f_pth = os.path.abspath(os.path.join(destDir,fnm))
-        # print targ_f_pth
-        if not os.path.isfile(targ_f_pth): return True
-        destf_mt = time.localtime(os.stat(targ_f_pth).st_mtime)
-        # print("SOURCE FILE M-Time: {}".format(txf_mt))
-        # print("DEST FILE M-Time  : {}".format(destf_mt))
-        if txf_mt != destf_mt: return True
-        else: return None
+    # def filetest(self,filePth,destDir):# determins whether a file needs bo be copied.
+    #     #filePth = new_ea_02
+    #     # print ("CHECK FILE WHETHER EXISTS : {}".format(filePth))
+    #     txf_mt = time.localtime(os.stat(filePth).st_mtime)
+    #     # print txf_mt
+    #     # print destDir
+    #     fnm = os.path.basename(filePth)
+    #     targ_f_pth = os.path.abspath(os.path.join(destDir,fnm))
+    #     # print targ_f_pth
+    #     if not os.path.isfile(targ_f_pth): return True
+    #     destf_mt = time.localtime(os.stat(targ_f_pth).st_mtime)
+    #     # print("SOURCE FILE M-Time: {}".format(txf_mt))
+    #     # print("DEST FILE M-Time  : {}".format(destf_mt))
+    #     if txf_mt != destf_mt: return True
+    #     else: return None
 
 
 

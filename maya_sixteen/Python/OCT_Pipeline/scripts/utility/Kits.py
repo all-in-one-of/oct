@@ -7,7 +7,7 @@ __mtime__ = 2019/4/2 : 9:55
 # code is far away from bugs with the god animal protecting
 I love animals. They taste delicious.
 """
-import os,re,sys
+import os,re,sys,time
 import subprocess
 import string
 class Kits(object):
@@ -139,3 +139,19 @@ class Kits(object):
         re_pth = re.sub(r"\\",rpl,pathStr)
         re_pth = re.sub('/',rpl,re_pth)
         return re_pth
+    
+    def filetest(self,filePth,destDir):# determins whether a file needs bo be copied.
+        #filePth = new_ea_02
+        # print ("CHECK FILE WHETHER EXISTS : {}".format(filePth))
+        txf_mt = time.localtime(os.stat(filePth).st_mtime)
+        # print txf_mt
+        # print destDir
+        fnm = os.path.basename(filePth)
+        targ_f_pth = os.path.abspath(os.path.join(destDir,fnm))
+        # print targ_f_pth
+        if not os.path.isfile(targ_f_pth): return True
+        destf_mt = time.localtime(os.stat(targ_f_pth).st_mtime)
+        # print("SOURCE FILE M-Time: {}".format(txf_mt))
+        # print("DEST FILE M-Time  : {}".format(destf_mt))
+        if txf_mt != destf_mt: return True
+        else: return None

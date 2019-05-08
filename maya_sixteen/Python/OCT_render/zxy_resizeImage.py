@@ -352,7 +352,11 @@ class ReSizeDialog(QtGui.QDialog):
             return False
 
         try:
-            im.writeToFile(output_file[0], output_file[1])
+            if output_file[1] == 'JPG' or output_file[1] == 'JPEG':
+                output_file_format = str(output_file[1]).lower()
+                im.writeToFile(output_file[0],output_file_format)
+            else:
+                im.writeToFile(output_file[0], output_file[1])
         except:
             im.release()
             self.show_warning('An error occurred when write a texture file')

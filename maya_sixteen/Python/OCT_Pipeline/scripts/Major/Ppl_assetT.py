@@ -51,7 +51,7 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         self.k = Kits.Kits()
         ALL_PROJ_ABBRS = os.listdir(PROJ_DIR)
         sc_shn = os.path.basename(pm.sceneName())
-        self.proj_abbr = re.search("^[^_]+",sc_shn).group() if re.search("^[^_]+",sc_shn).group() != sc_shn else None
+        self.proj_abbr = re.search("^[^_]+",sc_shn).group() if sc_shn and re.search("^[^_]+",sc_shn).group() != sc_shn else None
 
 
 
@@ -192,17 +192,17 @@ class Ppl_assetT_main(QtGui.QMainWindow):
             u'贴图前缀与当前任务不匹配'}
         res = self.chk_txf_name()
         res_str = u'>>>请检查列出的file节点 贴图命名 所描述的错误{}'.format(os.linesep)
+        ck_cnt = 0
         for ea_ck_lb in chk_labels:
-            print ea_ck_lb
             if res[ea_ck_lb]:
-                print res[ea_ck_lb]
                 res_str += u'\t{}{}'.format(chk_labels[ea_ck_lb], os.linesep)
                 for ea_fn in res[ea_ck_lb]:
                     res_str += u"\t\t>>>File Node >> {:<32}\t>>>Texture File>>  {:<120}\t 异常部分: {}{}".format(ea_fn.name(), res[ea_ck_lb][
                         ea_fn].keys()[
                         0],res[ea_ck_lb][ea_fn].values()[0], os.linesep)
-        print res_str
-
+                ck_cnt +=1
+        if ck_cnt: print res_str
+        else: print(u">>>没有贴图节点被check")
 
 
     # check all items

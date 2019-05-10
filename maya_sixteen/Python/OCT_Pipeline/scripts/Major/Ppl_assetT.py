@@ -94,6 +94,8 @@ class Ppl_assetT_main(QtGui.QMainWindow):
             get_txfpths.append(txfpth_01)
             if self.get_ArTx(txfpth_01) and os.path.isfile(self.get_ArTx(txfpth_01)): get_txfpths.append(self.get_ArTx(txfpth_01))
             for txfpth in get_txfpths:
+                set_attr_value = True
+                if get_txfpths.index(txfpth): set_attr_value = False
                 txf_nm = os.path.basename(txfpth)
                 txf_prj_abbr = re.search("^[^_]+", txf_nm).group()
                 if txf_prj_abbr == self.proj_abbr: continue
@@ -111,11 +113,13 @@ class Ppl_assetT_main(QtGui.QMainWindow):
                     try:
                         if mod[result] =='cp':
                             shutil.copy2(txfpth,new_txf_pth)
-                            eaf.attr('fileTextureName').set(new_txf_pth)
+                            if set_attr_value:
+                                eaf.attr('fileTextureName').set(new_txf_pth)
                         elif mod[result] =='rn':
                             eaf.attr('fileTextureName').set("")
                             os.rename(txfpth,new_txf_pth)
-                            eaf.attr('fileTextureName').set(new_txf_pth)
+                            if set_attr_value:
+                                eaf.attr('fileTextureName').set(new_txf_pth)
                         renmed_txs_cnt +=1
                         self.ref_pr_bar(renmed_txs_cnt+1,all_cnt,cpProgressWin)
                     except:

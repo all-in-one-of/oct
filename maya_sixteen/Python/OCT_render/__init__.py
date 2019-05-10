@@ -12,6 +12,7 @@ import OCT_QuantityRender_zwz
 import OCT_SuperFixFram_zwz
 from zxy_resizeImage import ReSizeDialog
 from OCT_ChangeNodePath_Tool import File_Tools
+import OCT_AutoCreateAOV
 
 #maya 2018会无效
 def aiMatModification():

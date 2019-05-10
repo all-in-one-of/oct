@@ -343,6 +343,7 @@ def makeMenu():
     mc.menuItem("OCT_Render", label=u'渲染工具', ann=u'渲染工具', subMenu=True, to=True, parent="OCT_ToolSetMN")
     mc.menuItem('LayerTools', label=u'分层工具...', ann=u'分层工具...', to=True, c='OCT_render.OpenRenderLayerTools()', parent="OCT_Render")
     mc.menuItem("RenderSet_zwz", label=u"渲染面板快速设置...", ann=u'渲染面板快速设置...', c="OCT_generel.OCT_RenderSet_zwz.OCT_RenderSet_zwz_UI()", parent="OCT_Render")
+    mc.menuItem("AutoCreateAOV", label=u"自动创建AOV(arnold)", ann=u'自动创建AOV(arnold)...',c="OCT_render.OCT_AutoCreateAOV.AutoCreateAOV().do()", parent="OCT_Render")
     mc.menuItem(d=1, parent="OCT_Render")
     mc.menuItem("resizeImage", l=u"修改图片大小...", ann=u'修改图片大小', c='OCT_render.run_zxy_resizeImage()', parent="OCT_Render")
     mc.menuItem(d=1, parent="OCT_Render")

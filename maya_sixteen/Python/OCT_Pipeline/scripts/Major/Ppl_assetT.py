@@ -129,7 +129,7 @@ class Ppl_assetT_main(QtGui.QMainWindow):
                         mc.error(u'{0}>>>请检查 当前工程的sourceimages文件夹 是否存在并且有写入权限{0}\t{1}'.format(os.linesep,txf_dir))
                 else:
                     if os.path.exists(new_txf_pth):
-                        eaf.attr('fileTextureName').set(new_txf_pth)
+                        if set_attr_value: eaf.attr('fileTextureName').set(new_txf_pth)
                         renmed_txs_cnt += 1
                         self.ref_pr_bar(renmed_txs_cnt + 1, all_cnt, cpProgressWin)
         mc.progressWindow(cpProgressWin, endProgress=1)

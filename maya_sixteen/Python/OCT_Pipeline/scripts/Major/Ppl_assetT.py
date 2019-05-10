@@ -83,38 +83,52 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         if not alterFs: alterFs = pm.ls(type='file')
         cur_proj_wsp = pm.workspace(fn=True, q=True)
         cur_src_dir = "{}/sourceimages/".format(cur_proj_wsp)
+        all_cnt = len(alterFs)
         renmed_txs_cnt = 0
+        prg_num = (renmed_txs_cnt+1 / float(all_cnt)) * 100
+        cpProgressWin = mc.progressWindow(title="Add Prefix", progress=prg_num, status="PROGRESS : {}%".format(prg_num), isInterruptable=True,
+                                          min=0, max=100)
         for eaf in alterFs:
-            txfpth = eaf.attr('fileTextureName').get()
-            txf_nm = os.path.basename(txfpth)
-            txf_prj_abbr = re.search("^[^_]+", txf_nm).group()
-            if txf_prj_abbr == self.proj_abbr: continue
-            txf_dir = re.sub(txf_nm, '', txfpth)
-            if not txf_dir.startswith(cur_src_dir) and mod[result]=='cp':
-                txf_dir = cur_src_dir
-            new_txf_nm = None
-            if txf_prj_abbr in ALL_PROJ_ABBRS:
-                new_txf_nm = re.sub(txf_prj_abbr, self.proj_abbr, txf_nm)
-            else : new_txf_nm = '{}_{}'.format(self.proj_abbr,txf_nm)
-            new_txf_pth = "{}{}".format(txf_dir, new_txf_nm)
-            if self.k.filetest(txfpth,new_txf_pth):
-                # print(">>>--{}{}>>>---{}".format(txfpth,os.linesep,new_txf_pth))
-                try:
-                    if mod[result] =='cp':
-                        shutil.copy2(txfpth,new_txf_pth)
-                    elif mod[result] =='rn':
-                        os.rename(txfpth,new_txf_pth)
-                    renmed_txs_cnt +=1
-                except:
-                    print("sorce image: {1}{0}target image: {2}".format(os.linesep,txfpth,new_txf_pth))
-                    print(u">>>请检查 当前工程的sourceimages文件夹 是否存在并且有写入权限")
-                    mc.error(u'{0}>>>请检查 当前工程的sourceimages文件夹 是否存在并且有写入权限{0}\t{1}'.format(os.linesep,txf_dir))
-                eaf.attr('fileTextureName').set(new_txf_pth)
-            else:
-                if os.path.exists(new_txf_pth):
-                    eaf.attr('fileTextureName').set(new_txf_pth)
-                    renmed_txs_cnt += 1
-
+            get_txfpths = []
+            txfpth_01 = eaf.attr('fileTextureName').get()
+            get_txfpths.append(txfpth_01)
+            if self.get_ArTx(txfpth_01) and os.path.isfile(self.get_ArTx(txfpth_01)): get_txfpths.append(self.get_ArTx(txfpth_01))
+            for txfpth in get_txfpths:
+                txf_nm = os.path.basename(txfpth)
+                txf_prj_abbr = re.search("^[^_]+", txf_nm).group()
+                if txf_prj_abbr == self.proj_abbr: continue
+                txf_dir = re.sub(txf_nm, '', txfpth)
+                print txf_dir
+                if not txf_dir == cur_src_dir and mod[result]=='cp':
+                    txf_dir = cur_src_dir
+                new_txf_nm = None
+                if txf_prj_abbr in ALL_PROJ_ABBRS:
+                    new_txf_nm = re.sub(txf_prj_abbr, self.proj_abbr, txf_nm)
+                else : new_txf_nm = '{}_{}'.format(self.proj_abbr,txf_nm)
+                new_txf_pth = "{}{}".format(txf_dir, new_txf_nm)
+                if self.k.filetest(txfpth,new_txf_pth):
+                    # print(">>>--{}{}>>>---{}".format(txfpth,os.linesep,new_txf_pth))
+                    try:
+                        if mod[result] =='cp':
+                            shutil.copy2(txfpth,new_txf_pth)
+                            eaf.attr('fileTextureName').set(new_txf_pth)
+                        elif mod[result] =='rn':
+                            eaf.attr('fileTextureName').set("")
+                            os.rename(txfpth,new_txf_pth)
+                            eaf.attr('fileTextureName').set(new_txf_pth)
+                        renmed_txs_cnt +=1
+                        self.ref_pr_bar(renmed_txs_cnt+1,all_cnt,cpProgressWin)
+                    except:
+                        print("sorce image: {1}{0}target image: {2}".format(os.linesep,txfpth,new_txf_pth))
+                        mc.progressWindow(cpProgressWin, endProgress=1)
+                        print(u">>>请检查 当前工程的sourceimages文件夹 是否存在并且有写入权限")
+                        mc.error(u'{0}>>>请检查 当前工程的sourceimages文件夹 是否存在并且有写入权限{0}\t{1}'.format(os.linesep,txf_dir))
+                else:
+                    if os.path.exists(new_txf_pth):
+                        eaf.attr('fileTextureName').set(new_txf_pth)
+                        renmed_txs_cnt += 1
+                        self.ref_pr_bar(renmed_txs_cnt + 1, all_cnt, cpProgressWin)
+        mc.progressWindow(cpProgressWin, endProgress=1)
         print(u">>> 本次操作修改了 {} 张贴图前缀 匹配了当前文件 项目 缩写 : {} ".format(renmed_txs_cnt,self.proj_abbr))
 
 
@@ -287,6 +301,17 @@ class Ppl_assetT_main(QtGui.QMainWindow):
                     redundant_sep = re_illegal_seq.findall(match_seq)[:-1]
                     if redundant_sep: checkRes['seqIffyName'][eaf] = {txfpth: redundant_sep}
         return checkRes
+
+    def ref_pr_bar(self,cur_cp_num, exec_count, cpProgressWin):# 更新进度条
+        prg_num_tmp = (cur_cp_num / float(exec_count)) * 100
+        mc.progressWindow(cpProgressWin, e=True, progress=prg_num_tmp, status="Copy perform: {}%".format(prg_num_tmp))
+
+    def get_ArTx(self,src):#把arnold tx文件加入copy列表
+        if not mc.getAttr("defaultRenderGlobals.currentRenderer") =="arnold": return None
+        fileSpl = os.path.splitext(src)
+        txf_pth = fileSpl[0] + u'.tx'
+        if txf_pth == src:return None
+        else: return txf_pth
 
 
 # def call_it():

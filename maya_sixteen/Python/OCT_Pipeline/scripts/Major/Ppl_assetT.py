@@ -95,24 +95,26 @@ class Ppl_assetT_main(QtGui.QMainWindow):
             new_txf_nm = None
             if txf_prj_abbr in ALL_PROJ_ABBRS:
                 new_txf_nm = re.sub(txf_prj_abbr, self.proj_abbr, txf_nm)
-                new_txf_pth = "{}{}".format(txf_dir, new_txf_nm)
-                if self.k.filetest(txfpth,new_txf_pth):
-                    # print(">>>--{}{}>>>---{}".format(txfpth,os.linesep,new_txf_pth))
-                    try:
-                        if mod[result] =='cp':
-                            shutil.copy2(txfpth,new_txf_pth)
-                        elif mod[result] =='rn':
-                            os.rename(txfpth,new_txf_pth)
-                        renmed_txs_cnt +=1
-                    except:
-                        print("sorce image: {1}{0}target image: {2}".format(os.linesep,txfpth,new_txf_pth))
-                        print(u">>>请检查 当前工程的sourceimages文件夹 是否存在并且有写入权限")
-                        mc.error(u'{0}>>>请检查 当前工程的sourceimages文件夹 是否存在并且有写入权限{0}\t{1}'.format(os.linesep,txf_dir))
+            else : new_txf_nm = '{}_{}'.format(self.proj_abbr,txf_nm)
+            new_txf_pth = "{}{}".format(txf_dir, new_txf_nm)
+            if self.k.filetest(txfpth,new_txf_pth):
+                # print(">>>--{}{}>>>---{}".format(txfpth,os.linesep,new_txf_pth))
+                try:
+                    if mod[result] =='cp':
+                        shutil.copy2(txfpth,new_txf_pth)
+                    elif mod[result] =='rn':
+                        os.rename(txfpth,new_txf_pth)
+                    renmed_txs_cnt +=1
+                except:
+                    print("sorce image: {1}{0}target image: {2}".format(os.linesep,txfpth,new_txf_pth))
+                    print(u">>>请检查 当前工程的sourceimages文件夹 是否存在并且有写入权限")
+                    mc.error(u'{0}>>>请检查 当前工程的sourceimages文件夹 是否存在并且有写入权限{0}\t{1}'.format(os.linesep,txf_dir))
+                eaf.attr('fileTextureName').set(new_txf_pth)
+            else:
+                if os.path.exists(new_txf_pth):
                     eaf.attr('fileTextureName').set(new_txf_pth)
-                else:
-                    if os.path.exists(new_txf_pth):
-                        eaf.attr('fileTextureName').set(new_txf_pth)
-                        renmed_txs_cnt += 1
+                    renmed_txs_cnt += 1
+
         print(u">>> 本次操作修改了 {} 张贴图前缀 匹配了当前文件 项目 缩写 : {} ".format(renmed_txs_cnt,self.proj_abbr))
 
 

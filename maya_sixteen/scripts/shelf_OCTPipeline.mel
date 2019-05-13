@@ -172,6 +172,13 @@ python("import maya.mel as mel");
             -c "from OCT_Pipeline.scripts.Minor import menu_cmds;reload(menu_cmds);menu_cmds.call_ppl_reassignMat()"
             reAsMat_rnd_shlbt;
 
+    shelfButton -docTag "Rnd"
+            -en 1 -m 0 -font "smallPlainLabelFont"
+            -l "重参考，创建约束" //-iol "Get"
+            -style "iconOnly" -i1 "pipeline\\shelfIcon_reRefs.png" -stp "python"
+            -c "from OCT_Pipeline.scripts.utility import Kits4maya;reload(Kits4maya);k4m=Kits4maya.Kits4maya();k4m.re_ref_tools_ui()"
+            reRefCons_rnd_shlbt;
+
 Ppl_ShelfChanges `optionVar -query "Ppl_ShelfSelected"`;
 shelfLayout -edit -position "sh_sept" 6 OCTPipeline;
 

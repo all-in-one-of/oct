@@ -205,20 +205,23 @@ class Kits4maya(object):
                 return None
         return {'nd': exacNode, 'attr': attr_str}
 
+
+
     def re_ref_tools_ui(self):
         if mc.window("rerefence_win", exists=True, q=True):
             mc.deleteUI("rerefence_win")
 
-        toolWin = pm.window("rerefence_win", t=u"选择要替换参考的物体或参考", w=300)
-        m_clm = pm.columnLayout(columnAttach=('both', 5), rowSpacing=20, columnWidth=300, p=toolWin)
-        runBt = pm.button('runBt', l=u"替换参考", c= self.re_constraint_GunAndAircraft)
-        remBt = pm.button('remBt', l=u"移除原参考", c=self.rm_oldRefs)
-        pm.window("rerefence_win",e=True,w=300,h=80)
-        toolWin.show()
+        toolWin = mc.window("rerefence_win", t=u"选择要替换参考的物体或参考", w=300)
+        m_clm = mc.columnLayout(columnAttach=('both', 5), rowSpacing=20, columnWidth=300, p=toolWin)
+        runBt = mc.button('runBt', l=u"替换参考", c= "k=Kits4maya.Kits4maya()\nk.re_constraint_GunAndAircraft()")
+        remBt = mc.button('remBt', l=u"移除原参考", c="k=Kits4maya.Kits4maya()\nk.rm_oldRefs()")
+        mc.window("rerefence_win",e=True,w=300,h=80)
+        mc.showWindow("rerefence_win")
 
     def rm_oldRefs(self):
         for eaRef in self.rec_refs:
             eaRef.remove()
+
     def re_constraint_GunAndAircraft(self):# 重新参考 飞行器和枪，做约束链接
         """
         """

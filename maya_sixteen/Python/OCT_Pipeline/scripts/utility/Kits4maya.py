@@ -219,9 +219,11 @@ class Kits4maya(object):
         mc.showWindow("rerefence_win")
 
     def rm_oldRefs(self):
-        for eaRef in self.rec_refs:
-            eaRef.remove()
-
+        rms = pm.PyNode('rmRefs_tmp')
+        for eaRef in rms.elements():
+            rm_rf = eaRef.referenceFile()
+            rm_rf.remove()
+        pm.delete(rms)
     def re_constraint_GunAndAircraft(self):# 重新参考 飞行器和枪，做约束链接
         """
         """
@@ -229,8 +231,11 @@ class Kits4maya(object):
         sel_refs = [eas.referenceFile() for eas in sel_nods if eas.isReferenced()]
         sel_refs = [sel_refs[n] for n in range(len(sel_refs)) if sel_refs[n] not in sel_refs[:n]]
         self.rec_refs = sel_refs
+        rec_set = pm.sets(n='rmRefs_tmp',empty=True)
+
         for ea_ref in sel_refs:
             #ea_ref = sel_refs[0]
+            rec_set.add(ea_ref.refNode)
             ref_top = ea_ref.nodes()[0]
             c_p = ref_top.getParent()
             ref_file = ea_ref.path.strip()

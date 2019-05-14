@@ -30,6 +30,7 @@ class CopyTxs(object):
         print("{}ENTER NEW COPY MODE -------------------------------------".format(os.linesep))
         # ==========返回值:
         self.resultStr = None
+        self.artxs_iffy = None
         # === process argumets
         self.allFileNodes = [re.sub("\"", "", ea_item) for ea_item in mel.eval("global string {0}[];string $tmp_list[] = {0}".format(var_fileNods))] if isinstance(var_fileNods,str) else var_fileNods
         # for ea in self.allFileNodes: print ea
@@ -74,7 +75,9 @@ class CopyTxs(object):
         self.copy_count = 0
         self.tidy_lst = []
         self.exec_count = 0
+        self.artx_num = 0
         self.tidyFiles()
+
 
     def copytxs(self):#copy
         if not self.wr_bat(): return self.resultStr
@@ -135,10 +138,17 @@ class CopyTxs(object):
                     # time.sleep(1.5)
             # mc.progressWindow(cpProgressWin, endProgress=1)
         if self.copy_count < self.in_txs_num:
-            self.resultStr = u">>>!!!ATTENTION PLEASE>>>!!!! 本次只更新了 [ {} ] 张贴图中的 [{}] 张贴图".format(self.in_txs_num,self.copy_count)
+            if not self.artxs_iffy:
+                self.resultStr = u">>>!!!ATTENTION PLEASE>>>!!!! 本次只更新了 [ {} ] 张贴图中的 [{}] 张贴图,其中有 [] 张 tx 贴图".format(self.in_txs_num,self.copy_count,self.artx_num)
+            else:
+                self.resultStr = u">>>!!!ATTENTION PLEASE>>>!!!! 本次只更新了 [ {} ] 张贴图中的 [{}] 张贴图!!!并且{}".format(self.in_txs_num,self.copy_count,
+                                                                                                         self.artxs_iffy)
             print(self.resultStr)
         else:
-            self.resultStr =u">>>共上传了 [{}]  张贴图".format(self.copy_count)
+            #self.resultStr =u">>>共上传了 [{}]  张贴图".format(self.copy_count)
+            # print self.artxs_iffy
+            if not self.artxs_iffy: self.resultStr =u">>>共上传了 [{}]  张贴图,其中包括 [{}] 张 arnold tx 贴图".format(self.copy_count,self.artx_num)
+            else:  self.resultStr =u">>>共上传了 [{}]  张贴图, !!! 并且{}".format(self.copy_count,self.artxs_iffy)
             print(self.resultStr)
         return self.resultStr
         # raise Exception('td test check')
@@ -166,7 +176,9 @@ class CopyTxs(object):
                     if self.k.filetest(new_ea_02, self.destDir): self.colect_allTxs.append(new_ea_02)
                     else: print("\ttexture eixists on server : {}".format(new_ea_02))
                 # print("\n==={}\n".format(new_ea_02)) v
-                if os.path.splitext(new_ea_02)[-1] in ['.tx',u'.tx']: continue
+                if os.path.splitext(new_ea_02)[-1] in ['.tx',u'.tx']:
+                    self.artx_num +=1
+                    continue
                 new_ea_02_txf = self.get_ArTx(new_ea_02)
                 if new_ea_02_txf:
                     # print new_ea_02_txf
@@ -176,8 +188,16 @@ class CopyTxs(object):
                         continue
                     if new_ea_02_txf not in tmp_list: tmp_list.append(new_ea_02_txf)
                     if new_ea_02_txf not in self.colect_allTxs:
-                        if self.k.filetest(new_ea_02_txf, self.destDir): self.colect_allTxs.append(new_ea_02_txf)
+                        if self.k.filetest(new_ea_02_txf, self.destDir):
+                            self.colect_allTxs.append(new_ea_02_txf)
+                            self.artx_num += 1
                         else: print("\ttexture eixists on server : {}".format(new_ea_02_txf))
+                else:
+                    if idx <10:
+                        new_ea_02_txf_tst = self.get_ArTx(new_ea_02,None)
+                        if new_ea_02_txf_tst:
+                            self.artxs_iffy = u">>>程序检测到贴图路径下存在tx贴图，但没有进行copy，当前渲染器不是arnold"
+                            print self.artxs_iffy
             self.txs_info_dict[f_nd] = tmp_list
         if len(iffy_txs):
             erro_msg = u"{0}>>>请检查 下列file 节点 的 贴图命名{0}".format(os.linesep)
@@ -190,8 +210,9 @@ class CopyTxs(object):
         self.tidy_lst = [self.colect_allTxs[x:x + txNumPerGrp] for x in range(0, self.copy_count, txNumPerGrp)]
         self.exec_count = len(self.tidy_lst)
         # raise Exception("TD CHECK")
-    def get_ArTx(self,src):#把arnold tx文件加入copy列表
-        if not mc.getAttr("defaultRenderGlobals.currentRenderer") =="arnold": return None
+    def get_ArTx(self,src,judgeRnder=True):#把arnold tx文件加入copy列表
+        if judgeRnder:
+            if not mc.getAttr("defaultRenderGlobals.currentRenderer") =="arnold": return None
         fileSpl = os.path.splitext(src)
         txf_pth = fileSpl[0] + u'.tx'
         if txf_pth == src:return None

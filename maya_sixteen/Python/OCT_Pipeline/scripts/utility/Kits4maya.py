@@ -114,6 +114,124 @@ class Kits4maya(object):
                 return ea
             else:
                 if not ea.isIntermediate(): return ea
+    def re_ref_tools_ui(self):
+        if mc.window("rerefence_win", exists=True, q=True):
+            mc.deleteUI("rerefence_win")
+
+        toolWin = mc.window("rerefence_win", t=u"选择要替换参考的物体或参考", w=300)
+        m_clm = mc.columnLayout(columnAttach=('both', 5), rowSpacing=20, columnWidth=300, p=toolWin)
+        runBt = mc.button('runBt', l=u"替换参考", c= "k=Kits4maya.Kits4maya()\nk.re_constraint_GunAndAircraft()")
+        remBt = mc.button('remBt', l=u"移除原参考", c="k=Kits4maya.Kits4maya()\nk.rm_oldRefs()")
+        mc.window("rerefence_win",e=True,w=300,h=80)
+        mc.showWindow("rerefence_win")
+
+    def rm_oldRefs(self):
+        rms = pm.ls('rmRefs_tmp*')
+        for ea_rmSets in rms:
+            for eaRef in ea_rmSets.elements():
+                rm_rf = eaRef.referenceFile()
+                rm_rf.remove()
+        rms = pm.ls('rmRefs_tmp*')
+        if rms:
+            pm.delete(rms)
+    def re_constraint_GunAndAircraft(self):# 重新参考 飞行器和枪，做约束链接
+        """
+        """
+        sel_nods = pm.selected()
+        sel_refs = [eas.referenceFile() for eas in sel_nods if eas.isReferenced()]
+        sel_refs = [sel_refs[n] for n in range(len(sel_refs)) if sel_refs[n] not in sel_refs[:n]]
+        self.rec_refs = sel_refs
+        rec_set = pm.sets(n='rmRefs_tmp',empty=True)
+
+        for ea_ref in sel_refs:
+            #ea_ref = sel_refs[0]
+            rec_set.add(ea_ref.refNode)
+            ref_top = ea_ref.nodes()[0]
+            c_p = ref_top.getParent()
+            ref_file = ea_ref.path.strip()
+            ref_nsp = ea_ref.namespace
+            ref_anew = pm.createReference(ref_file,namespace = ref_nsp)
+            n_ref_nsp = ref_anew.namespace
+            n_top = ref_anew.nodes()[0]
+            n_top.setParent(c_p)
+            ls_nTop_cns = ref_top.listConnections(s=True,c=True,d=False,p=True)
+            if ls_nTop_cns:
+                for ea_cons in ls_nTop_cns:
+                    ea_cons =  ls_nTop_cns[0]
+                    top_con_srcPlg,top_con_destPlg = ea_cons[1],ea_cons[0]
+                    destPlg_nm = top_con_destPlg.attrName()
+                    top_con_srcPlg >> n_top.attr(destPlg_nm)
+            ctrls = {'pr008001Aircraft':['masterShape','mainShape'],'pr007001StunGun':['MasterShape','MainShape']}
+            ea_ctr = re.search('(pr008001Aircraft)|(pr007001StunGun)',ref_nsp).group()
+            for ctr_kw in ctrls[ea_ctr]:
+                #ctr_kw = ctrls[ea_ctr][1]
+                o_ctrl_sh = self.nodeTest(ea_ref,ctr_kw)
+                n_ctrl_sh = self.nodeTest(ref_anew,ctr_kw)
+                o_ctrl = o_ctrl_sh.getParent()
+                n_ctrl = n_ctrl_sh.getParent()
+                #pm.select(o_ctrl)
+                #pm.select(n_ctrl)
+                k_attrs = [ea.attrName(longName=True) for ea in n_ctrl.listAttr(k=True)]
+                [n_ctrl.attr(n).set(o_ctrl.attr(n).get()) for n in k_attrs]
+                [n_ctrl.attr(n).setKey() for n in k_attrs]
+                o_ctrl_beCnstr_attr = o_ctrl.attr('parentInverseMatrix')
+                tmp_prcn = o_ctrl_beCnstr_attr.listConnections(d=True,s=False,type='parentConstraint')
+                if tmp_prcn:
+                    get_PCnstr = [tmp_prcn[n].node() for n in range(len(tmp_prcn)) if tmp_prcn[n].node() not in tmp_prcn[:n]]
+                    for ea_cnstr in get_PCnstr:
+                        targ_attr = ea_cnstr.attr('target')
+                        doCnstr  = [ea[1].node() for ea in targ_attr.listConnections(s=True,d=False,c=True,et=True,t='transform')]
+                        doCnstr = [doCnstr[n] for n in range(len(doCnstr)) if doCnstr[n] not in doCnstr[:n]]
+                        pm.parentConstraint(doCnstr,n_ctrl,mo=True)
+                # o_ctrl_asDest = o_ctrl.listConnections(s=True,d=False,p=True,c=True)
+                o_ctrl_udplg = o_ctrl.listAttr(ud=True)
+                if o_ctrl_udplg:
+                    o_ctrl_c_blnd = o_ctrl_udplg[0].listConnections(s=False, d=True, type='pairBlend')
+                    if o_ctrl_c_blnd:
+                        n_ctrl_udplg = n_ctrl.listAttr(ud=True)
+                        n_ctrl_c_blnd = n_ctrl_udplg[0].listConnections(s=False, d=True, type='pairBlend')
+                        o_ctrl_indi_cn_anmCv = o_ctrl_c_blnd[0].listConnections(s=True, d=False, type='animCurve', c=True, p=True)
+                        n_ctrl_indi_cn_anmCv = n_ctrl_c_blnd[0].listConnections(s=True, d=False, type='animCurve', c=True, p=True)
+                        for n in range(len(o_ctrl_indi_cn_anmCv)):
+                            o_anm_pls, o_bld_pls = o_ctrl_indi_cn_anmCv[n][1], o_ctrl_indi_cn_anmCv[n][0]
+                            n_anm_pls, n_bld_pls = n_ctrl_indi_cn_anmCv[n][1], n_ctrl_indi_cn_anmCv[n][0]
+                            # n_anm_pls // n_bld_pls
+                            o_anm_pls >> n_bld_pls
+                o_ctrl_di_cn_anmCv = o_ctrl.listConnections(s=True, d=False, type='animCurve', c=True, p=True)
+                for a_con in o_ctrl_di_cn_anmCv:
+                    # a_con = o_ctrl_di_cn_anmCv[0]
+                    o_cn_src, o_cn_targ = a_con[1], a_con[0]
+                    src_nd = o_cn_src.node()
+                    targ_nd = o_cn_targ.node()
+                    targ_nd_udAttr = targ_nd.listAttr(ud=True)
+                    if src_nd.isReferenced() and src_nd.referenceFile() == ea_ref: continue
+                    o_cn_src_nm = o_cn_src.name()
+                    o_cn_targ_nm = o_cn_targ.name()
+                    o_cn_targ_plg_nm = o_cn_targ.attrName(longName=True)
+                    n_plg = None
+                    if o_cn_targ in targ_nd_udAttr:
+                        n_plg = n_ctrl.listAttr(ud=True)[0]
+                    else:
+                        n_plg = n_ctrl.attr(o_cn_targ_plg_nm)
+                    # o_cn_src//o_cn_targ
+                    print(">>>Disconnect =={} ===>>> {}".format(o_cn_src, o_cn_targ))
+                    o_cn_src >> n_plg
+                    print(">>>Connect =={} ===>>> {}".format(o_cn_src, n_plg))
+                o_ctrl_cnstr_attr = o_ctrl.attr('translate')
+                o_ctrl_cnstr_other = o_ctrl_cnstr_attr.listConnections(d=True,s=False,type='parentConstraint',et=True)
+                if not o_ctrl_cnstr_other: continue
+                for ea_cnstr in o_ctrl_cnstr_other:
+                    #beCnstr_trans = ea_cnstr.attr('constraintParentInverseMatrix').listConnections(type='transform',et=True)
+                    listAll_pls = ea_cnstr.listConnections(d=False,s=True,type='transform',et=True,c=True,p=True)
+                    for a_con in listAll_pls:
+                        o_src_pls,o_targ_pls = a_con[1],a_con[0]
+                        #o_src_pls_nm_f = src_pls.name()
+                        o_src_nd = o_src_pls.node()
+                        if o_src_nd != o_ctrl: continue
+                        o_src_pls_nm = ".".join(o_src_pls.name().split('.')[1:])
+                        n_src_pls = n_ctrl.attr(o_src_pls_nm)
+                        o_src_pls //  o_targ_pls
+                        n_src_pls >> o_targ_pls
 
     # def failed_nodeplugs(self,ea_ref, melCmd='disconnectAttr', cmdArgs=['-na'], searchKwd='.instObjGroups'):
     #     # ea_ref = refs[1]
@@ -189,7 +307,11 @@ class Kits4maya(object):
     #         print(">>>Disconnect =={} ===>>> {}".format(o_cn_src, o_cn_targ))
     #         o_cn_src >> n_plg
     #         print(">>>Connect =={} ===>>> {}".format(o_cn_src, n_plg))
-    def find_node(self,ref, plsStr):
+
+
+
+
+    def find_node(self, ref, plsStr):
         # pls_spl = plsStr.split('.')
         ref_nsp = ref.namespace
         ndnm_str, attr_str = plsStr.split('.')[0], '.'.join(plsStr.split('.')[1:])
@@ -204,108 +326,4 @@ class Kits4maya(object):
                 mc.warning(u"{0}>>>检查参考节点 : {1} 的 名字为 {2} 的 节点是否存在{0}".format(os.linesep, ref.refNode.name(), ndnm_str))
                 return None
         return {'nd': exacNode, 'attr': attr_str}
-
-
-
-    def re_ref_tools_ui(self):
-        if mc.window("rerefence_win", exists=True, q=True):
-            mc.deleteUI("rerefence_win")
-
-        toolWin = mc.window("rerefence_win", t=u"选择要替换参考的物体或参考", w=300)
-        m_clm = mc.columnLayout(columnAttach=('both', 5), rowSpacing=20, columnWidth=300, p=toolWin)
-        runBt = mc.button('runBt', l=u"替换参考", c= "k=Kits4maya.Kits4maya()\nk.re_constraint_GunAndAircraft()")
-        remBt = mc.button('remBt', l=u"移除原参考", c="k=Kits4maya.Kits4maya()\nk.rm_oldRefs()")
-        mc.window("rerefence_win",e=True,w=300,h=80)
-        mc.showWindow("rerefence_win")
-
-    def rm_oldRefs(self):
-        rms = pm.PyNode('rmRefs_tmp')
-        for eaRef in rms.elements():
-            rm_rf = eaRef.referenceFile()
-            rm_rf.remove()
-        pm.delete(rms)
-    def re_constraint_GunAndAircraft(self):# 重新参考 飞行器和枪，做约束链接
-        """
-        """
-        sel_nods = pm.selected()
-        sel_refs = [eas.referenceFile() for eas in sel_nods if eas.isReferenced()]
-        sel_refs = [sel_refs[n] for n in range(len(sel_refs)) if sel_refs[n] not in sel_refs[:n]]
-        self.rec_refs = sel_refs
-        rec_set = pm.sets(n='rmRefs_tmp',empty=True)
-
-        for ea_ref in sel_refs:
-            #ea_ref = sel_refs[0]
-            rec_set.add(ea_ref.refNode)
-            ref_top = ea_ref.nodes()[0]
-            c_p = ref_top.getParent()
-            ref_file = ea_ref.path.strip()
-            ref_nsp = ea_ref.namespace
-            ref_anew = pm.createReference(ref_file,namespace = ref_nsp)
-            n_ref_nsp = ref_anew.namespace
-            n_top = ref_anew.nodes()[0]
-            n_top.setParent(c_p)
-            ls_nTop_cns = ref_top.listConnections(s=True,c=True,d=False,p=True)
-            if ls_nTop_cns:
-                for ea_cons in ls_nTop_cns:
-                    ea_cons =  ls_nTop_cns[0]
-                    top_con_srcPlg,top_con_destPlg = ea_cons[1],ea_cons[0]
-                    destPlg_nm = top_con_destPlg.attrName()
-                    top_con_srcPlg >> n_top.attr(destPlg_nm)
-            ctrls = {'pr008001Aircraft':['masterShape','mainShape'],'pr007001StunGun':['MasterShape','MainShape']}
-            ea_ctr = re.search('(pr008001Aircraft)|(pr007001StunGun)',ref_nsp).group()
-            for ctr_kw in ctrls[ea_ctr]:
-                #ctr_kw = ctrls[ea_ctr][1]
-                o_ctrl_sh = self.nodeTest(ea_ref,ctr_kw)
-                n_ctrl_sh = self.nodeTest(ref_anew,ctr_kw)
-                o_ctrl = o_ctrl_sh.getParent()
-                n_ctrl = n_ctrl_sh.getParent()
-                #pm.select(o_ctrl)
-                #pm.select(n_ctrl)
-                k_attrs = [ea.attrName(longName=True) for ea in n_ctrl.listAttr(k=True)]
-                [n_ctrl.attr(n).set(o_ctrl.attr(n).get()) for n in k_attrs]
-                [n_ctrl.attr(n).setKey() for n in k_attrs]
-                o_ctrl_beCnstr_attr = o_ctrl.attr('parentInverseMatrix')
-                tmp_prcn = o_ctrl_beCnstr_attr.listConnections(d=True,s=False,type='parentConstraint')
-                if tmp_prcn:
-                    get_PCnstr = [tmp_prcn[n].node() for n in range(len(tmp_prcn)) if tmp_prcn[n].node() not in tmp_prcn[:n]]
-                    for ea_cnstr in get_PCnstr:
-                        targ_attr = ea_cnstr.attr('target')
-                        doCnstr  = [ea[1].node() for ea in targ_attr.listConnections(s=True,d=False,c=True,et=True,t='transform')]
-                        doCnstr = [doCnstr[n] for n in range(len(doCnstr)) if doCnstr[n] not in doCnstr[:n]]
-                        pm.parentConstraint(doCnstr,n_ctrl,mo=True)
-                o_ctrl_asDest = o_ctrl.listConnections(s=True,d=False,p=True,c=True)
-                asDest = True
-                for a_con in o_ctrl_asDest:
-                    #a_con = o_ctrl_asDest[1]
-                    o_cn_src, o_cn_targ = (a_con[1], a_con[0]) if asDest else(a_con[0], a_con[1])
-                    src_nd = o_cn_src.node()
-                    targ_nd = o_cn_targ.node()
-                    targ_nd_udAttr = targ_nd.listAttr(ud=True)
-                    if src_nd.isReferenced() and src_nd.referenceFile() == ea_ref:continue
-                    o_cn_src_nm = o_cn_src.name()
-                    o_cn_targ_nm = o_cn_targ.name()
-                    o_cn_targ_plg_nm = o_cn_targ.attrName(longName=True)
-                    n_plg = None
-                    if o_cn_targ in targ_nd_udAttr: n_plg = n_ctrl.listAttr(ud=True)[0]
-                    else: n_plg = n_ctrl.attr(o_cn_targ_plg_nm)
-                    #o_cn_src//o_cn_targ
-                    print(">>>Disconnect =={} ===>>> {}".format(o_cn_src,o_cn_targ))
-                    o_cn_src >> n_plg
-                    print(">>>Connect =={} ===>>> {}".format(o_cn_src,n_plg))
-                o_ctrl_cnstr_attr = o_ctrl.attr('translate')
-                o_ctrl_cnstr_other = o_ctrl_cnstr_attr.listConnections(d=True,s=False,type='parentConstraint',et=True)
-                if not o_ctrl_cnstr_other: continue
-                for ea_cnstr in o_ctrl_cnstr_other:
-                    #beCnstr_trans = ea_cnstr.attr('constraintParentInverseMatrix').listConnections(type='transform',et=True)
-                    listAll_pls = ea_cnstr.listConnections(d=False,s=True,type='transform',et=True,c=True,p=True)
-                    for a_con in listAll_pls:
-                        o_src_pls,o_targ_pls = a_con[1],a_con[0]
-                        #o_src_pls_nm_f = src_pls.name()
-                        o_src_nd = o_src_pls.node()
-                        if o_src_nd != o_ctrl: continue
-                        o_src_pls_nm = ".".join(o_src_pls.name().split('.')[1:])
-                        n_src_pls = n_ctrl.attr(o_src_pls_nm)
-                        o_src_pls //  o_targ_pls
-                        n_src_pls >> o_targ_pls
-
 

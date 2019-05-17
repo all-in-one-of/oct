@@ -198,25 +198,26 @@ class Kits4maya(object):
                             # n_anm_pls // n_bld_pls
                             o_anm_pls >> n_bld_pls
                 o_ctrl_di_cn_anmCv = o_ctrl.listConnections(s=True, d=False, type='animCurve', c=True, p=True)
-                for a_con in o_ctrl_di_cn_anmCv:
-                    # a_con = o_ctrl_di_cn_anmCv[0]
-                    o_cn_src, o_cn_targ = a_con[1], a_con[0]
-                    src_nd = o_cn_src.node()
-                    targ_nd = o_cn_targ.node()
-                    targ_nd_udAttr = targ_nd.listAttr(ud=True)
-                    if src_nd.isReferenced() and src_nd.referenceFile() == ea_ref: continue
-                    o_cn_src_nm = o_cn_src.name()
-                    o_cn_targ_nm = o_cn_targ.name()
-                    o_cn_targ_plg_nm = o_cn_targ.attrName(longName=True)
-                    n_plg = None
-                    if o_cn_targ in targ_nd_udAttr:
-                        n_plg = n_ctrl.listAttr(ud=True)[0]
-                    else:
-                        n_plg = n_ctrl.attr(o_cn_targ_plg_nm)
-                    # o_cn_src//o_cn_targ
-                    print(">>>Disconnect =={} ===>>> {}".format(o_cn_src, o_cn_targ))
-                    o_cn_src >> n_plg
-                    print(">>>Connect =={} ===>>> {}".format(o_cn_src, n_plg))
+                if o_ctrl_di_cn_anmCv:
+                    for a_con in o_ctrl_di_cn_anmCv:
+                        # a_con = o_ctrl_di_cn_anmCv[0]
+                        o_cn_src, o_cn_targ = a_con[1], a_con[0]
+                        src_nd = o_cn_src.node()
+                        targ_nd = o_cn_targ.node()
+                        targ_nd_udAttr = targ_nd.listAttr(ud=True)
+                        if src_nd.isReferenced() and src_nd.referenceFile() == ea_ref: continue
+                        o_cn_src_nm = o_cn_src.name()
+                        o_cn_targ_nm = o_cn_targ.name()
+                        o_cn_targ_plg_nm = o_cn_targ.attrName(longName=True)
+                        n_plg = None
+                        if o_cn_targ in targ_nd_udAttr:
+                            n_plg = n_ctrl.listAttr(ud=True)[0]
+                        else:
+                            n_plg = n_ctrl.attr(o_cn_targ_plg_nm)
+                        # o_cn_src//o_cn_targ
+                        print(">>>Disconnect =={} ===>>> {}".format(o_cn_src, o_cn_targ))
+                        o_cn_src >> n_plg
+                        print(">>>Connect =={} ===>>> {}".format(o_cn_src, n_plg))
                 o_ctrl_cnstr_attr = o_ctrl.attr('translate')
                 o_ctrl_cnstr_other = o_ctrl_cnstr_attr.listConnections(d=True,s=False,type='parentConstraint',et=True)
                 if not o_ctrl_cnstr_other: continue

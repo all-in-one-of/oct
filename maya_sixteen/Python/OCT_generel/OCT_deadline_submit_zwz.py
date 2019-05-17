@@ -355,6 +355,7 @@ class AssetDeadline():
             ArnoldFlag = True
         allTexFiles = mc.ls(type='file')
         if allTexFiles:
+            print ('checking Texfiles...')
             for texFile in allTexFiles:
                 try:
                     texFileName = mc.getAttr('%s.fileTextureName' % texFile)
@@ -395,6 +396,7 @@ class AssetDeadline():
         LocaPath = mc.workspace(fn = True)
         file_type = ['data', 'cache']
         if allCacheFiles:
+            print ('checking cacheFile...')
             for mycacheFile in allCacheFiles:
                 try:
                     cachePath = mc.getAttr('%s.cachePath' % mycacheFile)
@@ -437,6 +439,7 @@ class AssetDeadline():
         noYetiTexFiles = []
         allYetiCacheFiles = mc.ls(type='pgYetiMaya')
         if allYetiCacheFiles:
+            print ('checking YetiCacheFiles...')
             for myYetiCacheFile in allYetiCacheFiles:
                 YetiFileMode = None
                 try:
@@ -487,6 +490,7 @@ class AssetDeadline():
         myLocaProjectPath= mc.workspace(fn=True)
         allCacheFiles = mc.ls(type='AlembicNode')
         if allCacheFiles:
+            print ('checking AlembicNode...')
             for myAbccacheFile in allCacheFiles:
                 try:
                     abcCachePath = mc.getAttr('%s.abc_File' % myAbccacheFile)
@@ -518,6 +522,7 @@ class AssetDeadline():
         AllIsParFlag = False
         AllPars = mc.ls(type='particle')
         if AllPars:
+            print ('checking particle...')
             for eachP in AllPars:
                 if mc.nodeType(eachP) == 'particle':
                     AllIsParFlag = True
@@ -529,6 +534,7 @@ class AssetDeadline():
             if os.path.isdir(parPath):
                 allDirs = os.listdir(parPath)
                 if mydynGlobals:
+                    print ('checking mydynGlobals...')
                     if mc.getAttr('%s.useParticleDiskCache' % mydynGlobals):
                         cacheDirectory = mc.getAttr('%s.cacheDirectory' % mydynGlobals)
                         if allDirs:
@@ -651,6 +657,7 @@ class AssetDeadline():
 
         #检查arnold代理
         def myCheck_AiStandIn():
+            print ('checking AiStandIn...')
             #检查Arnold的代理
             # ArType = 'aiStandIn'
             # ArAttr = 'dso'
@@ -764,8 +771,8 @@ class AssetDeadline():
         numNoArIesLFiles = 0
         #Shave
         numNoShaveCacheFiles = 0
-        
 
+        print ('checking other...')
         #检查摄像机投影贴图
         camImType = 'imagePlane'
         camImAttr = 'imageName'

@@ -158,7 +158,7 @@ class Kits(object):
         # print("DEST FILE M-Time  : {}".format(destf_mt))
         if txf_mt != destf_mt: return True
         else: return None
-    def txAbsPath(self,varPath):
+    def txAbsPath(self,varPath):#  包含变量的路径 修改为 绝对路径
         useVAR = None
         txfpth = varPath
         if varPath.startswith("${"):
@@ -167,3 +167,10 @@ class Kits(object):
         if os.getenv(useVAR):
             txfpth = re.sub("^[$]+{\w+}", os.getenv(useVAR), varPath, re.I)
         return {varPath:txfpth}
+
+    def normalizeTxNm(self,tx_f_bnm): # 规范 命名，让字符串只匹配 字母 数字 下划线 . ：贴图的  basename   如   JP-125-h.JPG
+        txf_nm_spl = tx_f_bnm.split('.')
+        txf_alter_spl = []
+        for eaSpl in txf_nm_spl:
+            txf_alter_spl.append(re.sub('\W', '_', eaSpl, re.I))
+        return ".".join(txf_alter_spl)

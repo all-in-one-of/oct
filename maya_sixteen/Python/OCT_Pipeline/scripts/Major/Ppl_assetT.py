@@ -51,9 +51,7 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         self.k = Kits.Kits()
         ALL_PROJ_ABBRS = os.listdir(PROJ_DIR)
         sc_shn = os.path.basename(pm.sceneName())
-        self.proj_abbr = re.search("^[^_]+",sc_shn).group() if sc_shn and re.search("^[^_]+",sc_shn).group() != sc_shn else None
-
-
+        self.proj_abbr = re.search("^[^_]+", os.path.splitext(sc_shn)[0]).group() if sc_shn else None
 
     def makeConnections(self): # connect buttons to fucntions
         for each_bt in self.buttonsList:
@@ -88,6 +86,7 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         prg_num = (renmed_txs_cnt+1 / float(all_cnt)) * 100
         cpProgressWin = mc.progressWindow(title="Add Prefix", progress=prg_num, status="PROGRESS : {}%".format(prg_num), isInterruptable=True,
                                           min=0, max=100)
+        res_error_str = ""
         for eaf in alterFs:
             get_txfpths = []
             txfpth_01 = eaf.attr('fileTextureName').get()
@@ -107,28 +106,34 @@ class Ppl_assetT_main(QtGui.QMainWindow):
                     txf_dir = cur_src_dir
                 new_txf_nm = None
                 if txf_prj_abbr in ALL_PROJ_ABBRS:
-                    new_txf_nm = re.sub(txf_prj_abbr, self.proj_abbr, txf_nm)
-                else : new_txf_nm = '{}_{}'.format(self.proj_abbr,txf_nm)
+                    txf_nm_norm = self.k.normalizeTxNm(txf_nm)
+                    new_txf_nm = re.sub(txf_prj_abbr, self.proj_abbr, txf_nm_norm)
+                else :
+                    new_txf_nm = '{}_{}'.format(self.proj_abbr,self.k.normalizeTxNm(txf_nm))
                 new_txf_pth = "{}{}".format(txf_dir, new_txf_nm)
                 if self.k.filetest(txfpth,new_txf_pth):
                     # print(">>>--{}{}>>>---{}".format(txfpth,os.linesep,new_txf_pth))
-                    try:
-                        if mod[result] =='cp':
+                    if mod[result] =='cp':
+                        try:
                             shutil.copy2(txfpth,new_txf_pth)
                             if set_attr_value:
                                 eaf.attr('fileTextureName').set(new_txf_pth)
-                        elif mod[result] =='rn':
+                        except:
+                            print("sorce image: {1}{0}target image: {2}".format(os.linesep, txfpth, new_txf_pth))
+                            mc.progressWindow(cpProgressWin, endProgress=1)
+                            res_error_str += u'{0}>>>请检查 file节点 {1:<32} 的贴图是否存在或命名是否正确：\t{2} >>>> new name : {3} {0}'.format(os.linesep,eaf.nodeName(),txfpth,new_txf_pth)
+
+                    elif mod[result] =='rn':
+                        try:
                             eaf.attr('fileTextureName').set("")
                             os.rename(txfpth,new_txf_pth)
                             if set_attr_value:
                                 eaf.attr('fileTextureName').set(new_txf_pth)
-                        renmed_txs_cnt +=1
-                        self.ref_pr_bar(renmed_txs_cnt+1,all_cnt,cpProgressWin)
-                    except:
-                        print("sorce image: {1}{0}target image: {2}".format(os.linesep,txfpth,new_txf_pth))
-                        mc.progressWindow(cpProgressWin, endProgress=1)
-                        print(u">>>请检查 当前工程的sourceimages文件夹 是否存在并且有写入权限")
-                        mc.error(u'{0}>>>请检查 当前工程的sourceimages文件夹 是否存在并且有写入权限{0}\t{1}'.format(os.linesep,txf_dir))
+                        except:
+                            res_error_str += u'{0}>>>请检查 file节点 {1:<32} 的贴图 路径的写入权限:{2:<32} ：\t{}{0}'.format(os.linesep, eaf.nodeName(), txf_dir)
+                    renmed_txs_cnt +=1
+                    self.ref_pr_bar(renmed_txs_cnt+1,all_cnt,cpProgressWin)
+                    # print(u">>>请检查 当前工程的sourceimages文件夹 是否存在并且有写入权限")
                 else:
                     if os.path.exists(new_txf_pth):
                         if set_attr_value: eaf.attr('fileTextureName').set(new_txf_pth)
@@ -136,7 +141,9 @@ class Ppl_assetT_main(QtGui.QMainWindow):
                         self.ref_pr_bar(renmed_txs_cnt + 1, all_cnt, cpProgressWin)
         mc.progressWindow(cpProgressWin, endProgress=1)
         print(u">>> 本次操作修改了 {} 张贴图前缀 匹配了当前文件 项目 缩写 : {} ".format(renmed_txs_cnt,self.proj_abbr))
-
+        if res_error_str:
+            print (res_error_str)
+            mc.warning(res_error_str)
 
     def cmd_smoothSetT_bt(self): # smooth set 设置工具
         self.sksmth.UI_setSmooth()
@@ -214,8 +221,15 @@ class Ppl_assetT_main(QtGui.QMainWindow):
             u'贴图前缀与当前任务不匹配'}
         res = self.chk_txf_name()
         if not res: return
+        olnps = [ea for ea in pm.lsUI(panels=True) if ea.type() == 'ToutlinerEditor']
+        if olnps:
+            mc.outlinerEditor(olnps[0].name(), showSetMembers=True, e=True)
         res_str = u'>>>请检查列出的file节点 贴图命名 所描述的错误{}'.format(os.linesep)
         ck_cnt = 0
+        res_total_sets = None
+        if pm.objExists('Check_Error_information_Sets'):
+            res_total_sets = pm.PyNode('Check_Error_information_Sets')
+            [pm.delete(ea_sets) for ea_sets in res_total_sets.listConnections()]
         res_total_sets = pm.sets(name='Check_Error_information_Sets',em=True)
         for ea_ck_lb in chk_labels:
             if res[ea_ck_lb]:

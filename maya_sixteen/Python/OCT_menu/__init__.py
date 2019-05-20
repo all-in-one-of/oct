@@ -27,7 +27,7 @@ def makeMenu():
     mc.menuItem('submitMayaJob_zwz_sub', l=u'提交文件至Deadline(灯光组使用)...', ann=u'提交文件至Deadline...', c='OCT_generel.submitMayaToDeadline_zwz(3)', parent='OCT_sub')
     mc.menuItem('submitMayaJob_zwz_deep', l=u'提交文件至Deadline设置deep(灯光组提交文件给特效渲染deep)...', ann=u'提交文件至Deadline设置deep，仅限合成同事使用', c='OCT_generel.submitMayaToDeadline_zwz(5)', parent='OCT_sub')
 
-    mc.menuItem('submitMayaJob_zwz_sub8.0', l=u'提交文件至Dealine8.0测试版...', ann=u'', c='OCT_generel.submitMayaToDeadline_zwz(7)', parent='OCT_sub')
+    mc.menuItem('submitMayaJob_zwz_sub8.0', l=u'提交文件至Dealine10.0测试版...', ann=u'', c='OCT_generel.submitMayaToDeadline_zwz(7)', parent='OCT_sub')
 
     #通用工具
     mc.menuItem(d=1, parent="OCT_ToolSetMN")

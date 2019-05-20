@@ -158,3 +158,12 @@ class Kits(object):
         # print("DEST FILE M-Time  : {}".format(destf_mt))
         if txf_mt != destf_mt: return True
         else: return None
+    def txAbsPath(self,varPath):
+        useVAR = None
+        txfpth = varPath
+        if varPath.startswith("${"):
+            re_VAR = re.compile("[^${}]+")
+            useVAR = re_VAR.search(varPath).group()
+        if os.getenv(useVAR):
+            txfpth = re.sub("^[$]+{\w+}", os.getenv(useVAR), varPath, re.I)
+        return {varPath:txfpth}

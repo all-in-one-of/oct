@@ -30,7 +30,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="m_tab">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -82,7 +82,7 @@
              <item row="0" column="1">
               <widget class="QPushButton" name="alterTxsPrf_bt">
                <property name="text">
-                <string>修改贴图前缀</string>
+                <string>修改贴图前缀及非规范字符 </string>
                </property>
               </widget>
              </item>

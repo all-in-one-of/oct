@@ -34,6 +34,10 @@ def an_exp_cc(filterAttr='alembic',shotType=2,exStp=1,ref_mode = True):
 
     if not mc.pluginInfo('KLJZ_dts.py', q=True, l=True):
         mc.loadPlugin("//octvision.com/cg/Tech/maya_sixteen/Plugins/KLJZ_dts.py")
+    if not pm.pluginInfo('AbcExport', q=True, l=True):
+        pm.loadPlugin('AbcExport')
+    if not pm.pluginInfo('AbcImport', q=True, l=True):
+        pm.loadPlugin('AbcImport')
     error_msg = {}
     shot_nm_bs = os.path.basename(pm.sceneName())
     shot_nm_repr = '_'.join(shot_nm_bs.split('_')[:shotType + 1])

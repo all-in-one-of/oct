@@ -77,7 +77,14 @@ global proc int mayabatchCmdPerform(string $path,int $batchID)
         python("mpr.k_export_cache()")
 //        file -rename "E:\\work\\JMWC\\csenes\\del_meshes_done.mb";
         file -save;
-	}
+        }
+	else if ($batchID == 0003){
+        file -force -loadReferenceDepth "all" -open $path;
+        python("import OCT_Pipeline.scripts.ABC_Pipeline.ABC_anExpCc as abcan");
+        python("reload(abcan)");
+        python("abcan.an_exp_cc(None)");
+//        file -rename "E:\\work\\JMWC\\csenes\\del_meshes_done.mb";
+	    }
 
 	$end_tm = `date -time`;
 	print("[ " + $end_tm + " ] :: complete process file:" + $path + "\n");

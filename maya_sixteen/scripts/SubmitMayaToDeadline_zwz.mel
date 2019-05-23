@@ -3711,7 +3711,9 @@ global proc SubmitMayaToDeadline_zwz()
 									if( !$submitEachRenderLayer )
 										$regionRendering = false;
 								}
-								
+
+								$submitEachRenderLayer = IsRenderLayersOn();
+
 								rowLayout -numberOfColumns 2 -cw2 240 160 -ct2 "left" "left";
 									string $submitEachRenderLayerBox = `checkBox -en $renderLayerEnabled -label "Submit Render Layers As Seperate Jobs" -v $submitEachRenderLayer -changeCommand SavePersistentDeadlineOptions -annotation "Check this to submit each renderable Render Layer as a seperate Deadline job. Note that the frame range will be pulled from the render globals for each layer." frw_submitEachRenderLayer`;
 									checkBox -enable $overrideLayerSettingsEnable -label "Override Layer Job Settings" -v $overrideLayerSettings -changeCommand SavePersistentDeadlineOptions -annotation "If checked, the job name, frame range, and task size can be set for each render layer when submitting a separate job for each layer" frw_overrideLayerSettings;

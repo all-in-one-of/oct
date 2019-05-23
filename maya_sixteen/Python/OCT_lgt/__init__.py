@@ -860,7 +860,8 @@ def HYZX_eyeLight():
                             bbWidth = newBB.width()
                             bbHeight = newBB.height()
                             bbDepth = newBB.depth()
-                            offsetZ = bbWidth / 6.00 * scaleX
+                            # offsetZ = bbWidth / 6.00 * scaleX
+                            offsetZ = bbWidth / 1.00 * scaleX # alter by zhangben 20190522  alter eyelight position
                             offsetY = bbHeight / 6.00 * scaleY
                             offsetX = (math.sqrt(bbWidth * bbWidth + bbDepth * bbDepth) / 2 + math.sqrt(bbHeight * bbHeight + bbDepth * bbDepth) / 2) * 0.35 * scaleZ
                             # Transform the original BB Center to the Current BB Center: MPoint = MPoint * MMatrix

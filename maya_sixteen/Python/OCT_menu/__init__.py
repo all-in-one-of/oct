@@ -63,7 +63,7 @@ def makeMenu():
     mc.menuItem('UnloadPlugin', l=u'插件卸载器', ann=u'插件卸载器', c="OCT_generel.Unload_Plugins()", parent="OCT_Generel")
     mc.menuItem(d=1, parent="OCT_Generel")
     mc.menuItem('changeToBlinn', l=u'转换成blinn材质', ann=u'转换成blinn材质', c="OCT_generel.OCT_changeToBlinn.changeToBlinn().do()", parent="OCT_Generel")
-
+    mc.menuItem('loadAnglePlugin', l=u'添加文件勾选anglePlugin插件的节点', ann=u'添加文件勾选anglePlugin插件的节点', c='mm.eval("loadAnglePlugin;")', parent="OCT_Generel")
 
     #检查工具
     mc.menuItem(d=1, parent="OCT_ToolSetMN")

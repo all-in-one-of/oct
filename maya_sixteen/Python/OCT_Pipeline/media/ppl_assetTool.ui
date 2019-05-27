@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>470</width>
+    <width>480</width>
     <height>390</height>
    </rect>
   </property>
@@ -96,6 +96,13 @@
                </property>
               </widget>
              </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="checkLab">
+               <property name="text">
+                <string>TextLabel</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </widget>
           </item>
@@ -108,19 +115,49 @@
              <enum>QFrame::Raised</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_2">
-             <item row="1" column="0">
+             <item row="0" column="0">
               <layout class="QGridLayout" name="gridLayout">
-               <item row="2" column="0">
-                <widget class="QPushButton" name="dsly_tidy_bt">
-                 <property name="text">
-                  <string>display Layer 清理</string>
-                 </property>
-                </widget>
-               </item>
                <item row="1" column="2">
                 <widget class="QPushButton" name="nmsp_tidy_bt">
                  <property name="text">
                   <string>name space 工具</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="2">
+                <widget class="QPushButton" name="selSmth_tidy_bt">
+                 <property name="text">
+                  <string>选取物体smooth</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QPushButton" name="nm_tidy_bt">
+                 <property name="text">
+                  <string>Object Name 整理</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="2">
+                <widget class="QPushButton" name="inac_tidy_bt">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>...</string>
+                 </property>
+                 <property name="autoDefault">
+                  <bool>false</bool>
+                 </property>
+                 <property name="flat">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QPushButton" name="dsly_tidy_bt">
+                 <property name="text">
+                  <string>display Layer 清理</string>
                  </property>
                 </widget>
                </item>
@@ -138,40 +175,10 @@
                  </property>
                 </widget>
                </item>
-               <item row="0" column="0">
-                <widget class="QPushButton" name="nm_tidy_bt">
-                 <property name="text">
-                  <string>Object Name 整理</string>
-                 </property>
-                </widget>
-               </item>
                <item row="2" column="2">
                 <widget class="QPushButton" name="emgrp_tidy_bt">
                  <property name="text">
                   <string>自动清理空组</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="2">
-                <widget class="QPushButton" name="inac_tidy_bt">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="text">
-                  <string>...</string>
-                 </property>
-                 <property name="autoDefault">
-                  <bool>false</bool>
-                 </property>
-                 <property name="flat">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="2">
-                <widget class="QPushButton" name="selSmth_tidy_bt">
-                 <property name="text">
-                  <string>选取物体smooth</string>
                  </property>
                 </widget>
                </item>
@@ -181,6 +188,37 @@
                   <string>模型添加ct_an标记</string>
                  </property>
                 </widget>
+               </item>
+               <item row="6" column="0">
+                <layout class="QHBoxLayout" name="horizontalLayout_2">
+                 <item>
+                  <widget class="QPushButton" name="plsAbcAttr_tidy_bt">
+                   <property name="styleSheet">
+                    <string notr="true">border-color: rgb(255, 255, 255);
+selection-color: rgb(85, 255, 255);</string>
+                   </property>
+                   <property name="text">
+                    <string>添加/删除 abc属性 右键切换</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="opLab">
+                   <property name="maximumSize">
+                    <size>
+                     <width>35</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">color: rgb(85, 255, 0);</string>
+                   </property>
+                   <property name="text">
+                    <string>add</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
                </item>
               </layout>
              </item>
@@ -315,7 +353,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>470</width>
+     <width>480</width>
      <height>23</height>
     </rect>
    </property>

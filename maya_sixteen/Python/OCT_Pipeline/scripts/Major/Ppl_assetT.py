@@ -8,13 +8,16 @@ __mtime__ = 2019/4/1 : 18:24
 I love animals. They taste delicious.
 """
 import shutil
-from PySide import QtGui,QtCore,QtUiTools
+# from PySide import QtGui,QtCore,QtUiTools
+from PyQt4 import QtGui,QtCore,uic
+import logging
 import maya.OpenMayaUI as mui
 import sys,os,copy,re
 import maya.mel as mel
 import maya.cmds as mc
 import pymel.core as pm
-import shiboken
+# import shiboken
+import sip
 from ..utility import Kits
 reload(Kits)
 from ..past import sk_checkTools,sk_sceneTools,sk_smoothSet
@@ -29,7 +32,8 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         前期检测整理工具集
         """
         ppl_UI = os.path.join(Kits.Kits.get_dir(SCRIPT_LOC, 2), r'media\ppl_assetTool.ui')
-        MayaMain = shiboken.wrapInstance(long(mui.MQtUtil.mainWindow()), QtGui.QWidget)
+        # MayaMain = shiboken.wrapInstance(long(mui.MQtUtil.mainWindow()), QtGui.QWidget)
+        MayaMain = sip.wrapinstance(long(mui.MQtUtil.mainWindow()), QtGui.QWidget)
         super(Ppl_assetT_main,self).__init__(MayaMain)
         #=======program MEL path ====================
         self.mel_dir = os.path.join(Kits.Kits.get_dir(SCRIPT_LOC, 1),'MEL')
@@ -38,12 +42,13 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         self.sksct = sk_sceneTools.sk_sceneTools()
         self.sksmth = sk_smoothSet.sk_smoothSet()
         # main window load/settings
-        self.ui = self.loadUiWidget(ppl_UI,MayaMain)
+        self.ui = self.loadUiWidget(ppl_UI,self)
         self.ui.setAttribute(QtCore.Qt.WA_DeleteOnClose,True)
         self.ui.destroyed.connect(self.cmd_onExitCode)
         self.ui.move(200,400)
-        self.buttonsList = [ea_bt.objectName() for ea_bt in self.ui.findChildren(QtGui.QPushButton) if ea_bt.objectName().endswith('_bt')]
-
+        self.buttonsList = [ea_bt.objectName() for ea_bt in self.ui.findChildren(QtGui.QPushButton) if str(ea_bt.objectName()).endswith('_bt')]
+        self.ui.plsAbcAttr_tidy_bt.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.ui.plsAbcAttr_tidy_bt.customContextMenuRequested.connect(self.addAttrPopMenu)
         self.ui.show()
 
         self.makeConnections()
@@ -53,10 +58,31 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         sc_shn = os.path.basename(pm.sceneName())
         self.proj_abbr = re.search("^[^_]+", os.path.splitext(sc_shn)[0]).group() if sc_shn else None
 
+        #some attribute
+        self._addAttr = 'add'
+        # self.attr_op = {True: 'add', None: 'delete'}
     def makeConnections(self): # connect buttons to fucntions
         for each_bt in self.buttonsList:
             _fuction = getattr(self,"cmd_{}".format(each_bt)) if "cmd_{}".format(each_bt) in self.__class__.__dict__ else self._somFunc
             self.ui.findChildren(QtGui.QPushButton, each_bt)[0].clicked.connect(_fuction)
+    def addAttrPopMenu(self,point):# add  attribute popmenu config
+        self.popMenu = QtGui.QMenu(self.ui)
+        ac_add = QtGui.QAction('add',self.ui)
+        ac_add.setObjectName('act_add')
+        # ac_add.triggered.connect(lambda x=True:self.cmd_addAttrPopMenu(x))
+        self.popMenu.addAction(ac_add)
+        ac_del = QtGui.QAction('delete',self.ui)
+        ac_del.setObjectName('act_delete')
+        # ac_del.triggered.connect(lambda  x= None:self.cmd_addAttrPopMenu(x))
+        self.popMenu.addAction(ac_del)
+        self.popMenu.triggered[QtGui.QAction].connect(self.cmd_addAttrPopMenu)
+        self.popMenu.exec_(self.ui.plsAbcAttr_tidy_bt.mapToGlobal(point))
+    def cmd_addAttrPopMenu(self,q):# add attribute popmumen connect fuction
+        op = re.sub('act_',"",str(q.objectName()))
+        bluetx = "<span> <font color=#55ff00> {}</font> </span>".format(op)
+        self.ui.opLab.setText(bluetx)
+        # self._addAttr = bool(1 - self._addAttr)
+        self._addAttr = op
     #=========↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓   connected functions ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓========================================
     def cmd_onExitCode(self):
         sys.stdout.write("You closed the demo ui !!\n")
@@ -188,6 +214,18 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         self.sksct.checkTransAnimSetAdd()
         self.sksct.sk_sceneCacheAnimSetConfig("Cache", "ZM")
         self.sksct.sk_sceneCacheAnimSetConfig("Anim", "ZM")
+    def cmd_plsAbcAttr_tidy_bt(self):
+
+        # bluetx.append("add")
+        # bluetx.append("</span>")
+        # addStr = QtCore.QString("abc")
+        # font = QtGui.QFont()
+        # font
+        # addStr.setStyleSheet("color:red")
+        self.customAttr('alembic',self._addAttr)
+
+
+    #===================check panel commands=======================================
     def cmd_ref_chk_bt(self):#检查参考
         self.skchk.checkModelDetailsWarning("refCheck")
     def cmd_nmsp_chk_bt(self):#检查namespace
@@ -257,11 +295,14 @@ class Ppl_assetT_main(QtGui.QMainWindow):
 
     def loadUiWidget(self,uifilename, parent=None): # load ui file
         """import ui file"""
-        loader = QtUiTools.QUiLoader()
-        uifile = QtCore.QFile(uifilename)
-        uifile.open(QtCore.QFile.ReadOnly)
-        ui = loader.load(uifile, parent)
-        uifile.close()
+        # loader = QtUiTools.QUiLoader()
+        # uifile = QtCore.QFile(uifilename)
+        # uifile.open(QtCore.QFile.ReadOnly)
+        # ui = loader.load(uifile, parent)
+        # uifile.close()
+        uic.properties.logger.setLevel(logging.WARNING)
+        uic.uiparser.logger.setLevel(logging.WARNING)
+        ui = uic.loadUi(uifilename,parent)
         return ui
 
 
@@ -358,6 +399,17 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         txf_pth = fileSpl[0] + u'.tx'
         if txf_pth == src:return None
         else: return txf_pth
+
+    def customAttr(self,attrName='GD', operation='add'):
+        for m in pm.selected(type='transform'):
+            if re.search("(mesh)|(light)", m.getShape().nodeType(), re.I):
+                if operation == 'add':
+                    if m.hasAttr(attrName):
+                        pm.deleteAttr(m, at=attrName)
+                    pm.addAttr(m, ln=attrName, at='double', dv=1, k=1)
+                elif operation == 'delete':
+                    if m.hasAttr(attrName): pm.deleteAttr(m, at=attrName)
+
 
 
 # def call_it():

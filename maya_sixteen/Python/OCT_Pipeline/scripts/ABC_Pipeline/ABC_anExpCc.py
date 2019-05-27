@@ -68,7 +68,7 @@ def an_exp_cc(filterAttr='alembic',shotType=2,exStp=1,ref_mode = True):
         ref_f_nmspl = ref_nsp.split('_')
         ref_type = re.search('\w{2}', ref_f_nmspl[1]).group()
         if ref_type not in ['ch','pr']: continue
-        reprChar = re.search("[^\d]+$", ref_f_nmspl[1], re.I).group()
+        reprChar = re.search("[^\d]+[\d]*$", ref_f_nmspl[1], re.I).group()
         ref_No = ''
         if re.search('\d+$', ref_nsp): ref_No = re.search('\d+$', ref_nsp).group()
         ref_repr_Char4cc = "{}{}".format(ref_f_nmspl[1], ref_No)

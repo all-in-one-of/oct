@@ -62,7 +62,7 @@ class PPC_ReassignMatUI(object):
         # ======= list corect objes shaders==========
         src_clm = mc.columnLayout('src_CLM', columnAttach=('both', 5), rowSpacing=10, p=main_rly, adjustableColumn=True)
         mc.textScrollList('srcShdTSL', parent=src_clm, sc='ins_rs.sel_item_cmd()')
-        listSrcSdCmdStr = 'ins_rs = PPC_ReassignMatUI()\nins_rs.lfbt_cmd()'
+        listSrcSdCmdStr = 'import OCT_Pipeline.scripts.Minor.Ppl_ReassignMaterial_Ben as prmat\nins_rs = prmat.PPC_ReassignMatUI()\nins_rs.lfbt_cmd()'
         mc.button('addSource', label='List From Object shaders', p=src_clm, c=listSrcSdCmdStr)
         # ======== list selected dst objectes====================
         trg_clm = mc.columnLayout('trg_CLM', columnAttach=('both', 5), rowSpacing=10, p=main_rly, adjustableColumn=True)

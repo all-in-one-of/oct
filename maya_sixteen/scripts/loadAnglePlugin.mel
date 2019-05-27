@@ -1,0 +1,7 @@
+global proc loadAnglePlugin()
+{
+if (!`objExists "kScriptNodeForGetanglePlugins"`)
+    {
+    string $kScriptNode = `scriptNode -st 1 -bs "loadPlugin \"//octvision.com/cg/Tech/maya_sixteen/Plugins/getAnglePlugin.py\"" -n "kScriptNodeForGetanglePlugins"`;
+    }
+}

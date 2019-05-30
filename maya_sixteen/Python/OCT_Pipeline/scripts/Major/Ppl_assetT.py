@@ -155,8 +155,10 @@ class Ppl_assetT_main(QtGui.QMainWindow):
                             os.rename(txfpth,new_txf_pth)
                             if set_attr_value:
                                 eaf.attr('fileTextureName').set(new_txf_pth)
-                        except:
+                        except Exception,e:
+                            print e.message
                             res_error_str += u'{0}>>>请检查 file节点 {1:<32} 的贴图 路径的写入权限:{2:<32} ：\t{}{0}'.format(os.linesep, eaf.nodeName(), txf_dir)
+                            mc.progressWindow(cpProgressWin, endProgress=1)
                     renmed_txs_cnt +=1
                     self.ref_pr_bar(renmed_txs_cnt+1,all_cnt,cpProgressWin)
                     # print(u">>>请检查 当前工程的sourceimages文件夹 是否存在并且有写入权限")
@@ -287,7 +289,6 @@ class Ppl_assetT_main(QtGui.QMainWindow):
     # check all items
     def cmd_all_chk_bt(self):
         print("\n".join(self.buttonsList))
-
 
     # smoothSetDoSmooth(useSmoothSet = 1,selMode = 1)
 

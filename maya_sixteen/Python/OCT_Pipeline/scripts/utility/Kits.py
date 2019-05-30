@@ -172,5 +172,8 @@ class Kits(object):
         txf_nm_spl = tx_f_bnm.split('.')
         txf_alter_spl = []
         for eaSpl in txf_nm_spl:
-            txf_alter_spl.append(re.sub('\W', '_', eaSpl, re.I))
+            if re.search('\W+',eaSpl,re.I):
+                txf_alter_spl.append(re.sub('\W+', '_', eaSpl,0, re.I))# add replace count 如果不加，则只会替换两个。
+            else:
+                txf_alter_spl.append(eaSpl)
         return ".".join(txf_alter_spl)

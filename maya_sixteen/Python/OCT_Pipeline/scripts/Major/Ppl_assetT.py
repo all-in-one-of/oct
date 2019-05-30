@@ -125,7 +125,7 @@ class Ppl_assetT_main(QtGui.QMainWindow):
                 if get_txfpths.index(txfpth): set_attr_value = False
                 txf_nm = os.path.basename(txfpth)
                 txf_prj_abbr = re.search("^[^_]+", txf_nm).group()
-                if txf_prj_abbr == self.proj_abbr: continue
+                # if txf_prj_abbr == self.proj_abbr: continue
                 txf_dir = re.sub(txf_nm, '', txfpth)
                 print txf_dir
                 if not txf_dir == cur_src_dir and mod[result]=='cp':

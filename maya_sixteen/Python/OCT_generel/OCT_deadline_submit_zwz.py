@@ -71,7 +71,7 @@ class AssetDeadline():
         mc.radioButtonGrp('ArnoldProxy', label=u'aiStandIn', labelArray2=[u'是', u'否'], sl=1, cl3=['left', 'left', 'left'], cw3=[150, 100, 100], numberOfRadioButtons=2, p=oneC)
         insertRow = mc.rowLayout('insR',nc=2,cw=(300,100),adj=True,cal=(1,'right'),cat=[(1,'both',0),(2,'both',0)],p=oneC)
         mc.textFieldGrp('imgesPool', label=u'输出路径: ', text='', editable=True, cw2=[120, 150], cal=[1, 'left'], p=insertRow)
-        mc.checkBox('abcCopyToggle',label=u'Copy AbcCache',v=1,p=insertRow)
+        mc.checkBox('abcCopyToggle',label=u'AbcCache 程序判断是否copy   |* 不勾选则 不 copy',v=1,p=insertRow)
         one = mc.columnLayout('row1', p=form)
         mc.frameLayout('form', l="Servers List", h=20, borderStyle='out', p='row1')
         mc.columnLayout('row2', p='row1', rs=20)

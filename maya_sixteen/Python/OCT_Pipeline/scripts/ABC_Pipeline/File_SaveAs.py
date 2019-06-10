@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import maya.cmds as mc
-import os,subprocess,shutil
+import os,subprocess
+import octvDB
 
 class File_SaveAs():
     def __init__(self):
@@ -27,11 +28,13 @@ class File_SaveAs():
         if newFileName:
             masterFilePath = os.path.join(masterPath, newFileName)
             masterFilePath = masterFilePath.replace('/', '\\')
-
+            bakName = ""
         if os.path.isfile(masterFilePath):
-            self.getBackFile(masterPath, newFileName)
+            bakName = self.getBackFile(masterPath, newFileName)
 
         self.getCopyFile(filePathName, masterFilePath)
+        return [newFileName, masterFilePath, bakName]
+
 
     # 备份已有的文件
     def getBackFile(self, dirPath, fileName):
@@ -39,16 +42,19 @@ class File_SaveAs():
         dirBackPath = os.path.join(dirPath, "Backups").replace("\\", "/")
         newfileName = os.path.splitext(fileName)[0]
 
-        listDir = mc.getFileList(fld=dirBackPath, fs=newfileName)
+        listDir = mc.getFileList(fld = dirBackPath, fs = "%s*"% newfileName)
+
         newNum = ""
         if listDir:
             num = int(sorted(listDir)[-1][-3:]) + 1
             newNum = "%03d" % num
         else:
             newNum = "001"
+
+        bakName = "%s_c%s" % (newfileName, newNum)
         createDirName = os.path.join(dirBackPath, "%s_c%s" % (newfileName, newNum))
+
         createDirName = createDirName.replace("/", "\\")
-        print createDirName
         self.getCreateDir(createDirName)
 
         sourceFile = os.path.join(dirPath, fileName).replace("/", "\\")
@@ -57,6 +63,7 @@ class File_SaveAs():
         self.getCopyFile(sourceFile, destFile)
 
         self.delSourceFile(sourceFile)
+        return bakName
 
     #拷贝文件
     def getCopyFile(self, filePathName, masterFilePath):
@@ -70,7 +77,6 @@ class File_SaveAs():
     #创建备份文件夹
     def getCreateDir(self, dirBackPath):
         cmd = r'%s -u %s -p %s -ex  "MD  %s " -lwp -c -nowarn -wait' % (self.cpauPath, self.re_user, self.re_pw, dirBackPath)
-        print cmd
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
         while True:
             if not p.poll() is None:
@@ -79,12 +85,17 @@ class File_SaveAs():
 
     def delSourceFile(self, filePathName):
         cmd = r'%s -u %s -p %s -ex  "DEL /F /Q  %s " -lwp -c -nowarn -wait' % (self.cpauPath, self.re_user, self.re_pw, filePathName)
-        print cmd
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
         while True:
             if not p.poll() is None:
                 del p
                 break
+
+
+    def insertData(self, db, filename, fstate, ftype, upUser, fpath, checkState, checkUser, desc):
+        if db == 'asset' and fstate == 0:
+            octvDB.delDB(db, filename)
+        octvDB.insertDB(db, filename, fstate, ftype, upUser, fpath, checkState, checkUser, desc)
 
 if __file__== "__main__":
     # fileName = r"JMWC_ch001001character01_l_tx.mb"
@@ -96,6 +107,24 @@ if __file__== "__main__":
     mode = r"rigging"
 
     SaveAsMaster = File_SaveAs()
-    SaveAsMaster.file_SaveAs(fileName, destFolder, mode)
+    infoList = SaveAsMaster.file_SaveAs(fileName, destFolder, mode)
 
+    db = 'asset'
+    filename = infoList[0]
+    fstate = "0"
+    #master模式类型为7
+    ftype = "7"
+    upUser = os.getenv('username')
+    fpath = infoList[1].replace('\\', '/')
+    checkState = "1"
+    checkUser = ""
+    #备注信息
+    desc = "test"
+
+    # 插入新文件信息到数据库
+    SaveAsMaster.insertData(db, filename, fstate, ftype, upUser, fpath, checkState, checkUser, desc)
+    #插入备份信息到数据库
+    fstate = "1"
+    bakname = infoList[2]
+    SaveAsMaster.insertData(db, bakname, fstate, ftype, upUser, fpath, checkState, checkUser, desc)
 

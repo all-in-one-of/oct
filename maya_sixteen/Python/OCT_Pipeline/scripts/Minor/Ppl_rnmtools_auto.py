@@ -52,7 +52,7 @@ def Pre_regNaming(sel_MODEL=None,topSel=False):#=========rename selecte group an
     if not pm.objExists(u'MSH_outfig'):
         outfitGrp = pm.group(em=True,w=True,n=u'MSH_outfit')
         outfitGrp.setParent(u'MSH_all')
-
+    fix_ch_side()
 def renm_grp(SEL_GRP):
     grp_side_flg = pick_side_desc(SEL_GRP.name())
     print("========   {}".format(grp_side_flg))
@@ -93,7 +93,7 @@ def renm_grp(SEL_GRP):
                 fix_suffix_num(ea_ch)
             else:  renm_grp(ea_ch)
     SEL_GRP.rename(new_names(SEL_GRP))
-    fix_suffix_num(SEL_GRP)
+    # fix_suffix_num(SEL_GRP)
 def ls_ch_side_flg(SEL_GRP):
     """
     列出指定物体的子物体并分类：
@@ -175,7 +175,7 @@ def fix_suffix_num(rnnode):#fix  "xxx_20"====> "xxx20_"
     if mod_idnm_search:
         suf_str = mod_idnm_search.group()
         idnm = re.search(u'\d+', mod_idnm_search.group()).group()
-        rnnode.rename(re.sub(suf_str, u'{}_'.format(idnm), ndname))
+        rnnode.rename(re.sub(suf_str, u'_{}_'.format(idnm), ndname))
 
 def new_names(nodeObj, prifix=u'MSH', suffix=u'_',precision= None, pk_sid = None):# return the new name string
     if not precision:
@@ -196,28 +196,30 @@ def new_names(nodeObj, prifix=u'MSH', suffix=u'_',precision= None, pk_sid = None
     if not nodeObj.getShape():
         suffix = None
     new_name_dict = {'pr': prifix, 'prec': precision, 'nm': nm_dic['nm'], 'side': nm_dic['sd'], 'id': nm_dic['id']}
-    new_name_str = u'{}_'.format(new_name_dict['pr'])
-    #print new_name_str
+    new_name_list = [new_name_dict['pr']]
     for each in ['side', 'prec', 'nm', 'id']:
+        # each = 'nm'
         if new_name_dict[each]:
             if each == 'nm':
                 name_base = re.search(u'[\w]*[^0-9]+', new_name_dict['nm'], re.I).group()
                 # name_base = re.sub(u'[_]+$',u'',name_base)
                 name_base = re.sub(u'[\d_]+$', u'', name_base)
-                new_name_str += u'{}'.format(name_base)
+                if name_base.startswith('_'): name_base = re.sub('^_', '', name_base)
+                new_name_list.append(name_base)
             elif each == 'id':
                 suffix = None
-                new_name_str += u'_{}'.format(new_name_dict[each])
+                new_name_list.append(new_name_dict[each])
             else:  # each = 'nm'
-                new_name_str += u'{}_'.format(new_name_dict[each])
+                new_name_list.append(new_name_dict[each])
+    new_name_list[-1] = re.sub(u'[_]+$', u'', new_name_list[-1])
+    finally_nm = "_".join(new_name_list)
+    if suffix and nodeObj.getShape():
+        finally_nm += '_'
+    final_nm = Kits4maya.Kits4maya.unique_name(finally_nm, suff=suffix)
 
-    if not suffix:
-        new_name_str = re.sub(u'[_]+$', u'', new_name_str)
-    else:
-        new_name_str += suffix
-    final_nm = Kits4maya.Kits4maya.unique_name(new_name_str,suff='_')
+
     return final_nm
-
+"""
 def get_name_membs(nm_str,pk_sid=None): # return a dict, contains the new name needs membership
     new_name_dict = {}
     if not pk_sid:  pk_sid = pick_side_desc(nm_str)
@@ -234,12 +236,35 @@ def get_name_membs(nm_str,pk_sid=None): # return a dict, contains the new name n
     else:
         new_name_dict['sd'] = u'c'
     return new_name_dict
+"""
+def get_name_membs(nm_str,pk_sid=None): # return a dict, contains the new name needs membership
+    new_name_dict = {}
+    pk_sid_dic = pick_side_desc(nm_str)
+    if isinstance(pk_sid,unicode) or isinstance(pk_sid,str):
+        new_name_dict['sd'] = pk_sid
+    if pk_sid_dic:
+        used_sid = pk_sid_dic.values()[0].keys()[0]
+        nm_str_n = re.sub(used_sid,'',nm_str)
+        nm_str_spl = nm_str.split(used_sid)
+        if nm_str_spl[0] == 'MSH' and re.search('^MSH_', nm_str):
+            nm_str_n = '_'.join(nm_str.split('_')[3:])
+        if pk_sid : new_name_dict['sd'] = pk_sid
+        else:
+            new_name_dict['sd'] = pk_sid_dic.keys()[0]
+        new_name_dict['nm'] = nm_str_n
+        new_name_dict['id'] = pk_sid_dic.values()[0].values()[0]
+    else:
+        new_name_dict['sd'] = u'c'
+        new_name_dict['nm'] = nm_str
+        new_name_dict['id'] = None
+    return new_name_dict
 
 
 def pick_side_desc(nameStr): # on the basis of current mode's name,obtain model object on wich side including : r,l ,c
     re_pick_side = re.compile('(_|\s)[r|l][0-9]*[_]?', re.I)
     if not re_pick_side.search(nameStr):
-        return None
+        re_pick_side = re.compile("^[rl][0-9]*[_]?", re.I)
+        if not re_pick_side.search(nameStr):  return None
     re_side = re.compile(u'r|l', re.I)
     re_num = re.compile(u'[0-9]+')
     side_dict = {}
@@ -253,3 +278,40 @@ def pick_side_desc(nameStr): # on the basis of current mode's name,obtain model 
     side_dict[side_str] = side_desc_dict
     return side_dict
 
+
+def get_side(selGrp):
+    find_side = re.search('MSH_(r|l)_', selGrp.name(), re.I)
+    if find_side:
+        side = re.search('[^(MSH)_]', find_side.group(), re.I).group()
+        return side
+
+
+def fix_ch_side():
+    SEL_GRP = None
+    if pm.selected():
+        SEL_GRP = pm.selected()[0]
+    else:
+        SEL_GRP = pm.PyNode('MODEL')
+    ch_grps = []
+    for c in SEL_GRP.listRelatives(type='transform', ad=True, c=True):
+        for c2 in c.getChildren():
+            if c2.type() != 'transform':
+                continue
+            else:
+                if c not in ch_grps: ch_grps.append(c)
+    if not ch_grps:
+        ch_grps = [SEL_GRP]
+    for grp in ch_grps:
+        if not get_side(grp): continue
+        side = get_side(grp)
+        for e in grp.getChildren():
+            add_suff = None
+            eNM = e.name()
+            eNM_noSuff = eNM
+            if e not in ch_grps:
+                add_suff = True
+                eNM_noSuff = eNM.strip('_')
+            nmspl = eNM_noSuff.split('_')
+            new_nm_str = '{}_{}_{}_{}'.format(nmspl[0], side, nmspl[2], nmspl[-1])
+            if add_suff: new_nm_str += '_'
+            e.rename(new_nm_str)

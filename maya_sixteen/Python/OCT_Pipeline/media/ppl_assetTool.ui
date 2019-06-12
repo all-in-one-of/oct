@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>480</width>
-    <height>390</height>
+    <height>363</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -19,7 +19,7 @@
   <property name="maximumSize">
    <size>
     <width>480</width>
-    <height>390</height>
+    <height>500</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -27,6 +27,15 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_3">
+    <property name="topMargin">
+     <number>8</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <property name="verticalSpacing">
+     <number>5</number>
+    </property>
     <item row="0" column="0">
      <widget class="QTabWidget" name="m_tab">
       <property name="currentIndex">
@@ -37,10 +46,28 @@
         <string>文件整理</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_6">
+        <property name="topMargin">
+         <number>2</number>
+        </property>
+        <property name="verticalSpacing">
+         <number>9</number>
+        </property>
         <item row="0" column="0">
          <layout class="QVBoxLayout" name="verticalLayout">
+          <property name="spacing">
+           <number>5</number>
+          </property>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout">
+            <property name="spacing">
+             <number>15</number>
+            </property>
+            <property name="sizeConstraint">
+             <enum>QLayout::SetDefaultConstraint</enum>
+            </property>
+            <property name="topMargin">
+             <number>5</number>
+            </property>
             <item>
              <widget class="QLineEdit" name="pick_sel_l"/>
             </item>
@@ -55,6 +82,12 @@
           </item>
           <item>
            <widget class="QFrame" name="new_frm">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>110</height>
+             </size>
+            </property>
             <property name="frameShape">
              <enum>QFrame::Box</enum>
             </property>
@@ -62,16 +95,18 @@
              <enum>QFrame::Raised</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_5">
-             <item row="3" column="0">
-              <widget class="QPushButton" name="smoothSetT_bt">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="text">
-                <string>SmoothSet Tools</string>
-               </property>
-              </widget>
-             </item>
+             <property name="leftMargin">
+              <number>9</number>
+             </property>
+             <property name="topMargin">
+              <number>2</number>
+             </property>
+             <property name="bottomMargin">
+              <number>2</number>
+             </property>
+             <property name="verticalSpacing">
+              <number>2</number>
+             </property>
              <item row="0" column="0">
               <widget class="QPushButton" name="rnmT_bt">
                <property name="text">
@@ -96,10 +131,20 @@
                </property>
               </widget>
              </item>
-             <item row="4" column="0">
-              <widget class="QLabel" name="checkLab">
+             <item row="1" column="0">
+              <widget class="QPushButton" name="smoothSetT_bt">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="text">
-                <string>TextLabel</string>
+                <string>Set Smooth Level</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QPushButton" name="nm_tidy_bt">
+               <property name="text">
+                <string>outliner Object Name 整理</string>
                </property>
               </widget>
              </item>
@@ -112,11 +157,35 @@
              <enum>QFrame::Panel</enum>
             </property>
             <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
+             <enum>QFrame::Plain</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_2">
+             <property name="sizeConstraint">
+              <enum>QLayout::SetDefaultConstraint</enum>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>5</number>
+             </property>
+             <property name="verticalSpacing">
+              <number>5</number>
+             </property>
              <item row="0" column="0">
               <layout class="QGridLayout" name="gridLayout">
+               <property name="sizeConstraint">
+                <enum>QLayout::SetFixedSize</enum>
+               </property>
+               <property name="horizontalSpacing">
+                <number>8</number>
+               </property>
+               <property name="verticalSpacing">
+                <number>5</number>
+               </property>
+               <property name="margin">
+                <number>5</number>
+               </property>
                <item row="1" column="2">
                 <widget class="QPushButton" name="nmsp_tidy_bt">
                  <property name="text">
@@ -128,13 +197,6 @@
                 <widget class="QPushButton" name="selSmth_tidy_bt">
                  <property name="text">
                   <string>选取物体smooth</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="0">
-                <widget class="QPushButton" name="nm_tidy_bt">
-                 <property name="text">
-                  <string>Object Name 整理</string>
                  </property>
                 </widget>
                </item>
@@ -154,20 +216,6 @@
                  </property>
                 </widget>
                </item>
-               <item row="2" column="0">
-                <widget class="QPushButton" name="dsly_tidy_bt">
-                 <property name="text">
-                  <string>display Layer 清理</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QPushButton" name="suff_tidy_bt">
-                 <property name="text">
-                  <string>选取添加 _ 后缀</string>
-                 </property>
-                </widget>
-               </item>
                <item row="0" column="2">
                 <widget class="QPushButton" name="set_tidy_bt">
                  <property name="text">
@@ -182,15 +230,38 @@
                  </property>
                 </widget>
                </item>
-               <item row="5" column="0">
+               <item row="1" column="0">
+                <widget class="QPushButton" name="dsly_tidy_bt">
+                 <property name="text">
+                  <string>display Layer 清理</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QPushButton" name="suff_tidy_bt">
+                 <property name="text">
+                  <string>选取添加 _ 后缀</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
                 <widget class="QPushButton" name="anlab_tidy_bt">
                  <property name="text">
                   <string>模型添加ct_an标记</string>
                  </property>
                 </widget>
                </item>
-               <item row="6" column="0">
+               <item row="5" column="0">
                 <layout class="QHBoxLayout" name="horizontalLayout_2">
+                 <property name="spacing">
+                  <number>5</number>
+                 </property>
+                 <property name="sizeConstraint">
+                  <enum>QLayout::SetFixedSize</enum>
+                 </property>
+                 <property name="topMargin">
+                  <number>5</number>
+                 </property>
                  <item>
                   <widget class="QPushButton" name="plsAbcAttr_tidy_bt">
                    <property name="styleSheet">
@@ -219,6 +290,13 @@ selection-color: rgb(85, 255, 255);</string>
                   </widget>
                  </item>
                 </layout>
+               </item>
+               <item row="8" column="0">
+                <widget class="QPushButton" name="rmun_tidy_bt">
+                 <property name="text">
+                  <string>移除无用和未知</string>
+                 </property>
+                </widget>
                </item>
               </layout>
              </item>

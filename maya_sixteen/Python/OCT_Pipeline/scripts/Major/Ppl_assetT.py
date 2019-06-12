@@ -24,6 +24,11 @@ from ..past import sk_checkTools,sk_sceneTools,sk_smoothSet
 reload(sk_checkTools)
 reload(sk_sceneTools)
 reload(sk_smoothSet)
+import Ppl_pubCheck as ppc
+reload(ppc)
+from ..Minor import SetSmoothLevelTools_ui,Ppl_rnmtools_auto
+reload(SetSmoothLevelTools_ui)
+reload(Ppl_rnmtools_auto)
 SCRIPT_LOC = os.path.split(__file__)[0]
 PROJ_DIR = os.getenv('OCTV_PROJECTS')
 class Ppl_assetT_main(QtGui.QMainWindow):
@@ -174,7 +179,11 @@ class Ppl_assetT_main(QtGui.QMainWindow):
             mc.warning(res_error_str)
 
     def cmd_smoothSetT_bt(self): # smooth set 设置工具
-        self.sksmth.UI_setSmooth()
+        # global appName
+        MayaMainWin = sip.wrapinstance(long(mui.MQtUtil.mainWindow()), QtGui.QWidget)
+        findWin = MayaMainWin.findChild(QtGui.QWidget, 'SetSmoothLevelWin')
+        if findWin: findWin.close()
+        SetSmoothLevelTools_ui.main_my()
     #  call fuction buttons commands ================================
     # 根据名字选择
     def cmd_selByNm_bt(self):
@@ -183,8 +192,6 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         pm.select(ls_objs)
     # 自动重命名
     def cmd_nm_tidy_bt(self):
-        from ..Minor import Ppl_rnmtools_auto
-        reload(Ppl_rnmtools_auto)
         Ppl_rnmtools_auto.Pre_regNaming()
     # 添加后缀 _
     def cmd_suff_tidy_bt(self):
@@ -226,7 +233,9 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         # addStr.setStyleSheet("color:red")
         self.customAttr('alembic',self._addAttr)
 
-
+    def cmd_rmun_tidy_bt(self):
+        pchk = ppc.Pc_pubCheck()
+        pchk.checkDonotNodeCleanBase()
     #===================check panel commands=======================================
     def cmd_ref_chk_bt(self):#检查参考
         self.skchk.checkModelDetailsWarning("refCheck")
@@ -401,15 +410,33 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         if txf_pth == src:return None
         else: return txf_pth
 
-    def customAttr(self,attrName='GD', operation='add'):
-        for m in pm.selected(type='transform'):
-            if re.search("(mesh)|(light)", m.getShape().nodeType(), re.I):
-                if operation == 'add':
-                    if m.hasAttr(attrName):
-                        pm.deleteAttr(m, at=attrName)
-                    pm.addAttr(m, ln=attrName, at='double', dv=1, k=1)
-                elif operation == 'delete':
-                    if m.hasAttr(attrName): pm.deleteAttr(m, at=attrName)
+    def customAttr(self,attrName='GD', operation='add',attrV=1):
+        SEL_OBJS = pm.selected()
+        OBJS = []
+        for ea_sel in SEL_OBJS:
+            for ea in ea_sel.listRelatives(ad=True, c=True, type='mesh', ni=True):
+                trns = ea.getParent()
+                if ea not in OBJS:
+                    OBJS.append(ea)
+                    if operation == 'add':
+                        if trns.hasAttr(attrName):
+                            pm.deleteAttr(trns, at=attrName)
+                        pm.addAttr(trns, ln=attrName, at='double', dv=1, k=1)
+                        trns.attr(attrName).set(attrV)
+                    elif operation == 'delete':
+                        if trns.hasAttr(attrName): pm.deleteAttr(trns, at=attrName)
+            for ea in ea_sel.listRelatives(ad=True,c=True,type='light',ni=True):
+                if ea not in OBJS:
+                    OBJS.append(ea)
+                    trns_l = ea.getParent()
+                    if operation == 'add':
+                        if trns_l.hasAttr(attrName):
+                            pm.deleteAttr(trns_l, at=attrName)
+                        pm.addAttr(trns_l, ln=attrName, at='double', dv=1, k=1)
+                        trns.attr(attrName).set(attrV)
+                    elif operation == 'delete':
+                        if trns_l.hasAttr(attrName): pm.deleteAttr(trns_l, at=attrName)
+
 
 
 

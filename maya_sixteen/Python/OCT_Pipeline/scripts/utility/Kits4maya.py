@@ -33,6 +33,7 @@ class Kits4maya(object):
             obj.rename(newNm,ignoreShape=True)
     @staticmethod
     def unique_name(oldName, num=None, suff='_'):# 找到唯一命名
+        if suff == None: suff =""
         if not pm.objExists(oldName): return oldName
         if not num: num = 0
         nm_noSuf = re.sub('\d*{}$'.format(suff), '', oldName)

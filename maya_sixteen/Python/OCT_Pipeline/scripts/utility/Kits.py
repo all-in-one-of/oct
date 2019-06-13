@@ -177,3 +177,30 @@ class Kits(object):
             else:
                 txf_alter_spl.append(eaSpl)
         return ".".join(txf_alter_spl)
+
+    def findTxSeqs(self,txfile):#获得指定贴图的 序列贴图
+        # txfile = aa.attr('fileTextureName').get()
+        # txfile = r"Z:/Themes/CDMSS/Project/sourceimages/characters/ch001001Moss/CDMSS_ch001001Moss_head_roughness_1001.jpg"
+        path_sep = self.usesep(txfile)
+        txFolder = os.path.dirname(txfile)
+        tx_bsnm = os.path.basename(txfile)
+        tx_bsnm_spl = os.path.splitext(tx_bsnm)
+        id_pars_srch = re.search("[_.-]\d*$", tx_bsnm_spl[0])
+        if not id_pars_srch:
+            iffy_info = "warning(\"the file node {} texture name nonstandard\")".format(txfile)
+            return iffy_info
+        id_pars = id_pars_srch.group()
+        id_nums = re.search('\d+$', id_pars).group()
+        # id_sep = re.sub('\d+','',id_pars)
+        tx_bsnm_noid = re.sub("{}$".format(id_nums), "", tx_bsnm_spl[0])
+
+        re_srch = re.compile("{}\d+{}".format(tx_bsnm_noid, tx_bsnm_spl[-1]))
+        ret_seq = [txfile]
+        tmp_list = []
+        for ef in os.listdir(txFolder):
+            if re_srch.search(ef):
+                ef_full = "{}{}{}".format(txFolder, path_sep, ef)
+                if ef_full not in ret_seq: tmp_list.append(ef_full)
+        tmp_list.sort()
+        ret_seq.extend(tmp_list)
+        return ret_seq

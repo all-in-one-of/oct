@@ -65,6 +65,7 @@ class Ppl_assetT_main(QtGui.QMainWindow):
 
         #some attribute
         self._addAttr = 'add'
+        self.iify_infor = []
         # self.attr_op = {True: 'add', None: 'delete'}
     def makeConnections(self): # connect buttons to fucntions
         for each_bt in self.buttonsList:
@@ -118,21 +119,37 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         cpProgressWin = mc.progressWindow(title="Add Prefix", progress=prg_num, status="PROGRESS : {}%".format(prg_num), isInterruptable=True,
                                           min=0, max=100)
         res_error_str = ""
+        modifiedTex = {}
         for eaf in alterFs:
             get_txfpths = []
             txfpth_01 = eaf.attr('fileTextureName').get()
             if txfpth_01.startswith("${"):
                 txfpth_01 = self.k.txAbsPath(txfpth_01).values()[0]
             get_txfpths.append(txfpth_01)
-            if self.get_ArTx(txfpth_01) and os.path.isfile(self.get_ArTx(txfpth_01)): get_txfpths.append(self.get_ArTx(txfpth_01))
+            if_tx_file = self.get_ArTx(txfpth_01)
+            if if_tx_file and os.path.isfile(if_tx_file): get_txfpths.append(if_tx_file)
+            if eaf.attr('uvTilingMode').get() == 3 or eaf.attr('useFrameExtension').get():
+                seqs = self.k.findTxSeqs(txfpth_01)
+                if isinstance(seqs, str):
+                    res_error_str += u'{0}>>>请检查 file节点 {1:<32} 的序列贴图是否存在或命名是否正确：\t{2} {0}'.format(os.linesep, eaf.nodeName(),txfpth_01)
+                else:
+                    get_txfpths.extend(seqs[1:])
+                if if_tx_file and os.path.isfile(if_tx_file):
+                    tx_seqs = self.k.findTxSeqs(if_tx_file)
+                    if isinstance(tx_seqs, str):
+                        res_error_str += u'{0}>>>请检查 file节点 {1:<32} 的序列贴图是否存在或命名是否正确：\t{2} {0}'.format(os.linesep, eaf.nodeName(), if_tx_file)
+                    else:
+                        get_txfpths.extend(tx_seqs[1:])
+            print "node name {}".format(eaf.nodeName())
             for txfpth in get_txfpths:
+                print " textrue file : {} " .format(txfpth)
                 set_attr_value = True
                 if get_txfpths.index(txfpth): set_attr_value = False
                 txf_nm = os.path.basename(txfpth)
                 txf_prj_abbr = re.search("^[^_]+", txf_nm).group()
-                # if txf_prj_abbr == self.proj_abbr: continue
+                # if txf_prj_abbr == self.proj_abbr: continueW
                 txf_dir = re.sub(txf_nm, '', txfpth)
-                print txf_dir
+
                 if not txf_dir == cur_src_dir and mod[result]=='cp':
                     txf_dir = cur_src_dir
                 new_txf_nm = None
@@ -142,6 +159,9 @@ class Ppl_assetT_main(QtGui.QMainWindow):
                 else :
                     new_txf_nm = '{}_{}'.format(self.proj_abbr,self.k.normalizeTxNm(txf_nm))
                 new_txf_pth = "{}{}".format(txf_dir, new_txf_nm)
+                if txfpth in modifiedTex:
+                    eaf.attr('fileTextureName').set(new_txf_pth)
+                    continue
                 if self.k.filetest(txfpth,new_txf_pth):
                     # print(">>>--{}{}>>>---{}".format(txfpth,os.linesep,new_txf_pth))
                     if mod[result] =='cp':
@@ -149,6 +169,7 @@ class Ppl_assetT_main(QtGui.QMainWindow):
                             shutil.copy2(txfpth,new_txf_pth)
                             if set_attr_value:
                                 eaf.attr('fileTextureName').set(new_txf_pth)
+                            modifiedTex[txfpth] = new_txf_pth
                         except:
                             print("sorce image: {1}{0}target image: {2}".format(os.linesep, txfpth, new_txf_pth))
                             mc.progressWindow(cpProgressWin, endProgress=1)
@@ -157,9 +178,11 @@ class Ppl_assetT_main(QtGui.QMainWindow):
                     elif mod[result] =='rn':
                         try:
                             eaf.attr('fileTextureName').set("")
+
                             os.rename(txfpth,new_txf_pth)
                             if set_attr_value:
                                 eaf.attr('fileTextureName').set(new_txf_pth)
+                            modifiedTex[txfpth] = new_txf_pth
                         except Exception,e:
                             print e.message
                             res_error_str += u'{0}>>>请检查 file节点 {1:<32} 的贴图 路径的写入权限:{2:<32} ：\t{}{0}'.format(os.linesep, eaf.nodeName(), txf_dir)

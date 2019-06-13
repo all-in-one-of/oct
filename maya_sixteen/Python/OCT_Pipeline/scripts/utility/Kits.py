@@ -143,6 +143,7 @@ class Kits(object):
     def filetest(self,filePth,destDir):# determins whether a file needs bo be copied.
         #filePth = new_ea_02
         # print ("CHECK FILE WHETHER EXISTS : {}".format(filePth))
+        if not os.path.exists(filePth): return None
         if not os.path.exists(destDir): return True
         txf_mt = time.localtime(os.stat(filePth).st_mtime)
         # print txf_mt

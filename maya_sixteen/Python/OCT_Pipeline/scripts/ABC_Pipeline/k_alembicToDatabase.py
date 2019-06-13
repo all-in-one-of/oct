@@ -48,8 +48,8 @@ class k_alembicToDatabase:
         AlembicAttr = [i for i in AlembicTransform if cc.listAttr(i, st='alembic')]
         fileName = cc.file(q=1, sn=1, shn=1)
         contrast_fileName=''
-        if   'rg' in fileName:contrast_fileName = fileName.replace('rg','tx')
-        elif 'tx' in fileName:contrast_fileName = fileName.replace('tx','rg')
+        if   '_rg' in fileName:contrast_fileName = fileName.replace('_rg','_tx')
+        elif '_tx' in fileName:contrast_fileName = fileName.replace('_tx','_rg')
 
         #连接数据库
         ms = MSSQL(driver='{SQL Server}', host='192.168.80.200', user='dengtao', pwd='ceshi1', db='yshubpmTest')

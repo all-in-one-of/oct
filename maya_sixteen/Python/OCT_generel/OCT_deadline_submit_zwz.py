@@ -1744,7 +1744,9 @@ class CopyProject(QtGui.QDialog):
 
     #拷贝所有ABC的data节点的文件并改变节点
     def myCopy_AbcData(self):
-        if not mc.checkBox('abcCopyToggle',q=True,v=True):return True
+        if mc.checkBox('abcCopyToggle',q=True,exists=True):
+            if not mc.checkBox('abcCopyToggle',q=True,v=True):
+                return True
         tmpCopyFlag = True
         type_file = 'alembic'
         serFileName = os.path.join(self.serveProject, 'cache\\'+type_file)

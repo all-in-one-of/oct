@@ -12,7 +12,7 @@ import pymel.core as pm
 import maya.mel as mel
 import tempfile,re,os
 
-class Pc_pubCheck(object):
+class Ppl_pubCheck(object):
     def __init__(self):
         self.scene_nm = pm.sceneName()
         # 全流程用

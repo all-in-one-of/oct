@@ -257,7 +257,7 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         self.customAttr('alembic',self._addAttr)
 
     def cmd_rmun_tidy_bt(self):
-        pchk = ppc.Pc_pubCheck()
+        pchk = ppc.Ppl_pubCheck()
         pchk.checkDonotNodeCleanBase()
     #===================check panel commands=======================================
     def cmd_ref_chk_bt(self):#检查参考

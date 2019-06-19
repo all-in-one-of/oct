@@ -3,6 +3,7 @@
 import maya.cmds as mc
 import os,subprocess
 import octvDB
+import urllib2
 
 class File_SaveAs():
     def __init__(self):
@@ -14,7 +15,9 @@ class File_SaveAs():
         self.re_user = r'octvision.com\supermaya'
         self.re_pw = 'supermaya'
 
-    def file_SaveAs(self, fileName, destFolder, mode):
+        self.chk_dp_ip = "http://192.168.80.200:801"
+
+    def file_SaveAs(self, fileName, destFolder, mode, desc):
         filePathName = os.path.join(destFolder, fileName)
         filePathName = filePathName.replace('/', '\\')
         masterFilePath =""
@@ -33,8 +36,22 @@ class File_SaveAs():
             bakName = self.getBackFile(masterPath, newFileName)
 
         self.getCopyFile(filePathName, masterFilePath)
+
+        masterFilePath = masterFilePath.replace('\\', '/')
+        self.insertData(newFileName, bakName, masterFilePath, desc)
+
+        self.setMatchDefault(fileName)
         return [newFileName, masterFilePath, bakName]
 
+    # 设置匹配权限默认值为1
+    def setMatchDefault(self, fileName):
+        if fileName:
+            set_chk_addr = "{}/yemojk.aspx?caozuo=ppbj&z=1&m={}".format(self.chk_dp_ip, fileName)
+            set_chk_v = urllib2.urlopen(set_chk_addr).read()
+
+        # 读取匹配设置
+        # chkAddr = "{}/yemojk.aspx?caozuo=ppcx&m={}".format(self.chk_dp_ip, fileName)
+        # set_chk_d =urllib2.urlopen(chkAddr).read()
 
     # 备份已有的文件
     def getBackFile(self, dirPath, fileName):
@@ -92,10 +109,14 @@ class File_SaveAs():
                 break
 
 
-    def insertData(self, db, filename, fstate, ftype, upUser, fpath, checkState, checkUser, desc):
-        if db == 'asset' and fstate == 0:
-            octvDB.delDB(db, filename)
-        octvDB.insertDB(db, filename, fstate, ftype, upUser, fpath, checkState, checkUser, desc)
+    def insertData(self,filename, bakname, fpath, desc):
+        upUser = os.getenv('username')
+        octvDB.delDB("asset", filename)
+        octvDB.insertDB("asset", filename, "0", "7", upUser, fpath, "1", "", desc)
+
+        # 插入备份信息到数据库
+        octvDB.insertDB("asset", bakname, "1", "7", upUser, fpath, "1", "", desc)
+
 
 if __file__== "__main__":
     # fileName = r"JMWC_ch001001character01_l_tx.mb"
@@ -105,26 +126,7 @@ if __file__== "__main__":
     fileName = r"JMWC_ch001001character01_l_rg.mb"
     destFolder = r"//octvision.com/CG/Themes/JMWC/Project/scenes/characters/ch001001character01/rigging"
     mode = r"rigging"
-
-    SaveAsMaster = File_SaveAs()
-    infoList = SaveAsMaster.file_SaveAs(fileName, destFolder, mode)
-
-    db = 'asset'
-    filename = infoList[0]
-    fstate = "0"
-    #master模式类型为7
-    ftype = "7"
-    upUser = os.getenv('username')
-    fpath = infoList[1].replace('\\', '/')
-    checkState = "1"
-    checkUser = ""
-    #备注信息
     desc = "test"
-
-    # 插入新文件信息到数据库
-    SaveAsMaster.insertData(db, filename, fstate, ftype, upUser, fpath, checkState, checkUser, desc)
-    #插入备份信息到数据库
-    fstate = "1"
-    bakname = infoList[2]
-    SaveAsMaster.insertData(db, bakname, fstate, ftype, upUser, fpath, checkState, checkUser, desc)
+    SaveAsMaster = File_SaveAs()
+    infoList = SaveAsMaster.file_SaveAs(fileName, destFolder, mode, desc)
 

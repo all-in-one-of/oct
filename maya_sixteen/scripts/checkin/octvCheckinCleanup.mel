@@ -1448,14 +1448,11 @@ global proc octvCheckinCleanup(string $args[])
 		$sysrs = `zwSysFile "copy" $msNoTexFileName ($TexFolder + "/" + $msNoTex) 0`;
 	}
 
-
-
-
-
 //record for database
 	string $upUser = `getenv username`;
 	if ($asset_type == "characters" || $asset_type == "props" || $asset_type == "sets")	//Asset
 	{
+
 		string $db = "asset";
 		string $fstate = "0";
 		string $ftype = "1";
@@ -1543,6 +1540,15 @@ global proc octvCheckinCleanup(string $args[])
 			}
 		//}
 
+	//上传文件rigging、texture文件另存为一份msAnim、msRender文件
+     if($project == "JMWC"){
+         if($mode == "rigging" || $mode == "texture"){
+            python("import OCT_Pipeline.scripts.ABC_Pipeline.File_SaveAs as fSaveAS\nreload(fSaveAS)");
+
+            python("SaveAsMaster = fSaveAS.File_SaveAs()");
+            python("infoList = SaveAsMaster.file_SaveAs('" + $filename + "','" + $destFolder + "','" +$mode +"','" + $desc + "')");
+         }
+      }
 	}
 	else
 	{

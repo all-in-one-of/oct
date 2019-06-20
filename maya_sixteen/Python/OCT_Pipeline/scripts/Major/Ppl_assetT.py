@@ -26,6 +26,8 @@ reload(sk_sceneTools)
 reload(sk_smoothSet)
 import Ppl_pubCheck as ppc
 reload(ppc)
+import Ppl_scInfo as psinf
+reload(psinf)
 from ..Minor import SetSmoothLevelTools_ui,Ppl_rnmtools_auto
 reload(SetSmoothLevelTools_ui)
 reload(Ppl_rnmtools_auto)
@@ -65,6 +67,7 @@ class Ppl_assetT_main(QtGui.QMainWindow):
 
         #some attribute
         self._addAttr = 'add'
+        self.topGrpDic = {'tx':'CHR','rg':'CHR','mo':'MODEL'}
         self.iify_infor = []
         # self.attr_op = {True: 'add', None: 'delete'}
     def makeConnections(self): # connect buttons to fucntions

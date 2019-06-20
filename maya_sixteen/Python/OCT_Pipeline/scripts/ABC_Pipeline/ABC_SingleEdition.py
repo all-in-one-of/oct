@@ -113,7 +113,7 @@ class AbcSglWidget(qg.QWidget):
     def opt_cc(self,objs_nm_lst,stfrm,endfrm,ccdir):
         #cmd = " -root {}".format(objs_nm_lst)
         cmdStr = " -root ".join([a.longName() for a in objs_nm_lst])
-        exp_cc_cmd = 'AbcExport -j "-frameRange {} {} -root {} -uvWrite -worldSpace -writeVisibility   "'.format(stfrm, endfrm,cmdStr)
+        exp_cc_cmd = 'AbcExport -j "-frameRange {} {} -root {} -uvWrite -worldSpace -writeVisibility  {} "'.format(stfrm, endfrm,cmdStr)
         mel.eval(exp_cc_cmd)
         # return exp_cc_cmd
     def r4f(self):#=== 选择缓存和记录模型的文件

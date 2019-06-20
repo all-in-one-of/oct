@@ -179,8 +179,8 @@ def fix_suffix_num(rnnode):#fix  "xxx_20"====> "xxx20_"
 
 def new_names(nodeObj, prifix=u'MSH', suffix=u'_',precision= None, pk_sid = None):# return the new name string
     if not precision:
-        scInf = Ppl_scInfo.Pc_scInfo()
-        precision = scInf.assPrec
+        scInf = Ppl_scInfo.Ppl_scInfo()
+        precision = scInf.assetPrec
     # nodeObj = each
     nm_str = nodeObj.nodeName()
     nm_dic = get_name_membs(nm_str,pk_sid)
@@ -264,7 +264,9 @@ def pick_side_desc(nameStr): # on the basis of current mode's name,obtain model 
     re_pick_side = re.compile('(_|\s)[r|l][0-9]*[_]?', re.I)
     if not re_pick_side.search(nameStr):
         re_pick_side = re.compile("^[rl][0-9]*[_]?", re.I)
-        if not re_pick_side.search(nameStr):  return None
+        if not re_pick_side.search(nameStr):
+            re_pick_side = re.compile('[R|L]_')
+            if not re_pick_side.search(nameStr): return None
     re_side = re.compile(u'r|l', re.I)
     re_num = re.compile(u'[0-9]+')
     side_dict = {}

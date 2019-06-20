@@ -11,46 +11,89 @@ import maya.cmds as mc
 import pymel.core as pm
 import re,os
 
-
-class Pc_scInfo(object):
-    """
+OCT_PROJ = os.getenv('OCTV_PROJECTS')
+class Ppl_scInfo(object):
+    u"""
     获取镜头文件信息
+        self.proj = None               #项目名称
+        self.ID = None                 #文件ID   shot：（集数） 场次 镜头  asset: 资产identity
+        self.projRoot_serv = None      #项目在服务器上的root目录
+        self.projPath_serv = None      # 项目工程目录（数据库）
+        self.projPath_loc = None       # 本地工程路径
+        self.cwd_local = None          # 当前文件存储路径
+        self.cwd_serv = None           # 文件服务器存储路径
+        self.sectionPart = None        # 文件类别  asset  / shot
+        self.section = None            # 环节 缩写 mo tx rg ef lg etc...
+        self.mode = ''                 # 环节描述
+        # self.destFolder = None       # checkin　目录
+        self.shotType = 2              # 镜头场次分类方式 默认是2
+
+        #===asset file informations
+        # self.assetId = None           #资产ID
+
+        self.assetPrec = None           #资产精度描述  precision : h l
+        self.category = None            #资产类型 #  asset  which one dose the assets belongs to,in character,props and set
+        self.needMatch = False          #资产文件是 是否需要 匹配检测
+        #==========read file information===================
+        self.scnm = sceneFile if sceneFile else pm.sceneName()
+        self.scbsnm = os.path.basename(self.scnm)
+        self.obtScInfo()
     """
-    def __init__(self):
-        self.modeDic = {u'mo': 'mod', u'tx': 'texture', u'rg': 'rigging', u'ms': 'master', u'an':'anim',u'sm':'simulation',u'ef':'effect',u'lg':'lighting',u'rn':'rendering'}
+    def __init__(self,sceneFile=None):
+        self.modeDic = {u'mo': 'model', u'tx': 'texture', u'rg': 'rigging', u'ms': 'master', u'an':'anim',u'sm':'simulation',u'ef':'effect',u'lg':'lighting',u'rn':'rendering',u'cc':'cache'}
+        # self.modeFolder = {u'mo':'model',u'tx':'texture',r'rg':'rigging',u'ms':'master','shot':'animation',u'an':'anim',u'cc':'cache',u'ef':'effect'}
+        self.sort = {'asset':{'ch':'characters','pr':'props','se':'sets'},'shot':{'ep':'anim','sc':'anim'}}
+        self.sectionDic = {'ch':'asset','pr':'asset','se':'asset','ep':'shot','sc':'shot'}
+        self.shtypDic = {'ep':3,'sc':2}
         #self.precisionDic = {u'lo':'l'}
         self.proj = None               #项目名称
-        self.shotId = None             #文件主题描述部分
-        self.prjPath = None  # 项目工程目录（数据库）
-        self.prjPath_loc = None  # 本地工程路径
-        self.curPath = None  # 当前文件存储路径
-        self.mode = None  # 环节描述
-        self.destFolder = None  # checkin　目录
+        self.ID = None             #文件ID   shot：（集数） 场次 镜头  asset: 资产identity
+        self.projRoot_serv = None   #项目在服务器上的root目录
+        self.projPath_serv = None  # 项目工程目录（数据库）
+        self.projPath_loc = None  # 本地工程路径
+        self.cwd_local = None  # 当前文件存储路径
+        self.cwd_serv = None  # 文件服务器存储路径
+        self.sectionPart = None  # 文件类别  asset  / shot
+        self.section = None  # 环节 缩写 mo tx rg ef lg etc...
+        self.mode = ''  # 环节描述
+        # self.destFolder = None  # checkin　目录
         self.shotType = 2  # 镜头场次分类方式 默认是2
-        self.section = None
+
         #===asset file informations
-        self.assId = None              #资产ID
-        self.assType =None             #资产类型
-        self.assPrec = None            #资产精度描述
+        # self.assetId = None              #资产ID
+
+        self.assetPrec = None            #资产精度描述  precision : h l
+        self.category = None           #资产类型 #  asset  which one dose the assets belongs to,in character,props and set
+        self.needMatch = False         #资产文件是 是否需要 匹配检测
         #==========read file information===================
+        self.scnm = sceneFile if sceneFile else pm.sceneName()
+        self.scbsnm = os.path.basename(self.scnm)
         self.obtScInfo()
     def obtScInfo(self):#获取信息的函数 并赋值
-        scnm = pm.sceneName()
+        # scnm = pm.sceneName()
         # print scnm
-        scbsnm = scnm.basename()
-        bsnm_spl = scbsnm.split(u'_')
+        scbsnm = self.scnm.basename()
+        bsnm_spl = os.path.splitext(scbsnm)[0].split(u'_')
         # print bsnm_spl
         self.proj = bsnm_spl[0]
+        self.projRoot_serv = "{}/{}".format(OCT_PROJ,self.proj)
+        self.projPath_serv = "{}/Project".format(self.projRoot_serv)
         # print bsnm_spl[1][:2]
-        if bsnm_spl[1][:2] in [u'ch',u'pr',u'se']:
-            self.section = 'asset'
-        else:
-            self.section = 'shot'
-        if self.section == 'asset':
-            self.assId = bsnm_spl[1]
+        self.projPath_loc = pm.workspace.getPath()
+        self.cwd_local = pm.workspace.getcwd()
+        id_pref = bsnm_spl[1][:2]
+        self.sectionPart = self.sectionDic[id_pref]
+        self.category = self.sort[self.sectionPart][id_pref]
+        if  self.sectionPart == 'asset':
+            self.ID = bsnm_spl[1]
             # print assId
-            self.assType = bsnm_spl[-1].split(u'.')[0]
-            self.mode = ""
-            if self.assType in self.modeDic: self.mode = self.modeDic[self.assType]
-            self.assPrec = bsnm_spl[-2]
-            #print bsnm_spl[-2]
+            self.section = bsnm_spl[3]
+            try:
+                self.mode = self.modeDic[self.section]
+            except Exception,e:
+                print(e.message)
+            self.assetPrec = bsnm_spl[2]
+            self.cwd_serv = '{}/scene/{}/{}/{}'.format(self.projPath_serv, self.sort[self.sectionPart][id_pref], self.ID, self.mode)
+            if self.category in ['character'] and self.section in [u'tx',u'rg']: self.needMatch = True
+        else:
+            self.shotType = self.shtypDic[self.category]

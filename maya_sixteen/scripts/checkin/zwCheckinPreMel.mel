@@ -2,7 +2,16 @@
 proc int PreCheckinCheckCacheSet()
 {
 	int $rs = true;
-
+    python("import OCT_Pipeline.scripts.ABC_Pipeline.ABC_CheckinInspect as chkIns");
+    python("inspc = chkIns.CheckinInspect()");
+    $res = python("inspc.checkProjStates()");
+    if ($res){
+        python("import OCT_Pipeline.scripts.Minor.Ppl_check as pchk");
+        python("reload(pchk)");
+        python("chk = pchk.Ppl_check()");
+        python("chk.abcAttrCheck()");
+        return 0;
+    }
 	string $setobjs[] = `ls -type objectSet "CACHE_OBJS"`;
 	if (!size($setobjs))
 		error "请先建立正确的名为CACHE_OBJS的SET";

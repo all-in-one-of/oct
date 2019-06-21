@@ -146,6 +146,7 @@ def makeMenu():
     mc.menuItem('ReductionFace', label=u'减面工具', ann=u'减面工具', to=True, c='OCT_mod.ReductionFace()', parent="OCT_Mod")
     mc.menuItem(d=1, parent="OCT_Mod")
     mc.menuItem('ModecleanupCheck', label=u'模型不规则检测', ann=u'检测模型的非4边面', to=True, c='mm.eval("cleanupCheck;")',parent="OCT_Mod")
+    mc.menuItem('SnapToPlane', label=u'物体吸附到平面工具', ann=u'物体吸附到平面工具', to=True, c='OCT_mod.SnapToPlane.SnapToPlane()',parent="OCT_Mod")
 
     #代理工具
     mc.menuItem(d=1, parent="OCT_ToolSetMN")

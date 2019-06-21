@@ -122,6 +122,7 @@ def pick_stuff_panel(): # 接受用户输入的 路径 和帧数，返回 帧数
     # if __name__ == "__main__":
     (p, ret) = _createPannel()
     # ==get all need frames
+    if not ret: return None
     copy2Dri = p.value('destination')
     frms = p.value('frames')
     frm_splt_comma = frms.split(',')
@@ -141,6 +142,7 @@ def main():
         nuke.message("You need to select at least one read node")
         return None
     ret = pick_stuff_panel()
+    if not ret: return None
     copy2Dri = ret['dir']
     copy2Dri = re.sub("\\\\", '/', copy2Dri)
     copy2Dri = re.sub(".$", "{}/".format(re.search(".$", copy2Dri).group()), copy2Dri)

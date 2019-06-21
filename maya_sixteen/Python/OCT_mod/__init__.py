@@ -18,6 +18,7 @@ import spPaint3dGui
 import spPaint3dContext
 import OCT_AssignRandShader_zwz
 import repairTex_YJL
+import SnapToPlane
 
 def ReductionFace():
     import ReductionFaceForHoudini

@@ -42,9 +42,10 @@ def modifyReadNode(eaRd, targDir, allFrms):
         stuff_name_spl.append("_".join(stuff_name_spl2[:-1]))
         stuff_name_spl.append(stuff_name_spl2[-1])
         stuff_name_spl.append(stuff_name_spl_tmp[-1])
+    copy2Dir=None
     for ea_frm in allFrms:
         #ea_frm = allFrms[2]
-        singleStfnm = "{}{}{}.{}".format(stuff_name_spl[0], connector, ea_frm, stuff_name_spl[2])
+        singleStfnm = "{}{}{}.{}".format(stuff_name_spl[0], connector, stuff_name_spl[1]%(ea_frm), stuff_name_spl[2])
         print singleStfnm
         src_stfnm_full = os.path.abspath(os.path.join(src_stuff_splpth[0], singleStfnm))
         # src_stfnm_full = os.path.join(r"\\192.168.80.224\Images\CDMSS\sc04\sh01\yanglei1\CDMSS_sc04_sh01_xy_color_CH_v01_fx\masterLayer\CDMSS_sc04_sh01_an_c001_cam4L\crypto_material",singleStfnm)

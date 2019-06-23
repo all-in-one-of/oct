@@ -25,7 +25,7 @@ def modifyReadNode(eaRd, targDir, allFrms):
     #idex = sc_foder_index[-1]
     #rpl_folder = "/".join(dir_splt[:idex+1])
     src_stuff_splpth = os.path.split(src_stuff)
-    cmp_stf_path = compile_path(src_stuff)
+    cmp_stf_path = compile_path2(src_stuff)
     new_stuff_path =  "{}{}".format(targDir,cmp_stf_path['makeDir'])
     new_stuff_value = "{}{}/{}".format(targDir,cmp_stf_path['makeDir'],src_stuff_splpth[-1])
     print new_stuff_path
@@ -47,19 +47,21 @@ def modifyReadNode(eaRd, targDir, allFrms):
         #ea_frm = allFrms[2]
         singleStfnm = "{}{}{}.{}".format(stuff_name_spl[0], connector, stuff_name_spl[1]%(ea_frm), stuff_name_spl[2])
         print singleStfnm
-        src_stfnm_full = os.path.abspath(os.path.join(src_stuff_splpth[0], singleStfnm))
+        src_stfnm_full = os.path.normpath(os.path.join(src_stuff_splpth[0], singleStfnm))
         # src_stfnm_full = os.path.join(r"\\192.168.80.224\Images\CDMSS\sc04\sh01\yanglei1\CDMSS_sc04_sh01_xy_color_CH_v01_fx\masterLayer\CDMSS_sc04_sh01_an_c001_cam4L\crypto_material",singleStfnm)
-        new_stf_full = os.path.abspath(os.path.join(new_stuff_path, singleStfnm))
+        new_stf_full = os.path.normpath(os.path.join(new_stuff_path, singleStfnm))
         if not os.path.isfile(src_stfnm_full) :
             #or os.path.isfile(new_stf_full): continue
             print("there is not a stuff named :{} in the source directory\n{}".format(singleStfnm,src_stuff_splpth[0]))
             continue
         #
-        copy2Dir = os.path.abspath(new_stuff_path)
+        copy2Dir = os.path.normpath(new_stuff_path)
         if not os.path.isdir(copy2Dir): os.makedirs(copy2Dir)
-        subprocess.Popen(["copy", src_stfnm_full, copy2Dir], shell=True)
-        if not os.path.isfile(new_stf_full):
-            print("file copped FAILED ------------{}".format(new_stf_full))
+        p = subprocess.Popen(["copy", src_stfnm_full, copy2Dir], shell=True)
+        p.wait()
+        checkPath = re.sub("\\\\",'/',new_stf_full)
+        if not os.path.isfile(checkPath):
+            print("file copped FAILED ------------{}".format(checkPath))
         else:
             print("file copyed frome :{}  \nto   \n{}".format(src_stfnm_full,new_stf_full))
     if not os.path.isdir(copy2Dir):
@@ -73,6 +75,7 @@ def modifyReadNode(eaRd, targDir, allFrms):
         print("set if missing  of node {}".format(eaRd.name()))
     if warnMesg != "The Following stuff not exist:": return warnMesg
     else: return None
+
 def compile_path(src_stuff):
     """
     :param src_stuff: stuffs path
@@ -114,6 +117,24 @@ def compile_path(src_stuff):
     rpl_dir = "/".join(dir_splt[:index+1])
     mk_dir =  "/".join(dir_splt[index+1:])
     return {'replace_dir':rpl_dir,'makeDir':mk_dir}
+
+def getPrjName(stufPathSpl):
+    OCTV_PROJS_PATH = r"\\octvision.com\CG\Themes"
+    PROJS = os.listdir(OCTV_PROJS_PATH)
+    intItem = set(PROJS) & set(stufPathSpl)
+    if intItem: return list(intItem)[0]
+    else: return None
+def compile_path2(src_stuff):
+    src_stuff_spl = os.path.split(src_stuff)
+    stuf_dir = src_stuff_spl[0]
+    stufPathSpl = stuf_dir.split('/')
+    PRJName = getPrjName(stufPathSpl)
+    if not PRJName:
+        return compile_path(src_stuff)
+    index = stufPathSpl.index(PRJName)
+    rpl_dir = "/".join(stufPathSpl[:index])
+    mk_dir =  "/".join(stufPathSpl[index:])
+    return {'replace_dir':rpl_dir,'makeDir':mk_dir}
 def _createPannel():# panel
     panel = nuke.Panel('PickStuffs_v01')
     panel.addFilenameSearch('destination', '/tmp')
@@ -146,6 +167,7 @@ def main():
     if not ret: return None
     copy2Dri = ret['dir']
     copy2Dri = re.sub("\\\\", '/', copy2Dri)
+    copy2Dri = re.sub("/$", "", copy2Dri)
     copy2Dri = re.sub(".$", "{}/".format(re.search(".$", copy2Dri).group()), copy2Dri)
     allFrms = ret['frms']
     warningMesgs = []

@@ -29,15 +29,15 @@ class SnapToPlane ():#line:12
         print ("Surface terrain set")#line:21
     def Snap (OOOOOO000O0OOO0O0 ,*OOO00000O0OOOOO00 ):#line:24
         O00OOO000O00O0OOO =mc .ls (sl =True )#line:25
-        mc .undoInfo (st =False )#line:26
         for O00OO000O0OOOOOO0 in O00OOO000O00O0OOO :#line:28
-            O00000OO00O00OOOO =mc .getAttr (O00OO000O0OOOOOO0 +".translate")#line:30
-            objWorldPivot = mc.xform(O00OO000O0OOOOOO0,q=True, ws=True, rp=True)[1]
-            OOOOO00O00OOO00O0 =O00OO0OO00000OO00 (OOOOOO000O0OOO0O0 .terrain [0 ],O00000OO00O00OOOO [0 ],[0 ,-1 ,0 ])#line:31
+            O00000OO00O00OOOO =mc .getAttr (O00OO000O0OOOOOO0 +".translate")[0]#line:30
+            objWorldPivot = mc.xform(O00OO000O0OOOOOO0,q=True, ws=True, rp=True)
+            OOOOO00O00OOO00O0 =O00OO0OO00000OO00 (OOOOOO000O0OOO0O0 .terrain [0 ],objWorldPivot,[0 ,-1 ,0 ])#line:31
             if OOOOO00O00OOO00O0 !=None :#line:33
                 print OOOOO00O00OOO00O0 ['hit'][1 ]
-                mc .setAttr ((O00OO000O0OOOOOO0 +".translateY"),(OOOOO00O00OOO00O0 ['hit'][1 ]+O00000OO00O00OOOO[0][1]-objWorldPivot))#line:34
-        mc .undoInfo (st =True )#line:36
+                mc .setAttr ((O00OO000O0OOOOOO0 +".translateY"),(OOOOO00O00OOO00O0 ['hit'][1 ]+O00000OO00O00OOOO[1]-objWorldPivot[1]))#line:34
+            else:
+                print 'None'
     def createWindow (O00OO0O0O00O0O000 ):#line:38
         if mc .window ("SnapToGroundTool",exists =True ):#line:40
             mc .deleteUI ("SnapToGroundTool")#line:41

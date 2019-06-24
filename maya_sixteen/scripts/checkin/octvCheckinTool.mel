@@ -450,8 +450,8 @@ global proc octvCheckinMain(string $project,string $filename,string $destFolder,
 //
 //        string $path = "//octvision.com/cg/Tech/maya_sixteen/scripts/checkin/octvCheckinCleanup.mel";
 //  modify by zhangben 2019 06 24
-		string $ResMel = `whatIs octvCheckinCleanup`;
-        string $path = `substitute "Script found in: "  $path ""`;
+		string $getMelPath = `whatIs octvCheckinCleanup`;
+        string $path = `substitute "Script found in: "  $getMelPath ""`;
 //
 		eval ("source \"" + $path + "\"");
 

@@ -591,7 +591,11 @@ global proc octvCheckinCleanup(string $args[])
 	$attached		= $args[11];
 	$desc			= `strip $args[12]`;
 	
-
+    //add by zhangben at 2019 06 18 for abc pipeline check  : character and props inspect rg and tx file match
+    python("import OCT_Pipeline.scripts.ABC_Pipeline.ABC_CheckinInspect as abcCI");
+    python("ci = abcCI.CheckinInspect()");
+    python("ci.operate()");
+    //==========================================================================================================
 	string $fileExt = fileExtension($filename);
 	
 	//判断是否有"D:/octvTemp"目录，无就创建此目录

@@ -9,8 +9,8 @@ proc int PreCheckinCheckCacheSet()
         python("import OCT_Pipeline.scripts.Minor.Ppl_check as pchk");
         python("reload(pchk)");
         python("chk = pchk.Ppl_check()");
-        python("chk.abcAttrCheck()");
-        return 0;
+        $rs =  python("chk.abcAttrCheck()");
+        return $rs;
     }
 	string $setobjs[] = `ls -type objectSet "CACHE_OBJS"`;
 	if (!size($setobjs))

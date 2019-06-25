@@ -9,10 +9,22 @@ I love animals. They taste delicious.
 """
 import maya.cmds as mc
 import pymel.core as pm
-import maya.OpenMaya as om
-import os,re,sys
+import os,re
+from ..Major import Ppl_scInfo
 
-
+def findNodeByName(oneRef,nodeName):
+    rfnd = oneRef.refNode
+    rf_nmspc = rfnd.associatedNamespace(1)
+    #rf_nmspc = oneRef.namespace
+    exact_nd_nm = "{}:{}".format(rf_nmspc,nodeName)
+    findNode = None
+    try:
+        findNode = pm.PyNode(exact_nd_nm)
+    except:
+        return None
+    if rfnd.containsNodeExactly(findNode):
+        if not findNode.getShape(): return findNode
+        else: return None
 
 def an_exp_cc(filterAttr='alembic',shotType=2,exStp=1,ref_mode = True):
     """
@@ -31,7 +43,7 @@ def an_exp_cc(filterAttr='alembic',shotType=2,exStp=1,ref_mode = True):
     # filterAttr = None
     #parse shot information
     # parse shot information
-
+    scInfo = Ppl_scInfo.Ppl_scInfo()
     if not mc.pluginInfo('KLJZ_dts.py', q=True, l=True):
         mc.loadPlugin("//octvision.com/cg/Tech/maya_sixteen/Plugins/KLJZ_dts.py")
     if not pm.pluginInfo('AbcExport', q=True, l=True):
@@ -40,9 +52,12 @@ def an_exp_cc(filterAttr='alembic',shotType=2,exStp=1,ref_mode = True):
         pm.loadPlugin('AbcImport')
     error_msg = {}
     shot_nm_bs = os.path.basename(pm.sceneName())
+    shot_dir = os.path.dirname(pm.sceneName())
     shot_nm_repr = '_'.join(shot_nm_bs.split('_')[:shotType + 1])
-    wsps_cc_dir = pm.workspace(en='cache')
-    wsps_sc_dir = pm.workspace(en='scenes')
+    # wsps_cc_dir = pm.workspace(en='cache')
+    # wsps_sc_dir = pm.workspace(en='scenes')
+    wsps_sc_dir = shot_dir
+    wsps_cc_dir = "{}/cache".format(os.path.dirname(shot_dir))
     exp_abc_dir = '{}/alembic/'.format(wsps_cc_dir)
     exp_mb_dir = "{}/mayabatchOPT/".format(wsps_sc_dir)
     st_frm = int(pm.playbackOptions(q=True, min=True))
@@ -79,15 +94,25 @@ def an_exp_cc(filterAttr='alembic',shotType=2,exStp=1,ref_mode = True):
         if filterAttr:
             if ref_mode:
                 need2cc = [e_nd.getParent().longName() for e_nd in oneRef.nodes() if e_nd.type() in [u'mesh'] and e_nd.getParent().hasAttr(filterAttr)]
+                if not need2cc:
+                    need2cc = [e_nd.getParent().longName() for e_nd in oneRef.nodes() if e_nd.type() in [u'mesh'] and not e_nd.isIntermediate()]
+
             else:
                 need2cc = [e_nd.getParent().longName() for e_nd in oneRef_top.listRelatives(c=True, type='mesh', ad=True, ni=True) if
                            e_nd.getParent().hasAttr(filterAttr)]
+                if not need2cc:
+                    need2cc = [e_nd.getParent().longName() for e_nd in oneRef_top.listRelatives(c=True, type='mesh', ni=True, ad=True)]
         else:
             if ref_mode:
                 need2cc = [e_nd.getParent().longName() for e_nd in oneRef.nodes() if e_nd.type() in [u'mesh'] and not e_nd.isIntermediate()]
             else:
                 need2cc = [e_nd.getParent().longName() for e_nd in oneRef_top.listRelatives(c=True, type='mesh', ni=True, ad=True)]
 
+        pm.select(need2cc, r=True)
+        # add by zhangben 2019 06 21  老鼠项目，要导出毛发部分
+        yetiGrp = None
+        if scInfo.proj in ['SLD']:
+            if findNodeByName(oneRef, 'yeti'):  yetiGrp = findNodeByName(oneRef, 'yeti')
         need2cc_str = "-root {}".format(' -root '.join(need2cc))
         # j_str = "-frameRange {} {} -step {} -uvWrite -writeVisibility -worldSpace {} -f {}".format(st_frm,end_frm,exStp,need2cc_str,exp_abc_nm)
         # pycmdStr = "import pymel.core as pm\ncrfrm=int(pm.currentTime())\nprint(\"...Exporting Cache on frame :{:>5}\".format(crfrm))"
@@ -112,6 +137,20 @@ def an_exp_cc(filterAttr='alembic',shotType=2,exStp=1,ref_mode = True):
             imp_cc_str = ' '.join(need2cc)
             mc.AbcImport(exp_abc_nm, mode="import", setToStartFrame=True, connect=imp_cc_str, createIfNotFound=True)
             pm.select(need2cc, r=True)
+            if yetiGrp:
+                cons_asSrc = yetiGrp.listConnections(c=True, p=True, d=True, s=False)
+                cons_asTarg = yetiGrp.listConnections(c=True, p=True, s=True, d=False)
+                if cons_asTarg:
+                    for ea_c in cons_asTarg:
+                        ea_c[1] // ea_c[0]
+                if cons_asSrc:
+                    for ea_c in cons_asTarg:
+                        ea_c[0] // ea_c[1]
+
+                yetiGrp.attr('visibility').set(1)
+                for ea in yetiGrp.listRelatives(ad=True, c=True, type='pgYetiMaya'):
+                    ea.getParent().attr('visibility').set(1)
+                pm.select(yetiGrp,add=True)
             pm.exportSelected(exp_mb_nm, f=True, options="v=0", type="mayaBinary", pr=True, es=True)
             print("===> Cache exported to :{}{}===> MB File exported to :{}{}".format(exp_abc_nm,os.linesep,exp_mb_nm,os.linesep))
     if error_msg != {}:

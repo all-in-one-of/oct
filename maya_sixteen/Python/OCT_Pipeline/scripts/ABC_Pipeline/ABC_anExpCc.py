@@ -11,6 +11,7 @@ import maya.cmds as mc
 import pymel.core as pm
 import os,re
 from ..Major import Ppl_scInfo
+from ..utility import Kits4maya
 def findNodeByName(oneRef,nodeName):
     rfnd = oneRef.refNode
     rf_nmspc = rfnd.associatedNamespace(1)
@@ -43,6 +44,7 @@ def an_exp_cc(filterAttr='alembic',exStp=1,ref_mode = True):
     # parse shot information
     STORDATE = {}
     scInfo = Ppl_scInfo.Ppl_scInfo()
+    k4m = Kits4maya.Kits4maya()
     if not mc.pluginInfo('KLJZ_dts.py', q=True, l=True):
         mc.loadPlugin("//octvision.com/cg/Tech/maya_sixteen/Plugins/KLJZ_dts.py")
     if not pm.pluginInfo('AbcExport', q=True, l=True):
@@ -139,6 +141,11 @@ def an_exp_cc(filterAttr='alembic',exStp=1,ref_mode = True):
             oneRef.importContents()
         pm.select(STORDATE[eaTopNm]['need2cc'], r=True)
         pm.delete(ch=True)
+        for ea_trn in STORDATE[eaTopNm]['need2cc']:
+            ea_mesh = pm.PyNode(ea_trn).getShape()
+            if ea_mesh.listConnections(type="pgYetiGroom"):continue
+            ea_con_sg = ea_mesh.shadingGroups()
+            k4m.power_disconect(ea_mesh,ea_con_sg)
         # import cache
         all_Grps = [ea for ea in oneRef_top.listRelatives(ad=True,type='transform',c=True) if not ea.getShape()]
         for eaGrp in all_Grps:
@@ -174,7 +181,7 @@ def an_exp_cc(filterAttr='alembic',exStp=1,ref_mode = True):
             print ("\t{}\t{}".format(e_error,error_msg[e_error]))
         mc.warning(">>>There happen some issues while performming task : {} , list the error codes{}".format(shot_nm_bs, os.linesep))
     else:
-        print("{0}>>>CACHE EXPORTED!!!!{0}".format(os.linesep))
+        print("{0}>>>CACHE EXPORTED!!!!{0}\tCache Start Frame : {1}  Cache End Frame : {2}".format(os.linesep,st_frm,end_frm))
 
 
 

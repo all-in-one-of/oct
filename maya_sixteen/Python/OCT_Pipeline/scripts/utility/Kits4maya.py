@@ -7,11 +7,9 @@ __mtime__ = 2019/4/2 : 9:55
 # code is far away from bugs with the god animal protecting
 I love animals. They taste delicious.
 """
-import os,re,sys
+import os,re
 import pymel.core as pm
 import maya.cmds as mc
-import maya.mel as mel
-import maya.OpenMaya as om
 
 
 class Kits4maya(object):
@@ -53,60 +51,7 @@ class Kits4maya(object):
         if txf_pth == src:return None
         else: return txf_pth
 
-    def recover_ref_mat(self):
-        sel_nods = pm.selected()
-        sel_refs = [eas.referenceFile() for eas in sel_nods if eas.isReferenced()]
-        sel_refs = [sel_refs[n] for n in range(len(sel_refs)) if sel_refs[n] not in sel_refs[:n]]
-        need_new_ref_pth = {}
-        for ea_ref in sel_refs:
-            ref_file = ea_ref.path.strip()
-            ref_nsp = ea_ref.namespace
-            ref_anew = None
-            if ref_file not in need_new_ref_pth:
-                ref_anew = pm.createReference(ref_file,namespace='ReMat_{}'.format(ref_nsp))
-                need_new_ref_pth[ref_file] = ref_anew
-            else:
-                ref_anew = need_new_ref_pth[ref_file]
-            new_ref_nods = ref_anew.nodes()
-            new_ref_nsp = ref_anew.namespace
-            bb = new_ref_nods[15]
-            faileds = self.failed_nodeplugs(ea_ref)
-            for a_cmd in faileds:
-                # a_cmd = faileds[1]
-                nd = a_cmd['node']
-                nd_nm = nd.nodeName(stripNamespace=True)
-                nd_plg = a_cmd['plug']
-
-                nd_plg_attr_nm = nd_plg.attrName(longName=True)
-                nd_plg_attr_nm_str = '.{}'.format(".".join(nd_plg.name().split('.')[1:]))
-
-                nd_plg_con2 = nd_plg.listConnections(p=True, d=True, s=False)[0]
-                nd_plg_con2_nm_str = '.{}'.format(".".join(nd_plg_con2.name().split('.')[1:]))
-
-                nd_plg_conS = nd_plg.listConnections(p=True, c=True)[0]
-
-                newRef_nd = self.nodeTest(ref_anew, nd_nm)
-                newRef_attr = newRef_nd.attr(nd_plg_attr_nm)
-                # destinate plug
-                newRef_plg_con2 = newRef_attr.listConnections(d=True, p=True)
-                if not newRef_plg_con2:
-                    mc.warning(">>> newRef_attr has no connected!!!!!")
-                else:
-                    newRef_plg_con2 = newRef_plg_con2[0]
-                newRef_plg_con2_node = newRef_plg_con2.node()
-                newRef_plg_con2_nm_str = '.{}'.format(".".join(newRef_plg_con2.name().split('.')[1:]))
-                newRef_ndAttr = "{}{}".format(newRef_plg_con2_node.name(stripNamespace=True), newRef_plg_con2_nm_str)
-                # source plug
-                newRef_plg_conS = newRef_attr.listConnections(c=True, p=True)[0]
-                newRef_plg_con_attr = [ea_plg for ea_plg in newRef_plg_conS if ea_plg != newRef_plg_con2][0]
-                newRef_plg_con_attr_nm_str = '.{}'.format(".".join(newRef_plg_con_attr.name().split('.')[1:]))
-                find_targ = self.find_node(ea_ref, newRef_ndAttr)
-                if not find_targ: continue
-                con2 = find_targ['nd'].attr(find_targ['attr'])
-                nd_plg_conS[0] // nd_plg_conS[1]
-                nd_plg_conS[0] >> con2
-        for ea in need_new_ref_pth:
-            need_new_ref_pth[ea].remove
+    #
 
     def nodeTest(self,ref, kwd):
         res = ''
@@ -234,6 +179,121 @@ class Kits4maya(object):
                         n_src_pls = n_ctrl.attr(o_src_pls_nm)
                         o_src_pls //  o_targ_pls
                         n_src_pls >> o_targ_pls
+
+    def power_disconect(self,node, remain=None, remainSide='both'):  # 打断属性链接
+        remain_category = None
+        if isinstance(remain, str):
+            remain_category = remain.__class__.__name__
+        elif isinstance(remain, list):
+            remain_category = remain[0].__class__.__name__
+        shp_cons_asSrc = node.listConnections(p=True, c=True, d=True, s=False)
+        shp_cons_asDest = node.listConnections(p=True, c=True, d=False, s=True)
+        if shp_cons_asSrc:
+            for ea_c in shp_cons_asSrc:
+                # holdTgl = False
+                if remain_category == 'Attribute':
+                    if remainSide == 'both':
+                        if ea_c[0] in remain or ea_c[1] in remain: continue
+                    elif remainSide == 'self':
+                        if ea_c[0] in remain: continue
+                    elif remainSide == 'other':
+                        if ea_c[1] in remain: continue
+                elif remain_category in ['str', 'unicode']:
+                    if remainSide == 'both':
+                        if ea_c[0].attrName() in remain or ea_c[0].attrName(longName=True) in remain: continue
+                        if ea_c[0].name() in remain or ea_c[0].attrName(longName=True) in remain: continue
+                    elif remainSide == 'self':
+                        if ea_c[0].name() in remain or ea_c[0].attrName(longName=True) in remain: continue
+                    elif remainSide == 'other':
+                        if ea_c[1].name() in remain or ea_c[1].attrName(longName=True) in remain: continue
+                elif remain_category and remain_category not in ['Attribute', 'str', 'unicode']:
+                    if ea_c[1].node() in remain: continue
+
+                try:
+                    ea_c[0] // ea_c[1]
+                except:
+                    pass
+        if shp_cons_asDest:
+            for ea_c in shp_cons_asDest:
+                # holdTgl = False
+                if remain_category == 'Attribute':
+                    if remainSide == 'both':
+                        if ea_c[1] in remain or ea_c[0] in remain: continue
+                    elif remainSide == 'self':
+                        if ea_c[1] in remain: continue
+                    elif remainSide == 'other':
+                        if ea_c[0] in remain: continue
+                elif remain_category in ['str', 'unicode']:
+                    if remainSide == 'both':
+                        if ea_c[1].attrName() in remain or ea_c[1].attrName(longName=True) in remain: continue
+                        if ea_c[1].name() in remain or ea_c[1].attrName(longName=True) in remain: continue
+                    elif remainSide == 'self':
+                        if ea_c[1].name() in remain or ea_c[1].attrName(longName=True) in remain: continue
+                    elif remainSide == 'other':
+                        if ea_c[0].name() in remain or ea_c[0].attrName(longName=True) in remain: continue
+                elif remain_category and remain_category not in ['Attribute', 'str', 'unicode']:
+                    if ea_c[0].node() in remain: continue
+                try:
+                    ea_c[1] // ea_c[0]
+                except:
+                    pass
+
+    #def recover_ref_mat(self):
+
+    # sel_nods = pm.selected()
+    #     sel_refs = [eas.referenceFile() for eas in sel_nods if eas.isReferenced()]
+    #     sel_refs = [sel_refs[n] for n in range(len(sel_refs)) if sel_refs[n] not in sel_refs[:n]]
+    #     need_new_ref_pth = {}
+    #     for ea_ref in sel_refs:
+    #         ref_file = ea_ref.path.strip()
+    #         ref_nsp = ea_ref.namespace
+    #         ref_anew = None
+    #         if ref_file not in need_new_ref_pth:
+    #             ref_anew = pm.createReference(ref_file,namespace='ReMat_{}'.format(ref_nsp))
+    #             need_new_ref_pth[ref_file] = ref_anew
+    #         else:
+    #             ref_anew = need_new_ref_pth[ref_file]
+    #         new_ref_nods = ref_anew.nodes()
+    #         new_ref_nsp = ref_anew.namespace
+    #         bb = new_ref_nods[15]
+    #         faileds = self.failed_nodeplugs(ea_ref)
+    #         for a_cmd in faileds:
+    #             # a_cmd = faileds[1]
+    #             nd = a_cmd['node']
+    #             nd_nm = nd.nodeName(stripNamespace=True)
+    #             nd_plg = a_cmd['plug']
+    #
+    #             nd_plg_attr_nm = nd_plg.attrName(longName=True)
+    #             nd_plg_attr_nm_str = '.{}'.format(".".join(nd_plg.name().split('.')[1:]))
+    #
+    #             nd_plg_con2 = nd_plg.listConnections(p=True, d=True, s=False)[0]
+    #             nd_plg_con2_nm_str = '.{}'.format(".".join(nd_plg_con2.name().split('.')[1:]))
+    #
+    #             nd_plg_conS = nd_plg.listConnections(p=True, c=True)[0]
+    #
+    #             newRef_nd = self.nodeTest(ref_anew, nd_nm)
+    #             newRef_attr = newRef_nd.attr(nd_plg_attr_nm)
+    #             # destinate plug
+    #             newRef_plg_con2 = newRef_attr.listConnections(d=True, p=True)
+    #             if not newRef_plg_con2:
+    #                 mc.warning(">>> newRef_attr has no connected!!!!!")
+    #             else:
+    #                 newRef_plg_con2 = newRef_plg_con2[0]
+    #             newRef_plg_con2_node = newRef_plg_con2.node()
+    #             newRef_plg_con2_nm_str = '.{}'.format(".".join(newRef_plg_con2.name().split('.')[1:]))
+    #             newRef_ndAttr = "{}{}".format(newRef_plg_con2_node.name(stripNamespace=True), newRef_plg_con2_nm_str)
+    #             # source plug
+    #             newRef_plg_conS = newRef_attr.listConnections(c=True, p=True)[0]
+    #             newRef_plg_con_attr = [ea_plg for ea_plg in newRef_plg_conS if ea_plg != newRef_plg_con2][0]
+    #             newRef_plg_con_attr_nm_str = '.{}'.format(".".join(newRef_plg_con_attr.name().split('.')[1:]))
+    #             find_targ = self.find_node(ea_ref, newRef_ndAttr)
+    #             if not find_targ: continue
+    #             con2 = find_targ['nd'].attr(find_targ['attr'])
+    #             nd_plg_conS[0] // nd_plg_conS[1]
+    #             nd_plg_conS[0] >> con2
+    #     for ea in need_new_ref_pth:
+    #         need_new_ref_pth[ea].remove
+
 
     # def failed_nodeplugs(self,ea_ref, melCmd='disconnectAttr', cmdArgs=['-na'], searchKwd='.instObjGroups'):
     #     # ea_ref = refs[1]

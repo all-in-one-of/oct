@@ -7,7 +7,6 @@ __mtime__ = 2018/12/6:17:26
 # code is far away from bugs with the god animal protecting
 I love animals. They taste delicious.
 """
-import maya.cmds as mc
 import pymel.core as pm
 import re,os
 
@@ -42,7 +41,7 @@ class Ppl_scInfo(object):
     def __init__(self,sceneFile=None):
         self.modeDic = {u'mo': 'model', u'tx': 'texture', u'rg': 'rigging', u'ms': 'master', u'an':'anim',u'sm':'simulation',u'ef':'effect',u'lg':'lighting',u'rn':'rendering',u'cc':'cache'}
         # self.modeFolder = {u'mo':'model',u'tx':'texture',r'rg':'rigging',u'ms':'master','shot':'animation',u'an':'anim',u'cc':'cache',u'ef':'effect'}
-        self.sort = {'asset':{'ch':'characters','pr':'props','se':'sets'},'shot':{'ep':'anim','sc':'anim'}}
+        self.sort = {'asset':{'ch':'characters','pr':'props','se':'sets'},'shot':{'ep':'animation','sc':'animation'}}
         self.sectionDic = {'ch':'asset','pr':'asset','se':'asset','ep':'shot','sc':'shot'}
         self.shtypDic = {'ep':3,'sc':2}
         #self.precisionDic = {u'lo':'l'}
@@ -58,7 +57,8 @@ class Ppl_scInfo(object):
         self.mode = ''  # 环节描述
         # self.destFolder = None  # checkin　目录
         self.shotType = 2  # 镜头场次分类方式 默认是2
-
+        self.descr = None
+        self.edition = None
         #===asset file informations
         # self.assetId = None              #资产ID
 
@@ -72,28 +72,58 @@ class Ppl_scInfo(object):
     def obtScInfo(self):#获取信息的函数 并赋值
         # scnm = pm.sceneName()
         # print scnm
-        scbsnm = self.scnm.basename()
-        bsnm_spl = os.path.splitext(scbsnm)[0].split(u'_')
+        # scbsnm = self.scnm.basename()
+        bsnm_spl = os.path.splitext(self.scbsnm)[0].split(u'_')
         # print bsnm_spl
+        setValue = []
         self.proj = bsnm_spl[0]
+        setValue.append(self.proj)
         self.projRoot_serv = "{}/{}".format(OCT_PROJ,self.proj)
         self.projPath_serv = "{}/Project".format(self.projRoot_serv)
         # print bsnm_spl[1][:2]
         self.projPath_loc = pm.workspace.getPath()
-        self.cwd_local = pm.workspace.getcwd()
+        self.cwd_local = os.path.dirname(self.scnm)
         id_pref = bsnm_spl[1][:2]
         self.sectionPart = self.sectionDic[id_pref]
         self.category = self.sort[self.sectionPart][id_pref]
-        if  self.sectionPart == 'asset':
+        if self.sectionPart == 'asset':
             self.ID = bsnm_spl[1]
-            # print assId
-            self.section = bsnm_spl[3]
-            try:
-                self.mode = self.modeDic[self.section]
-            except Exception,e:
-                print(e.message)
-            self.assetPrec = bsnm_spl[2]
-            self.cwd_serv = '{}/scene/{}/{}/{}'.format(self.projPath_serv, self.sort[self.sectionPart][id_pref], self.ID, self.mode)
-            if self.category in ['character'] and self.section in [u'tx',u'rg']: self.needMatch = True
+            setValue.append(self.ID)
+            for eaIt in bsnm_spl:
+                if eaIt in ['h','l','m']:
+                    self.assetPrec = eaIt
+                    setValue.append(self.assetPrec)
+                if eaIt in self.modeDic:
+                    self.section = eaIt
+                    setValue.append(self.section)
+                    self.mode = self.modeDic[eaIt]
+            if len(bsnm_spl) >= 5:
+                if re.search("c?\d*$", bsnm_spl[-1]):
+                    self.edition = re.search("c?\d*$", bsnm_spl[-1]).group()
+                    setValue.append(self.edition)
+                if set(setValue) ^ set(bsnm_spl):
+                    self.descr = list(set(setValue) ^ set(bsnm_spl))[0]
+            self.cwd_serv = '{}/scenes/{}/{}/{}'.format(self.projPath_serv, self.sort[self.sectionPart][id_pref], self.ID, self.mode)
+            if self.category in ['characters'] and self.section in [u'tx',u'rg']: self.needMatch = True
         else:
-            self.shotType = self.shtypDic[self.category]
+            self.shotType = self.shtypDic[id_pref]
+            self.ID = "_".join(bsnm_spl[1:self.shotType+1])
+            setValue.extend(bsnm_spl[1:self.shotType+1])
+            ID_path = "/".join(bsnm_spl[1:self.shotType+1])
+            section_indx = None
+            for eaIt in bsnm_spl:
+                if eaIt in self.modeDic:
+                    self.section = eaIt
+                    setValue.append(self.section)
+                    self.mode = self.modeDic[self.section]
+                    section_indx = bsnm_spl.index(eaIt)
+            if len(bsnm_spl) > self.shotType+2:
+                if re.search("c?\d*$", bsnm_spl[-1]):
+                    self.edition = re.search("c?\d*$", bsnm_spl[-1]).group()
+                    setValue.append(self.edition)
+                if set(setValue) ^ set(bsnm_spl):
+                    diff = list(set(setValue) ^ set(bsnm_spl))
+                    for ea in diff:
+                        diff_indx = bsnm_spl.index(ea)
+                        if diff_indx == section_indx -1: self.descr = ea
+            self.cwd_serv = '{}/scene/{}/{}/{}'.format(self.projPath_serv, self.sort[self.sectionPart][id_pref],ID_path,self.mode)

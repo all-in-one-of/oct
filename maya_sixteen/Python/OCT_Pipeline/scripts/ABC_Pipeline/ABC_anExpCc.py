@@ -12,6 +12,7 @@ import pymel.core as pm
 import os,re
 from ..Major import Ppl_scInfo
 from ..utility import Kits4maya
+
 def findNodeByName(oneRef,nodeName):
     rfnd = oneRef.refNode
     rf_nmspc = rfnd.associatedNamespace(1)
@@ -67,6 +68,8 @@ def an_exp_cc(filterAttr='alembic',exStp=1,ref_mode = True):
     # for each reference
     proc_grps = pm.selected() if not ref_mode else pm.listReferences()
     # oneRef = proc_grps[-1]
+    if not proc_grps:  proc_grps = get_chprGrp(scInfo.proj)
+    if not proc_grps: pm.error(u"程序没有找到需要做缓存的角色或道具组,请检查角色或者道具组的namespace是否正确。")
     for oneRef in proc_grps:
         ref_nsp = oneRef.namespace().strip(':') if not ref_mode else oneRef.namespace
         oneRef_top = None
@@ -184,6 +187,8 @@ def an_exp_cc(filterAttr='alembic',exStp=1,ref_mode = True):
     else:
         print("{0}>>>CACHE EXPORTED!!!!{0}\tCache Start Frame : {1}  Cache End Frame : {2}".format(os.linesep,st_frm,end_frm))
 
-
-
-
+def get_chprGrp(projName):
+    re_chprGrp = re.compile("^({0}_ch)|({0}_pr)".format(projName))
+    allGrps = [ea for ea in pm.ls(type='transform') if not ea.getShape() and ea.name(stripNamespace=True).lower() == "allanim"]
+    chprGrps = [ea for ea in allGrps if re_chprGrp.search(ea.namespace())]
+    return chprGrps

@@ -177,15 +177,16 @@ class Kits4maya(object):
                         if o_src_nd != o_ctrl: continue
                         o_src_pls_nm = ".".join(o_src_pls.name().split('.')[1:])
                         n_src_pls = n_ctrl.attr(o_src_pls_nm)
-                        o_src_pls //  o_targ_pls
+                        o_src_pls // o_targ_pls
                         n_src_pls >> o_targ_pls
 
     def power_disconect(self,node, remain=None, remainSide='both'):  # 打断属性链接
         remain_category = None
-        if isinstance(remain, str):
-            remain_category = remain.__class__.__name__
-        elif isinstance(remain, list):
-            remain_category = remain[0].__class__.__name__
+        if remain:
+            if isinstance(remain, str):
+                remain_category = remain.__class__.__name__
+            elif isinstance(remain, list):
+                remain_category = remain[0].__class__.__name__
         shp_cons_asSrc = node.listConnections(p=True, c=True, d=True, s=False)
         shp_cons_asDest = node.listConnections(p=True, c=True, d=False, s=True)
         if shp_cons_asSrc:

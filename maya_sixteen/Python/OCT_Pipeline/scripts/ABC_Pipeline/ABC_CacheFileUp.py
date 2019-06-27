@@ -51,6 +51,7 @@ class ABC_CacheFileUp(QtGui.QDialog):
         mc.progressWindow(title=u'上传cache文件', status=u'开始上传', isInterruptable=True)
         self.getAlembicCache()
         self.copyTxsFile()
+        self.addVideo()
         self.saveFile()
         mc.progressWindow(endProgress=True)
         self.insertData()
@@ -96,18 +97,28 @@ class ABC_CacheFileUp(QtGui.QDialog):
         else:
             mc.error(u"文件命名错误，请根据环节正确命名！")
 
+    def addVideo(self):
         #判断是否存在同名的视频文件就上传，无就忽略
-        # flag = False
-        # for video in self.videoFileType:
-        #     videoName = self.fileName.replace(self.ext, video)
-        #     if os.path.isfile(videoName):
-        #         self.videoFile = videoName
-        #         flag = True
-        #         break
-        # if not flag:
-        #     self.videoFile = ""
+        flag = False
+        videoName = ""
+        for video in self.videoFileType:
+            videoName = self.fileName.replace(self.ext, video)
+            if os.path.isfile(videoName):
+                flag = True
+                break
+        if flag:
+            db = "dbo.filesystem_upload"
+            v_ext = os.path.splitext(videoName)[-1]
+            buf = self.upfilename.split("_")
+            videoFileName = "%s%s"%("_".join(buf[0:-1]), v_ext)
+            self.videoFile = os.path.join(self.destFolder, videoFileName).replace("/", "\\")
+            videoName = videoName.replace("/", "\\")
+            self.getCopyFile(videoName, self.videoFile)
 
+            self.videoFile = self.videoFile.replace("\\", "/")
 
+            octvDB.delTextureDB(db, videoFileName)
+            octvDB.insertAnimationDB(db, videoFileName, self.videoFile, self.proj, buf[1], buf[2], '1', "animation", self.mode)
 
     def saveFile(self):
         localTemp = r"D:\octvTemp"
@@ -251,6 +262,15 @@ class ABC_CacheFileUp(QtGui.QDialog):
         for key in setData.keys():
             mc.setAttr("{}.fileTextureName".format(key), setData[key], type="string")
 
+    # 拷贝文件
+    def getCopyFile(self, filePathName, masterFilePath):
+        cmd = r'%s -u %s -p %s -ex  "COPY /Y  %s %s" -lwp -c -nowarn -wait' % (
+        self.cpauPath, RE_USER, RE_PWD, filePathName, masterFilePath)
+        p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+        while True:
+            if not p.poll() is None:
+                del p
+                break
 
     # 创建备份文件夹
     def getCreateDir(self, dirBackPath):

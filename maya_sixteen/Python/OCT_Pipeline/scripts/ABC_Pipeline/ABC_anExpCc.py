@@ -141,11 +141,12 @@ def an_exp_cc(filterAttr='alembic',exStp=1,ref_mode = True):
             oneRef.importContents()
         pm.select(STORDATE[eaTopNm]['need2cc'], r=True)
         pm.delete(ch=True)
-        for ea_trn in STORDATE[eaTopNm]['need2cc']:
-            ea_mesh = pm.PyNode(ea_trn).getShape()
-            if ea_mesh.listConnections(type="pgYetiGroom"):continue
-            ea_con_sg = ea_mesh.shadingGroups()
-            k4m.power_disconect(ea_mesh,ea_con_sg)
+        if scInfo.proj in ["SLD"]:
+            for ea_trn in STORDATE[eaTopNm]['need2cc']:
+                ea_mesh = pm.PyNode(ea_trn).getShape()
+                if ea_mesh.listConnections(type="pgYetiGroom"):continue
+                ea_con_sg = ea_mesh.shadingGroups()
+                k4m.power_disconect(ea_mesh,ea_con_sg)
         # import cache
         all_Grps = [ea for ea in oneRef_top.listRelatives(ad=True,type='transform',c=True) if not ea.getShape()]
         for eaGrp in all_Grps:

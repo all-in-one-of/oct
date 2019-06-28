@@ -68,7 +68,9 @@ def an_exp_cc(filterAttr='alembic',exStp=1,ref_mode = True):
     # for each reference
     proc_grps = pm.selected() if not ref_mode else pm.listReferences()
     # oneRef = proc_grps[-1]
-    if not proc_grps:  proc_grps = get_chprGrp(scInfo.proj)
+    if not proc_grps:
+        proc_grps = get_chprGrp(scInfo.proj)
+        ref_mode = False
     if not proc_grps: pm.error(u"程序没有找到需要做缓存的角色或道具组,请检查角色或者道具组的namespace是否正确。")
     for oneRef in proc_grps:
         ref_nsp = oneRef.namespace().strip(':') if not ref_mode else oneRef.namespace

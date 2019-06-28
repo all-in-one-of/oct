@@ -68,12 +68,13 @@ class Ppl_scInfo(object):
         #==========read file information===================
         self.scnm = sceneFile if sceneFile else pm.sceneName()
         self.scbsnm = os.path.basename(self.scnm)
+        self.scbsnmStrip = os.path.splitext(self.scbsnm)[0]
         self.obtScInfo()
     def obtScInfo(self):#获取信息的函数 并赋值
         # scnm = pm.sceneName()
         # print scnm
         # scbsnm = self.scnm.basename()
-        bsnm_spl = os.path.splitext(self.scbsnm)[0].split(u'_')
+        bsnm_spl = self.scbsnmStrip.split(u'_')
         # print bsnm_spl
         setValue = []
         self.proj = bsnm_spl[0]
@@ -111,16 +112,19 @@ class Ppl_scInfo(object):
             setValue.extend(bsnm_spl[1:self.shotType+1])
             ID_path = "/".join(bsnm_spl[1:self.shotType+1])
             section_indx = None
+            sections = []
             for eaIt in bsnm_spl:
-                if eaIt in self.modeDic:
-                    self.section = eaIt
-                    setValue.append(self.section)
-                    self.mode = self.modeDic[self.section]
-                    section_indx = bsnm_spl.index(eaIt)
+                if eaIt in self.modeDic: sections.append(eaIt)
+            self.section = sections[-1]
+            setValue.append(self.section)
+            self.mode = self.modeDic[self.section]
+            section_indx = bsnm_spl.index(sections[-1])
+            # print setValue
             if len(bsnm_spl) > self.shotType+2:
                 if re.search("c?\d+$", bsnm_spl[-1]):
                     self.edition = re.search("c?\d+$", bsnm_spl[-1]).group()
                     setValue.append(self.edition)
+                    # print setValue
                 if set(setValue) ^ set(bsnm_spl):
                     diff = list(set(setValue) ^ set(bsnm_spl))
                     print(diff)
@@ -128,5 +132,7 @@ class Ppl_scInfo(object):
                         for ea in diff:
                             if not ea: continue
                             diff_indx = bsnm_spl.index(ea)
+                            # print diff_indx
+                            # print section_indx
                             if diff_indx == section_indx -1: self.descr = ea
             self.cwd_serv = '{}/scene/{}/{}/{}'.format(self.projPath_serv, self.sort[self.sectionPart][id_pref],ID_path,self.mode)

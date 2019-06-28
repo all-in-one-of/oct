@@ -62,7 +62,8 @@ def an_exp_cc(filterAttr='alembic',exStp=1,ref_mode = True):
     wsps_sc_dir = shot_dir
     wsps_cc_dir = "{}/cache".format(scInfo.projPath_loc)
     exp_abc_dir = '{}/alembic/'.format(wsps_cc_dir)
-    exp_mb_dir = "{}/mayabatchOPT/".format(wsps_sc_dir)
+    exp_mb_dir = "{}/mayabatchOPT/{}/".format(wsps_sc_dir,scInfo.scbsnmStrip)
+    if not os.path.isdir(exp_mb_dir):os.makedirs(exp_mb_dir)
     st_frm = int(pm.playbackOptions(q=True, min=True))
     end_frm = int(pm.playbackOptions(q=True, max=True))
     # for each reference

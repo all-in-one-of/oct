@@ -118,12 +118,15 @@ class Ppl_scInfo(object):
                     self.mode = self.modeDic[self.section]
                     section_indx = bsnm_spl.index(eaIt)
             if len(bsnm_spl) > self.shotType+2:
-                if re.search("c?\d*$", bsnm_spl[-1]):
-                    self.edition = re.search("c?\d*$", bsnm_spl[-1]).group()
+                if re.search("c?\d+$", bsnm_spl[-1]):
+                    self.edition = re.search("c?\d+$", bsnm_spl[-1]).group()
                     setValue.append(self.edition)
                 if set(setValue) ^ set(bsnm_spl):
                     diff = list(set(setValue) ^ set(bsnm_spl))
-                    for ea in diff:
-                        diff_indx = bsnm_spl.index(ea)
-                        if diff_indx == section_indx -1: self.descr = ea
+                    print(diff)
+                    if diff:
+                        for ea in diff:
+                            if not ea: continue
+                            diff_indx = bsnm_spl.index(ea)
+                            if diff_indx == section_indx -1: self.descr = ea
             self.cwd_serv = '{}/scene/{}/{}/{}'.format(self.projPath_serv, self.sort[self.sectionPart][id_pref],ID_path,self.mode)

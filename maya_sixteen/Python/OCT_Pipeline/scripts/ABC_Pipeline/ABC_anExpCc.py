@@ -105,20 +105,19 @@ def an_exp_cc(filterAttr='alembic',exStp=1,ref_mode = True,doCache=True):
         if filterAttr:
             if ref_mode:
                 need2cc = [e_nd.getParent().longName() for e_nd in oneRef.nodes() if e_nd.type() in [u'mesh'] and e_nd.getParent().hasAttr(filterAttr)]
-                if need2cc: need2cc.sort()
-                else:
+                if not need2cc:
                     need2cc = [e_nd.getParent().longName() for e_nd in oneRef.nodes() if e_nd.type() in [u'mesh'] and not e_nd.isIntermediate()]
             else:
                 need2cc = [e_nd.getParent().longName() for e_nd in oneRef_top.listRelatives(c=True, type='mesh', ad=True, ni=True) if
                            e_nd.getParent().hasAttr(filterAttr)]
-                if need2cc: need2cc.sort()
-                else:
+                if not need2cc:
                     need2cc = [e_nd.getParent().longName() for e_nd in oneRef_top.listRelatives(c=True, type='mesh', ni=True, ad=True)]
         else:
             if ref_mode:
                 need2cc = [e_nd.getParent().longName() for e_nd in oneRef.nodes() if e_nd.type() in [u'mesh'] and not e_nd.isIntermediate()]
             else:
                 need2cc = [e_nd.getParent().longName() for e_nd in oneRef_top.listRelatives(c=True, type='mesh', ni=True, ad=True)]
+        need2cc.sort()
         pm.select(need2cc, r=True)
         # add by zhangben 2019 06 21  老鼠项目，要导出毛发部分
         yetiGrp = None

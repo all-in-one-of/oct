@@ -81,8 +81,10 @@ global proc int mayabatchCmdPerform(string $path,int $batchID)
 	else if ($batchID == 0003){
         file -force -loadReferenceDepth "all" -open $path;
         python("import OCT_Pipeline.scripts.ABC_Pipeline.ABC_anExpCc as abcan");
+//        print("ancc.__file__");
         python("reload(abcan)");
-        python("abcan.an_exp_cc(None)");
+        python("print(abcan.an_exp_cc.__doc__)");
+        python("abcan.an_exp_cc(\"alembic\")");
 //        file -rename "E:\\work\\JMWC\\csenes\\del_meshes_done.mb";
 	    }
 

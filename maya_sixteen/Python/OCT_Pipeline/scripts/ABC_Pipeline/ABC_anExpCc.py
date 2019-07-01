@@ -26,9 +26,12 @@ def findNodeByName(oneRef,nodeName):
     if rfnd.containsNodeExactly(findNode):
         if not findNode.getShape(): return findNode
         else: return None
-def an_exp_cc(filterAttr='alembic',exStp=1,ref_mode = True):
+def an_exp_cc(filterAttr='alembic',exStp=1,ref_mode = True,doCache=True):
+
     """
-    针对当前的流程 提供给maya 批处理完成的 对动画文件输出缓存的 版本
+    modify  date : 2019 07 01
+    aim at current pipeline ,provide procedure to  maya batch tools to proceess animation file output alembic cache
+
     AbcExport -j "-frameRange 1000 1100 -ro -uvWrite -worldSpace -writeVisibility -dataFormat ogawa -root |basGrp|cube|pCube1 -root |basGrp|ball|pSphere1 -root |basGrp|pPlane1 -file E:/work/JMWC/cache/alembic/aaassss.abc";
 
 
@@ -102,12 +105,14 @@ def an_exp_cc(filterAttr='alembic',exStp=1,ref_mode = True):
         if filterAttr:
             if ref_mode:
                 need2cc = [e_nd.getParent().longName() for e_nd in oneRef.nodes() if e_nd.type() in [u'mesh'] and e_nd.getParent().hasAttr(filterAttr)]
-                if not need2cc:
+                if need2cc: need2cc.sort()
+                else:
                     need2cc = [e_nd.getParent().longName() for e_nd in oneRef.nodes() if e_nd.type() in [u'mesh'] and not e_nd.isIntermediate()]
             else:
                 need2cc = [e_nd.getParent().longName() for e_nd in oneRef_top.listRelatives(c=True, type='mesh', ad=True, ni=True) if
                            e_nd.getParent().hasAttr(filterAttr)]
-                if not need2cc:
+                if need2cc: need2cc.sort()
+                else:
                     need2cc = [e_nd.getParent().longName() for e_nd in oneRef_top.listRelatives(c=True, type='mesh', ni=True, ad=True)]
         else:
             if ref_mode:
@@ -123,61 +128,64 @@ def an_exp_cc(filterAttr='alembic',exStp=1,ref_mode = True):
         j_str = "-frameRange {} {} -step {} -uvWrite -writeVisibility -worldSpace {} -f {} -pythonPerFrameCallBack \"print(\\\"...Writing Cache...\\\")\"".format(st_frm, end_frm,
                                                                                                                                              exStp, need2cc_str,
                                                                                                                                              exp_abc_nm)
-        try:
-            mc.AbcExport(j=j_str)
-        except BaseException,e:
-            error_msg[oneRef_top.nodeName()] = e.message
+        if doCache:
+            try:
+                mc.AbcExport(j=j_str)
+                print(">>>Cache Generated on disk---{}".format(exp_abc_nm))
+            except BaseException,e:
+                error_msg[oneRef_top.nodeName()] = e.message
         else:
-            print(">>>Cache Generated on disk---{}".format(exp_abc_nm))
-            if ref_mode:
-                oneRef.importContents()
-            pm.select(need2cc)
-            pm.delete(ch=True)
-            if scInfo.proj in ["SLD"]:
-                for ea_trn_nm in need2cc:
-                    ea_trn = pm.PyNode(ea_trn_nm)
-                    ea_mesh = ea_trn.getShape()
-                    if ea_mesh.listConnections(type="pgYetiGroom"):continue
-                    ea_con_sg = ea_mesh.shadingGroups()
-                    k4m.power_disconect(ea_mesh,ea_con_sg)
-            chkGrp = []
-            for n in oneRef_top.getChildren():
-                for m in need2cc:
-                    if n.hasChild(m):
-                        chkGrp.append(n)
-                        break
-            for eaGrp in chkGrp:
-                if re.search('yeti', eaGrp.name(), re.I): continue
-                allTrns = [j for j in eaGrp.getChildren(ad=True, type='transform') if j.nodeType() == 'transform']
-                for k in allTrns:
-                    if k.listConnections(s=True, d=False,type='constraint'):
-                        cons_asTarg = k.listConnections(c=True, p=True, s=True, d=False, type='constraint')
-                        for ea_c in cons_asTarg:
-                            attrName = ea_c[0].attrName()
-                            try:
-                                ea_c[1] // ea_c[0]
-                                if attrName in ['csx', 'csy', 'csz']: eaGrp.attr(attrName).set(1)
-                                else: eaGrp.attr(attrName).set(0)
-                            except Exception,e:
-                                error_msg[">>>Break Constraint occurs Error on node {}".format(eaGrp.name())]=e.message
-            imp_cc_str = ' '.join(need2cc)
-            mc.AbcImport(exp_abc_nm, mode="import", setToStartFrame=True, connect=imp_cc_str, createIfNotFound=True)
-            pm.select(need2cc, r=True)
-            if yetiGrp:
-                cons_asSrc = yetiGrp.listConnections(c=True, p=True, d=True, s=False)
-                cons_asTarg = yetiGrp.listConnections(c=True, p=True, s=True, d=False)
-                if cons_asTarg:
+            print(">>>Unnecessary Need To Generate Alembic Cache!!!!!!")
+        if ref_mode:
+            oneRef.importContents()
+        pm.select(need2cc)
+        pm.delete(ch=True)
+        if scInfo.proj in ["SLD"]:
+            for ea_trn_nm in need2cc:
+                ea_trn = pm.PyNode(ea_trn_nm)
+                ea_mesh = ea_trn.getShape()
+                if ea_mesh.listConnections(type="pgYetiGroom"):continue
+                ea_con_sg = ea_mesh.shadingGroups()
+                k4m.power_disconect(ea_mesh,ea_con_sg)
+        chkGrp = []
+        for n in oneRef_top.getChildren():
+            for m in need2cc:
+                if n.hasChild(m):
+                    chkGrp.append(n)
+                    break
+        for eaGrp in chkGrp:
+            if re.search('yeti', eaGrp.name(), re.I): continue
+            allTrns = [j for j in eaGrp.getChildren(ad=True, type='transform') if j.nodeType() == 'transform']
+            for k in allTrns:
+                if k.listConnections(s=True, d=False,type='constraint'):
+                    cons_asTarg = k.listConnections(c=True, p=True, s=True, d=False, type='constraint')
                     for ea_c in cons_asTarg:
-                        ea_c[1] // ea_c[0]
-                if cons_asSrc:
-                    for ea_c in cons_asSrc:
-                        ea_c[0] // ea_c[1]
-                yetiGrp.attr('visibility').set(1)
-                for ea in yetiGrp.listRelatives(ad=True, c=True, type='pgYetiMaya'):
-                    ea.getParent().attr('visibility').set(1)
-                pm.select(yetiGrp,add=True)
-            pm.exportSelected(exp_mb_nm, f=True, options="v=0", type="mayaBinary", pr=True, es=True)
-            print("===> MB File exported to :{}{}".format(exp_mb_nm,os.linesep))
+                        attrName = ea_c[0].attrName()
+                        try:
+                            ea_c[1] // ea_c[0]
+                            if attrName in ['csx', 'csy', 'csz']: eaGrp.attr(attrName).set(1)
+                            else: eaGrp.attr(attrName).set(0)
+                        except Exception,e:
+                            error_msg[">>>Break Constraint occurs Error on node {}".format(eaGrp.name())]=e.message
+        imp_cc_str = ' '.join(need2cc)
+        mc.AbcImport(exp_abc_nm, mode="import", setToStartFrame=True, connect=imp_cc_str, createIfNotFound=True)
+        pm.select(need2cc, r=True)
+        if yetiGrp:
+            print(">>>Procedure Started process Yeti Group")
+            cons_asSrc = yetiGrp.listConnections(c=True, p=True, d=True, s=False)
+            cons_asTarg = yetiGrp.listConnections(c=True, p=True, s=True, d=False)
+            if cons_asTarg:
+                for ea_c in cons_asTarg:
+                    ea_c[1] // ea_c[0]
+            if cons_asSrc:
+                for ea_c in cons_asSrc:
+                    ea_c[0] // ea_c[1]
+            yetiGrp.attr('visibility').set(1)
+            for ea in yetiGrp.listRelatives(ad=True, c=True, type='pgYetiMaya'):
+                ea.getParent().attr('visibility').set(1)
+            pm.select(yetiGrp,add=True)
+        pm.exportSelected(exp_mb_nm, f=True, options="v=0", type="mayaBinary", pr=True, es=True)
+        print("===> MB File exported to :{}{}".format(exp_mb_nm,os.linesep))
     if error_msg != {}:
         for e_error in error_msg:
             print ("\t{}\t{}".format(e_error,error_msg[e_error]))

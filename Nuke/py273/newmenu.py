@@ -128,14 +128,14 @@ if UserName:
         m.addSeparator()
         m.addCommand("&DNTG Switch R L Stuffs",'newmenu.dntgCmd()','alt+r')
         m.addCommand("pcik Stuffs", 'newmenu.pickStr()')
+        # add by zhangben 2018 12 13 =======to dntg  project add a hot key
+        # nuke.menu('Nuke').addCommand("",
+        m.addCommand(u"New Merg CamTools HotKey","import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCams_dntg(None,3,\"DNTG\")", "ctrl+d")
         m.addSeparator()
         m.addSeparator()
         #=================================================================================================
         m.addCommand('&Help', 'OCT_Nuke_Tools.helpDoc()',)
-        #add by zhangben 2018 12 13 =======to dntg  project add a hot key
-        nuke.menu('Nuke').addCommand("",
-                                     "import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCams_dntg(None,3,\"DNTG\")",
-                                     "ctrl+d")
+
 
     else:
         nuke.message('Program only run in the OCTVISION!')

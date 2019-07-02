@@ -43,11 +43,11 @@ class newMergeCam():
         pattern1 = re.compile('^(\w+)([ABCDEFG]{1})$')
         pattern2 = re.compile('^(\w+)([ABCDEFG]{2})$')
         pattern3 = re.compile('^(\w+)([1-9$_ABCDEFG]{4})$')
-        pattern4 = re.compile('^(\w+)([1-9$_LR]{2})$')
+        pattern4 = re.compile('^(\w+)([1-9$LR]{2})$')
         m = None
         #pp、baseN可能是摄像机名，在这两个中匹配，匹配出一个或者两个的
         nameType = None
-        myCameraGroup = [pp, baseN]
+        myCameraGroup = [pp, baseN, ppList[-1]]
         
         for i in myCameraGroup:
             if self.numSelect <= 3 and FileName!="CPSH":
@@ -88,7 +88,7 @@ class newMergeCam():
                 result = m.groups()[1]
             except:
                 result = -1
-        print result
+        #print result
         #返回那个摄像机,
         return [result, backDropStr]
       
@@ -303,15 +303,15 @@ class newMergeCam():
 
 
                 elif self.numSelect<=6 and FileName=="CPSH":
-                    print myKey
+                    # print myKey
                     _sheeNode.setInput(self.num6[myKey]-1,_sourceNode)
                     _pick=_pattern[self.num6[myKey]-1]
                     _sourceNode.setXYpos(_bbox[0]*_pick[0]+_dot.xpos(),_bbox[1]*_pick[1]+_dot.ypos())
 
                 elif self.numSelect<=6 and FileName=="FKBS":
-                    print myKey
-                    print self.FKBSNum6[myKey]
-                    print _pattern
+                    # print myKey
+                    # print self.FKBSNum6[myKey]
+                    # print _pattern
                     _pattern[self.FKBSNum6[myKey]-1]
                     _sheeNode.setInput(self.FKBSNum6[myKey]-1,_sourceNode)
                     _pick=_pattern[self.FKBSNum6[myKey]-1]
@@ -722,7 +722,7 @@ class newMergeCam():
         p=nuke.Panel('Merg Select Cam Tools')
         p.setWidth(100)
         p.addBooleanCheckBox('DNTG Merg 3 Cam',False)#add by  zhangben 2018 12 12 for DNTG
-        p.addBooleanCheckBox('TDHJ Merg 3 Cam',False)
+        p.addBooleanCheckBox('Merg 3 Cam',False)
         p.addBooleanCheckBox('FKBS Merg 4 Cam', False)
         p.addBooleanCheckBox('FKBS Merg 6 Cam', False)
         p.addBooleanCheckBox('CPSH Merg 6 Cam', False)
@@ -738,7 +738,7 @@ class newMergeCam():
         result=p.show()
         flag=''
         FileName=""
-        if p.value('TDHJ Merg 3 Cam'):
+        if p.value('Merg 3 Cam'):
             if flag=='':
                 flag=3
                 FileName=""

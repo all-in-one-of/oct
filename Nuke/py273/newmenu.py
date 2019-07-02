@@ -36,14 +36,64 @@ if UserName:
         # m.addCommand('&Replace File Path', 'OCT_Nuke_Tools.replaceFilePath_UI()')
         m.addCommand('&Merge Selected Cameras', 'OCT_Nuke_Tools.doMerge(1)')
         m.addCommand('&Merge Selected Cameras With Shuffle', 'OCT_Nuke_Tools.doMerge(2)')
-        m.addCommand('&New Merge Selected Cameras', 'newmenu.NewMeegCameras(1)')
-        m.addCommand('&New Merge Selected Cameras With Shuffle', 'newmenu.NewMeegCameras(2)')
+
+        #新命名规则相机合并
+        mergeSel = m.addMenu('&New Merge Selected Cameras')
+        mergeSel.addCommand('&DNTG Merg 3 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(3, 1, \"DNTG\")')
+        mergeSel.addCommand('&Merg 3 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(3, 1, "")')
+        mergeSel.addCommand('&FKBS Merg 4 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(4, 1, "")')
+        mergeSel.addCommand('&FKBS Merg 6 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(6, 1, \"FKBS\")')
+        mergeSel.addCommand('&CPSH Merg 6 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(6, 1, \"CPSH\")')
+        mergeSel.addCommand('&SGFC Merg 5 or 9 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(5, 1, \"SGFC\")')
+        mergeSel.addCommand('&Merg 5 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(5, 1, "")')
+        mergeSel.addCommand('&Merg 9 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(9, 1, "")')
+        mergeSel.addCommand('&Merg 10 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(10, 1, "")')
+        mergeSel.addCommand('&Merg 18 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(18, 1, "")')
+        mergeSel.addCommand('&Merg 1 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(1, 1, "")')
+
+        mergeSel = m.addMenu('&New Merge Selected Cameras With Shuffle')
+        mergeSel.addCommand('&DNTG Merg 3 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(3, 2, \"DNTG\")')
+        mergeSel.addCommand('&Merg 3 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(3, 2, "")')
+        mergeSel.addCommand('&FKBS Merg 4 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(4, 2, "")')
+        mergeSel.addCommand('&FKBS Merg 6 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(6, 2, \"FKBS\")')
+        mergeSel.addCommand('&CPSH Merg 6 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(6, 2, \"CPSH\")')
+        mergeSel.addCommand('&SGFC Merg 5 or 9 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(5, 2, \"SGFC\")')
+        mergeSel.addCommand('&Merg 5 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(5, 2, "")')
+        mergeSel.addCommand('&Merg 9 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(9, 2, "")')
+        mergeSel.addCommand('&Merg 10 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(10, 2, "")')
+        mergeSel.addCommand('&Merg 18 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(18, 2, "")')
+        mergeSel.addCommand('&Merg 1 Cam',
+                            'import OCT_newMergCamTool_YH as nmc\nreload(nmc)\ndoSetUp = nmc.newMergeCam()\ndoSetUp.mergeCamera(1, 2, "")')
+
+        # m.addCommand('&New Merge Selected Cameras', 'newmenu.NewMeegCameras(1)')
+        # m.addCommand('&New Merge Selected Cameras With Shuffle', 'newmenu.NewMeegCameras(2)')
 
         m.addCommand('&FKBS Merge Selected Cameras', 'newmenu.FKBSMergCams(1)')
         m.addCommand('&FKBS Merge Selected Cameras With Shuffle', 'newmenu.FKBSMergCams(2)')
 
         m.addCommand('&MSS_SC14 MergSelected Cameras', 'newmenu.MSS_SC14MergCamTool()')
-        
+
         m.addCommand("&Add Exr Read's Shuffles", 'newmenu.AddExrShuffles()')
         m.addCommand("&Add Exr Read's Shuffles Simple", 'newmenu.suffleSimple()')
         # m.addCommand("&New Add Exr Read's Shuffles", 'newmenu.AddExrShuffles_two()')
@@ -67,7 +117,7 @@ if UserName:
 
         m.addCommand('&copyImageAndRename', 'newmenu.copyImageAndRename()')
         m.addCommand('&CmdLineRender', 'newmenu.CmdLineRender()')
-        
+
         m.addCommand('&OCT_MergeFYNLJCam', 'newmenu.MergeFYNLJCams()')
 
         m.addCommand('&read Node Path', 'newmenu.readNodePath()')
@@ -151,7 +201,7 @@ def submitToDeadlines():
     Sub = nuke.ask( message )
     print Sub
     if Sub:
-        print Sub  
+        print Sub
         import SubmitToDeadline
         SubmitToDeadline.SubmitToDeadline()
 
@@ -195,7 +245,7 @@ def RefreshReads():
     import OCT_RefreshAllReads_YH
     myRefreshJob=OCT_RefreshAllReads_YH.MyFrame()
     myRefreshJob.myOrigFrame()
-   
+
 def AddImages():
     import OCT_ImportImages_YH
     myAddImagesJob = OCT_ImportImages_YH.myFindFrame()
@@ -203,7 +253,7 @@ def AddImages():
 
 def AddExrShuffles():
     import OCT_Add_Read_Shuffles_YH
-    myAddUi = OCT_Add_Read_Shuffles_YH.createChannels()   
+    myAddUi = OCT_Add_Read_Shuffles_YH.createChannels()
     myAddUi.channelsUI()
 
 # def AddExrShuffles_two():

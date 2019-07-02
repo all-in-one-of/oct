@@ -717,121 +717,121 @@ class newMergeCam():
         msgBox.setText(msg)
         msgBox.exec_()
 
-    #合并选择相机的界面
-    def mergeSelectCamUI(self,model):
-        p=nuke.Panel('Merg Select Cam Tools')
-        p.setWidth(100)
-        p.addBooleanCheckBox('DNTG Merg 3 Cam',False)#add by  zhangben 2018 12 12 for DNTG
-        p.addBooleanCheckBox('Merg 3 Cam',False)
-        p.addBooleanCheckBox('FKBS Merg 4 Cam', False)
-        p.addBooleanCheckBox('FKBS Merg 6 Cam', False)
-        p.addBooleanCheckBox('CPSH Merg 6 Cam', False)
-        p.addBooleanCheckBox('SGFC Merg 5 or 9 Cam',False)
-        p.addBooleanCheckBox('Merg 5 Cam',False)
-        p.addBooleanCheckBox('Merg 9 Cam',False)
-        p.addBooleanCheckBox('Merg 10 Cam',False)
-        p.addBooleanCheckBox('Merg 18 Cam',False)
-        p.addBooleanCheckBox('Merg 1 Cam',False)
-
-        p.addButton('Cancel')
-        p.addButton('OK')
-        result=p.show()
-        flag=''
-        FileName=""
-        if p.value('Merg 3 Cam'):
-            if flag=='':
-                flag=3
-                FileName=""
-            else:
-                nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
-                return 
-
-        if p.value('Merg 5 Cam'):
-            if flag=='':
-                flag=5
-                FileName=""
-            else:
-                nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
-                return
-
-        if p.value('Merg 9 Cam'):
-            if flag=='':
-                flag=9
-                FileName=""
-            else:
-                nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
-                return 
-
-        if p.value('Merg 10 Cam'):
-            if flag=='':
-                flag=10
-                FileName=""
-            else:
-                nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
-                return
-           
-        if p.value('Merg 18 Cam'):
-            if flag=='':
-                flag=18
-                FileName=""
-            else:
-                nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
-                return 
-
-        if p.value('CPSH Merg 6 Cam'):
-            if flag=='':
-                flag=6
-                FileName="CPSH"
-            else:
-                nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
-                return
-        if p.value('FKBS Merg 4 Cam'):
-            if flag=='':
-                flag=4
-                FileName=""
-            else:
-                nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
-                return
-
-        if p.value('FKBS Merg 6 Cam'):
-            if flag=='':
-                flag=6
-                FileName="FKBS"
-            else:
-                nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
-                return
-
-        if p.value('SGFC Merg 5 or 9 Cam'):
-            if flag=='':
-                flag = 5
-                FileName="SGFC"
-            else:
-                nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
-                return
-
-        if p.value('Merg 1 Cam'):
-            if flag=='':
-                flag=1
-                FileName=""
-            else:
-                nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
-                return
-
-        if p.value('DNTG Merg 3 Cam'):# add == by zhangben for DNTG===============
-            if flag == '':
-                flag = 3
-                FileName = "DNTG"
-            else:
-                nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
-                return
-
-        if flag and flag!=1:
-            self.mergeCamera(flag,model,FileName)
-            return 
-        elif flag==1:
-            self.Merg1Cam(flag)
-            return 
-        
+    # #合并选择相机的界面
+    # def mergeSelectCamUI(self,model):
+    #     p=nuke.Panel('Merg Select Cam Tools')
+    #     p.setWidth(100)
+    #     p.addBooleanCheckBox('DNTG Merg 3 Cam',False)#add by  zhangben 2018 12 12 for DNTG
+    #     p.addBooleanCheckBox('Merg 3 Cam',False)
+    #     p.addBooleanCheckBox('FKBS Merg 4 Cam', False)
+    #     p.addBooleanCheckBox('FKBS Merg 6 Cam', False)
+    #     p.addBooleanCheckBox('CPSH Merg 6 Cam', False)
+    #     p.addBooleanCheckBox('SGFC Merg 5 or 9 Cam',False)
+    #     p.addBooleanCheckBox('Merg 5 Cam',False)
+    #     p.addBooleanCheckBox('Merg 9 Cam',False)
+    #     p.addBooleanCheckBox('Merg 10 Cam',False)
+    #     p.addBooleanCheckBox('Merg 18 Cam',False)
+    #     p.addBooleanCheckBox('Merg 1 Cam',False)
+    #
+    #     p.addButton('Cancel')
+    #     p.addButton('OK')
+    #     result=p.show()
+    #     flag=''
+    #     FileName=""
+    #     if p.value('Merg 3 Cam'):
+    #         if flag=='':
+    #             flag=3
+    #             FileName=""
+    #         else:
+    #             nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
+    #             return
+    #
+    #     if p.value('Merg 5 Cam'):
+    #         if flag=='':
+    #             flag=5
+    #             FileName=""
+    #         else:
+    #             nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
+    #             return
+    #
+    #     if p.value('Merg 9 Cam'):
+    #         if flag=='':
+    #             flag=9
+    #             FileName=""
+    #         else:
+    #             nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
+    #             return
+    #
+    #     if p.value('Merg 10 Cam'):
+    #         if flag=='':
+    #             flag=10
+    #             FileName=""
+    #         else:
+    #             nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
+    #             return
+    #
+    #     if p.value('Merg 18 Cam'):
+    #         if flag=='':
+    #             flag=18
+    #             FileName=""
+    #         else:
+    #             nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
+    #             return
+    #
+    #     if p.value('CPSH Merg 6 Cam'):
+    #         if flag=='':
+    #             flag=6
+    #             FileName="CPSH"
+    #         else:
+    #             nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
+    #             return
+    #     if p.value('FKBS Merg 4 Cam'):
+    #         if flag=='':
+    #             flag=4
+    #             FileName=""
+    #         else:
+    #             nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
+    #             return
+    #
+    #     if p.value('FKBS Merg 6 Cam'):
+    #         if flag=='':
+    #             flag=6
+    #             FileName="FKBS"
+    #         else:
+    #             nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
+    #             return
+    #
+    #     if p.value('SGFC Merg 5 or 9 Cam'):
+    #         if flag=='':
+    #             flag = 5
+    #             FileName="SGFC"
+    #         else:
+    #             nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
+    #             return
+    #
+    #     if p.value('Merg 1 Cam'):
+    #         if flag=='':
+    #             flag=1
+    #             FileName=""
+    #         else:
+    #             nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
+    #             return
+    #
+    #     if p.value('DNTG Merg 3 Cam'):# add == by zhangben for DNTG===============
+    #         if flag == '':
+    #             flag = 3
+    #             FileName = "DNTG"
+    #         else:
+    #             nuke.message('\xe5\x8f\xaa\xe8\x83\xbd\xe9\x80\x89\xe4\xb8\x80\xe4\xb8\xaa\xef\xbc\x81')
+    #             return
+    #
+    #     if flag and flag!=1:
+    #         self.mergeCamera(flag,model,FileName)
+    #         return
+    #     elif flag==1:
+    #         self.Merg1Cam(flag)
+    #         return
+    #
     def Merg1Cam(self,flag):
         #选择所有的节点
         _source=nuke.selectedNodes('Read')

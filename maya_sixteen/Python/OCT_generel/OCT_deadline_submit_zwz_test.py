@@ -141,11 +141,15 @@ class AssetDeadline():
             SERVE_PATH = r'\\192.168.80.225'
         path = os.getenv('PATH').split(';')
         addr = ''
-        for eachPath in path:
-            if 'Deadline10/bin' in eachPath:
-                addr = eachPath
-                if os.path.isfile('%s/deadlinecommand.exe' % addr):
-                    break
+        deadline_path = os.getenv("DEADLINE_PATH")
+        if os.path.isfile('%s\\deadlinecommand.exe' % deadline_path):
+            addr = deadline_path.replace("\\", "/")
+        if not addr:
+            for eachPath in path:
+                if 'Deadline10/bin' in eachPath:
+                    addr = eachPath
+                    if os.path.isfile('%s/deadlinecommand.exe' % addr):
+                        break
         if addr == '':
             mc.confirmDialog(title=u'温馨提示：', message=u'找不到Deadline客户端安装目录,请安装Deadline客户端.', button=['OK'],
                              defaultButton='Yes', dismissString='No')

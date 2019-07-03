@@ -165,20 +165,25 @@ class  myFindFrame():
                                         nodeRead['format'].setValue(mySize)
         
                             #查找位数
-                            num = firstFrameName.split(".")[-2]
+                            numStr = firstFrameName.split(".")[-2]
+                            num = re.findall("\d+$", numStr)[-1]
                             numPlaces = len('%s' % num)
                             the_image = dirName.tail()
-                   
-                            number = lastFrameName.split(".")
-                            name = '.'.join(number[0:-2])
 
-                            num2 = lastFrameName.split(".")[-2]
+                            number = firstFrameName.split(num)
+                            name = number[0]
+                            #name = '.'.join(number[0:-2])
+
+                            num2Str = lastFrameName.split(".")[-2]
+                            num2 = re.findall("\d+$", num2Str)[-1]
                             numPlaces2 = len('%s' % num2)
 
                             if numPlaces == numPlaces2:
-                                setData = myDirs+'/'+name+'.%'+'0%dd'%numPlaces+the_image
+                                #setData = myDirs+'/'+name+'.%'+'0%dd'%numPlaces+the_image
+                                setData = myDirs + '/' + name + '%' + '0%dd' % numPlaces + the_image
                             else:
-                                setData = myDirs+'/'+name+'.#'+the_image
+                                #setData = myDirs+'/'+name+'.#'+the_image
+                                setData = myDirs + '/' + name + '#' + the_image
                        
                             nodeRead['file'].setValue(setData)
                             nodeRead['origfirst'].setValue(the_firstframes)

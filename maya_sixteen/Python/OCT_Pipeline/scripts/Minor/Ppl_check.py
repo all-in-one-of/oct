@@ -32,7 +32,6 @@ class Ppl_check(object):
         self.fbSetsNm = "PPL_CHECK_FEEDBACK"
         self.iffyVtxs = {}
         self.abcMeshes = []
-        self.checkNodesLst = []
         self.iffySets = None
     def autoRun(self,chk_fnc_name='all'):# 运行检查 全部运行 或 运行指定的检测
         u"""
@@ -47,19 +46,13 @@ class Ppl_check(object):
 
         if chk_fnc_name == 'all':  # 执行所有 _check_ 开头的 check  方法
             chkAll_prc, chkIndiv_prc = self.pars_needRunFuncs()
-            # for x,y in allAttributes:
-            #     if re.search('_check_all_\d',x) and type(y) == FunctionType:
-            #         chkAll_prc.append(x)
-            #     elif re.search('_check_indiv_',x) and type(y) == FunctionType:
-            #         chkIndiv_prc.append(x)
-            # chkAll_prc.sort()
             for n in chkAll_prc:
                 # exec("print self.__class__.{}.__doc__".format(n))
                 exec("self.{}()".format(n))
-            self.checkNodesLst = self.abcMeshes
+            checkNodesLst = self.abcMeshes
             for m in chkIndiv_prc:
                 # exec ("print self.__class__.{}.__doc__".format(m))
-                exec("self.{}({})".format(m,self.checkNodesLst))
+                exec("self.{}({})".format(m,checkNodesLst))
         else: #运行 指定的 方法
             if re.search(",",chk_fnc_name):
                 inSpl = chk_fnc_name.split(',')
@@ -107,12 +100,17 @@ class Ppl_check(object):
         chkAll_prc.sort()
 
         return chkAll_prc,chkIndiv_prc
-    def ret_chkList(self,obtainData,objtyp='mesh'):# 返回操作对象
+    def get_chk_nodes(self,obtainData,objtyp='mesh',getPar=True,topNode = None):# 返回操作对象
         check_objs = pm.selected()
         if not check_objs:
             check_objs = obtainData if obtainData.__class__.__name__ == 'list' else [obtainData]
+        # if not check_objs:
+        #     check_objs = self.checkNodesLst
         if not check_objs:
-            check_objs = self.checkNodesLst if self.checkNodesLst else [n.getParent() for n in pm.ls(type=objtyp, ni=True)]
+            if topNode:
+                check_objs = [n.getParent() for n in topNode.listRelatives(ad=True,c=True,type= nodeTyp,ni=True)] if getPar else [n for n in topNode.listRelatives(ad=True,c=True,type= nodeTyp,ni=True)]
+            else:
+                check_objs = [n.getParent() for n in pm.ls(type=objtyp, ni=True)] if getPar else [n for n in pm.ls(type=objtyp, ni=True)]
         return check_objs
     def _check_all_1_grpName(self):# outliner level name check
             # om.MGlobal.displayInfo info.__doc__
@@ -282,7 +280,7 @@ class Ppl_check(object):
                                 检查transform节点 freeze
         注意：如果当前有选择物体，将仅作用于选择的物体
         """
-        chk_trns = self.ret_chkList(checkNode)
+        chk_trns = self.get_chk_nodes(checkNode)
         msgAttr = '_iffyMsg_dags'
         if clear: self.clear_msgs(msgAttr)
         for trn in chk_trns:
@@ -305,7 +303,7 @@ class Ppl_check(object):
         注意：如果当前有选择物体，将仅作用于选择的物体
         """
         msgAttr = '_iffyMsg_dags'
-        chk_trns = self.ret_chkList(chkNode)
+        chk_trns = self.get_chk_nodes(chkNode)
         kMoreThanOneUVSet = []
         for i in chk_trns:
             i_shp = i.getShape(ni=True)
@@ -326,7 +324,7 @@ class Ppl_check(object):
         注意：如果当前有选择物体，将仅作用于选择的物体
         """
         msgAttr = '_iffyMsg_dags'
-        chk_trns = self.ret_chkList(chkNode)
+        chk_trns = self.get_chk_nodes(chkNode)
         for trnsNode in chk_trns:
             vtx = pm.polyEvaluate(trnsNode, v=True)
             for n in range(vtx):

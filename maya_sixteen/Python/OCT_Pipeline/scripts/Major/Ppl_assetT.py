@@ -79,6 +79,7 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         # self.attr_op = {True: 'add', None: 'delete'}
 
         self.addToolTips()
+        self.setLabelClr()
         # self.setAllChkbxOn()
     def makeConnections(self): # connect buttons to fucntions
         for each_bt in self.buttonsList:
@@ -114,7 +115,17 @@ class Ppl_assetT_main(QtGui.QMainWindow):
     #     for each_cbxnm in self.cbxDict:
     #         each_cbx = self.ui.findChildren(QtGui.QCheckBox, each_cbxnm)[0]
     #         each_cbx.setChecked(True)
-
+    def setLabelClr(self):# 设置button  letter color  ,this is a obsolete function
+        for each_bt in self.buttonsList:
+            _fuction = None
+            if re.search("indiv[\w]+_regchk_bt",each_bt,re.I):
+                fndbtn = self.ui.findChildren(QtGui.QPushButton, each_bt)[0]  # find button object
+                labStr =  u"{}".format(str(fndbtn.text()))
+                labStr_n = u"<span style = \"font-size:12pt;color:#49d5d1;\"> {} </span>".format(labStr)
+                print labStr_n
+                # fndbtn.setText(labStr_n)
+                fndbtn.setStyleSheet("color: rgb(100,245,255)")
+        self.ui.tiplab.setStyleSheet("color: rgb(100,245,255)")
     def addAttrPopMenu(self,point):# add  attribute popmenu config
         self.popMenu = QtGui.QMenu(self.ui)
         ac_add = QtGui.QAction('add',self.ui)

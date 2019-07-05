@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>480</width>
-    <height>363</height>
+    <height>500</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -26,20 +26,22 @@
    <string>前期Asset 整理检查</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_3">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
     <property name="topMargin">
      <number>8</number>
     </property>
     <property name="bottomMargin">
      <number>0</number>
     </property>
-    <property name="verticalSpacing">
-     <number>5</number>
-    </property>
-    <item row="0" column="0">
+    <item>
      <widget class="QTabWidget" name="m_tab">
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -69,10 +71,21 @@
              <number>5</number>
             </property>
             <item>
-             <widget class="QLineEdit" name="pick_sel_l"/>
+             <widget class="QLineEdit" name="pick_sel_l">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QPushButton" name="selByNm_bt">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>根据名字选择</string>
               </property>
@@ -87,6 +100,11 @@
               <width>16777215</width>
               <height>110</height>
              </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>9</pointsize>
+             </font>
             </property>
             <property name="frameShape">
              <enum>QFrame::Box</enum>
@@ -109,6 +127,11 @@
              </property>
              <item row="0" column="0">
               <widget class="QPushButton" name="rnmT_bt">
+               <property name="font">
+                <font>
+                 <pointsize>9</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Rename Tools</string>
                </property>
@@ -116,6 +139,11 @@
              </item>
              <item row="0" column="1">
               <widget class="QPushButton" name="alterTxsPrf_bt">
+               <property name="font">
+                <font>
+                 <pointsize>9</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>修改贴图前缀及非规范字符 </string>
                </property>
@@ -125,6 +153,11 @@
               <widget class="QPushButton" name="waiting_bt">
                <property name="enabled">
                 <bool>false</bool>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>9</pointsize>
+                </font>
                </property>
                <property name="text">
                 <string>。。。</string>
@@ -136,6 +169,11 @@
                <property name="enabled">
                 <bool>true</bool>
                </property>
+               <property name="font">
+                <font>
+                 <pointsize>9</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Set Smooth Level</string>
                </property>
@@ -143,6 +181,11 @@
              </item>
              <item row="1" column="1">
               <widget class="QPushButton" name="nm_tidy_bt">
+               <property name="font">
+                <font>
+                 <pointsize>9</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>outliner Object Name 整理</string>
                </property>
@@ -153,6 +196,11 @@
           </item>
           <item>
            <widget class="QFrame" name="old_frm">
+            <property name="font">
+             <font>
+              <pointsize>9</pointsize>
+             </font>
+            </property>
             <property name="frameShape">
              <enum>QFrame::Panel</enum>
             </property>
@@ -186,24 +234,15 @@
                <property name="margin">
                 <number>5</number>
                </property>
-               <item row="1" column="2">
-                <widget class="QPushButton" name="nmsp_tidy_bt">
-                 <property name="text">
-                  <string>name space 工具</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="2">
-                <widget class="QPushButton" name="selSmth_tidy_bt">
-                 <property name="text">
-                  <string>选取物体smooth</string>
-                 </property>
-                </widget>
-               </item>
                <item row="8" column="2">
                 <widget class="QPushButton" name="inac_tidy_bt">
                  <property name="enabled">
                   <bool>false</bool>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
                  </property>
                  <property name="text">
                   <string>...</string>
@@ -216,22 +255,13 @@
                  </property>
                 </widget>
                </item>
-               <item row="0" column="2">
-                <widget class="QPushButton" name="set_tidy_bt">
-                 <property name="text">
-                  <string>标记set组</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="2">
-                <widget class="QPushButton" name="emgrp_tidy_bt">
-                 <property name="text">
-                  <string>自动清理空组</string>
-                 </property>
-                </widget>
-               </item>
                <item row="1" column="0">
                 <widget class="QPushButton" name="dsly_tidy_bt">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>display Layer 清理</string>
                  </property>
@@ -239,6 +269,11 @@
                </item>
                <item row="0" column="0">
                 <widget class="QPushButton" name="suff_tidy_bt">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>选取添加 _ 后缀</string>
                  </property>
@@ -246,6 +281,11 @@
                </item>
                <item row="2" column="0">
                 <widget class="QPushButton" name="anlab_tidy_bt">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>模型添加ct_an标记</string>
                  </property>
@@ -264,6 +304,11 @@
                  </property>
                  <item>
                   <widget class="QPushButton" name="plsAbcAttr_tidy_bt">
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
                    <property name="styleSheet">
                     <string notr="true">border-color: rgb(255, 255, 255);
 selection-color: rgb(85, 255, 255);</string>
@@ -281,6 +326,11 @@ selection-color: rgb(85, 255, 255);</string>
                      <height>16777215</height>
                     </size>
                    </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>9</pointsize>
+                    </font>
+                   </property>
                    <property name="styleSheet">
                     <string notr="true">color: rgb(85, 255, 0);</string>
                    </property>
@@ -291,10 +341,75 @@ selection-color: rgb(85, 255, 255);</string>
                  </item>
                 </layout>
                </item>
-               <item row="8" column="0">
+               <item row="0" column="2">
+                <widget class="QPushButton" name="nmsp_tidy_bt">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>name space 工具</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <widget class="QPushButton" name="emgrp_tidy_bt">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>自动清理空组</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="2">
+                <widget class="QPushButton" name="selSmth_tidy_bt">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>选取物体smooth</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="2">
                 <widget class="QPushButton" name="rmun_tidy_bt">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>移除无用和未知</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="0">
+                <widget class="QPushButton" name="_reg_indiv_resVtxPos_regchk_bt_0_oth">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>mesh CV点 位置复原</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="2">
+                <widget class="QPushButton" name="_reg_indiv_resVtxPos_regchk_bt_0_freeze">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>mesh CV点 位移值 归 0</string>
                  </property>
                 </widget>
                </item>
@@ -307,117 +422,397 @@ selection-color: rgb(85, 255, 255);</string>
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab_3">
+       <attribute name="title">
+        <string>Checkin 规范</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QFrame" name="reqChk_frm">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_7">
+           <property name="horizontalSpacing">
+            <number>2</number>
+           </property>
+           <item row="8" column="4">
+            <widget class="QPushButton" name="allReg_chk_bt">
+             <property name="text">
+              <string>All Check...</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="4">
+            <widget class="QPushButton" name="_check_indiv_UVSets_regchk_bt">
+             <property name="text">
+              <string>UV Set 数量检查(=1)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="4">
+            <widget class="QPushButton" name="_check_indiv_unfreezeTrns_regchk_bt">
+             <property name="text">
+              <string>Unfreeze Object Check</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QPushButton" name="rndSta_chk_bt">
+             <property name="text">
+              <string>Check RenderState</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QPushButton" name="_check_all_1_grpName_regchk_bt">
+             <property name="text">
+              <string>Name Check in outliner</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QPushButton" name="_check_all_2_abcAttr_regchk_bt">
+             <property name="text">
+              <string>缓存模型 Alembic 属性检查</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="4">
+            <widget class="QPushButton" name="_check_indiv_vertexPos_regchk_bt">
+             <property name="text">
+              <string>Mesh CV 点位移归零检查</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="4">
+            <widget class="QPushButton" name="tautonymy_chk_bt">
+             <property name="text">
+              <string>Check 重名</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="4">
+            <widget class="QPushButton" name="tautonymyMsh_chk_bt">
+             <property name="text">
+              <string>Check Mesh同名</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QPushButton" name="tautonymyShp_chk_bt">
+             <property name="text">
+              <string>Check Shape重名</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QPushButton" name="txsnm_chk_bt">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Check Texture Name</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="4">
+            <widget class="Line" name="line_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="1">
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QCheckBox" name="tautonymyShp_chk_cbx">
+             <property name="maximumSize">
+              <size>
+               <width>15</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QCheckBox" name="rndSta_chk_cbx">
+             <property name="maximumSize">
+              <size>
+               <width>15</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QCheckBox" name="_check_indiv_unfreezeTrns_regchk_cbx">
+             <property name="maximumSize">
+              <size>
+               <width>15</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="1">
+            <widget class="QPushButton" name="_reg_clearCheckSets_regchk_bt">
+             <property name="text">
+              <string>移除 error sets</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="Line" name="line_3">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="3">
+            <widget class="QCheckBox" name="_check_indiv_UVSets_regchk_cbx">
+             <property name="maximumSize">
+              <size>
+               <width>15</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QCheckBox" name="txsnm_chk_cbx">
+             <property name="maximumSize">
+              <size>
+               <width>15</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="Line" name="line_4">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="3">
+            <widget class="QCheckBox" name="tautonymy_chk_cbx">
+             <property name="maximumSize">
+              <size>
+               <width>15</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="3">
+            <widget class="QCheckBox" name="tautonymyMsh_chk_cbx">
+             <property name="maximumSize">
+              <size>
+               <width>15</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="3">
+            <widget class="QCheckBox" name="_check_indiv_vertexPos_regchk_cbx">
+             <property name="maximumSize">
+              <size>
+               <width>15</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QCheckBox" name="_check_all_2_abcAttr_regchk_cbx">
+             <property name="maximumSize">
+              <size>
+               <width>15</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QCheckBox" name="_check_all_1_grpName_regchk_cbx">
+             <property name="maximumSize">
+              <size>
+               <width>15</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="2">
+            <widget class="Line" name="line_5">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="2">
+            <widget class="Line" name="line_6">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="2">
+            <widget class="Line" name="line_7">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="tiplab">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>15</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>*Tip:有相同颜色标签的按钮，支持选择对象操作</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
         <string>文件检查</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_4">
-        <item row="1" column="0">
-         <widget class="QPushButton" name="nm_chk_bt">
-          <property name="text">
-           <string>Check 命名</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
-         <widget class="QPushButton" name="prxTr_chk_bt">
-          <property name="text">
-           <string>Check Proxy位移</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QPushButton" name="smthSet_chk_bt">
-          <property name="text">
-           <string>Check smoothSet</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QPushButton" name="flg_chk_bt">
-          <property name="text">
-           <string>Check 标记属性</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QPushButton" name="ins_chk_bt">
-          <property name="text">
-           <string>Check Instance</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QPushButton" name="tautonymyShp_chk_bt">
-          <property name="text">
-           <string>Check Shape重名</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="QPushButton" name="tautonymyMsh_chk_bt">
-          <property name="text">
-           <string>Check Mesh同名</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QPushButton" name="sm_chk_bt">
-          <property name="text">
-           <string>Check Smooth</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QPushButton" name="nmsp_chk_bt">
-          <property name="text">
-           <string>Check Namespace</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QPushButton" name="tautonymy_chk_bt">
-          <property name="text">
-           <string>Check 重名</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="0">
-         <widget class="QPushButton" name="ref_chk_bt">
-          <property name="text">
-           <string>Check 参考</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="1">
-         <widget class="QPushButton" name="rndSta_chk_bt">
-          <property name="text">
-           <string>Check RenderState</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QPushButton" name="fnm_chk_bt">
-          <property name="text">
-           <string>Check 面数</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="1">
-         <widget class="QPushButton" name="all_chk_bt">
+         <widget class="QWidget" name="widget" native="true">
           <property name="enabled">
            <bool>false</bool>
           </property>
-          <property name="text">
-           <string>...Check All</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0">
-         <widget class="QPushButton" name="txsnm_chk_bt">
-          <property name="text">
-           <string>Check Texture Name</string>
-          </property>
+          <layout class="QGridLayout" name="gridLayout_8">
+           <item row="0" column="0">
+            <widget class="QPushButton" name="ref_chk_bt">
+             <property name="text">
+              <string>Check 参考</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QPushButton" name="nmsp_chk_bt">
+             <property name="text">
+              <string>Check Namespace</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QPushButton" name="nm_chk_bt">
+             <property name="text">
+              <string>Check 命名</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QPushButton" name="fnm_chk_bt">
+             <property name="text">
+              <string>Check 面数</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QPushButton" name="ins_chk_bt">
+             <property name="text">
+              <string>Check Instance</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QPushButton" name="sm_chk_bt">
+             <property name="text">
+              <string>Check Smooth</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QPushButton" name="flg_chk_bt">
+             <property name="text">
+              <string>Check 标记属性</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QPushButton" name="prxTr_chk_bt">
+             <property name="text">
+              <string>Check Proxy位移</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QPushButton" name="smthSet_chk_bt">
+             <property name="text">
+              <string>Check smoothSet</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QPushButton" name="all_chk_bt">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>...Check All</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>

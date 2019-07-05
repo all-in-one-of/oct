@@ -67,14 +67,16 @@ class Ppl_scInfo(object):
         self.needMatch = False         #资产文件是 是否需要 匹配检测
         #==========read file information===================
         self.scnm = sceneFile if sceneFile else pm.sceneName()
-        self.scbsnm = os.path.basename(self.scnm)
-        self.scbsnmStrip = os.path.splitext(self.scbsnm)[0]
-        self.obtScInfo()
+        if self.scnm.strip():
+            self.scbsnm = os.path.basename(self.scnm.strip())
+            self.scbsnmStrip = os.path.splitext(self.scbsnm)[0]
+            self.obtScInfo()
     def obtScInfo(self):#获取信息的函数 并赋值
         # scnm = pm.sceneName()
         # print scnm
         # scbsnm = self.scnm.basename()
         bsnm_spl = self.scbsnmStrip.split(u'_')
+        if len(bsnm_spl)<2:return
         # print bsnm_spl
         setValue = []
         self.proj = bsnm_spl[0]

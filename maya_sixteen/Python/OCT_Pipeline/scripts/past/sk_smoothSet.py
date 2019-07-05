@@ -19,7 +19,9 @@ class sk_smoothSet(object):
     def UI_setSmooth(self):
         if mc.window('setSmooth_UI', q=True, exists=True):
             mc.deleteUI('setSmooth_UI')
-            
+
+        cmdStr = 'import OCT_Pipeline.scripts.past.sk_smoothSet as smt\nreload(smt)\nssmt = smt.sk_smoothSet()'
+        cmdStr_chk = 'import OCT_Pipeline.scripts.past.sk_checkTools as skct\nreload(skct)\nskck=skct.sk_checkTools()'
         smoothSetUI = mc.window('setSmooth_UI', t=(unicode('smoothSet工具','utf8')), wh=[300, 100], mb=True)
 
         UI_win_formL = mc.formLayout()
@@ -28,11 +30,11 @@ class sk_smoothSet(object):
         UI_smoothLvl_intSG = mc.intSliderGrp('intSliderGrp_intsmoothSetLevel',l='Smooth Level: ', field=1, min=0, max=3)
         mc.setParent('..')
         UI_buttons_formL = mc.formLayout(nd=4, p=UI_win_formL)
-        UI_add_b = mc.button(l=(unicode('添加所选','utf8')),bgc=[0.2,0.2,0.2], c = 'reload(sk_smoothSet);sk_smoothSet.sk_smoothSet().smoothSetAdd()' )
-        UI_rm_b = mc.button(l=(unicode('移除所选','utf8')),bgc=[0.2,0.2,0.2],c = 'reload(sk_smoothSet);sk_smoothSet.sk_smoothSet().smoothSetRemove(0)')
-        UI_rmAll_b = mc.button(l=(unicode('移除该级物','utf8')),bgc=[0.2,0.2,0.2],c = 'reload(sk_smoothSet);sk_smoothSet.sk_smoothSet().smoothSetRemove()')
-        UI_mg_b = mc.button(l=(unicode('[合并]','utf8')),bgc=[0.1,0.6,0.1],c = 'reload(sk_smoothSet);sk_smoothSet.sk_smoothSet().smoothSetCombine("Smooth",remove = 0)')
-        UI_ck_b = mc.button(l=(unicode('[检测]','utf8')),bgc=[0.3,0.8,0.3],c = 'from idmt.maya.commonCore.core_mayaCommon import sk_checkTools;reload(sk_checkTools);sk_checkTools.sk_checkTools().checkModelSmoothSet("",1)')
+        UI_add_b = mc.button(l=(unicode('添加所选','utf8')),bgc=[0.2,0.2,0.2], c = '{}\nssmt.smoothSetAdd()'.format(cmdStr) )
+        UI_rm_b = mc.button(l=(unicode('移除所选','utf8')),bgc=[0.2,0.2,0.2],c = 'ssmt.smoothSetRemove(0)')
+        UI_rmAll_b = mc.button(l=(unicode('移除该级物','utf8')),bgc=[0.2,0.2,0.2],c = 'ssmt.smoothSetRemove()')
+        UI_mg_b = mc.button(l=(unicode('[合并]','utf8')),bgc=[0.1,0.6,0.1],c = 'ssmt.smoothSetCombine("Smooth",remove = 0)')
+        UI_ck_b = mc.button(l=(unicode('[检测]','utf8')),bgc=[0.3,0.8,0.3],c = '{}\nskck.checkModelSmoothSet("",1)'.format(cmdStr_chk))
         mc.setParent('..')
         
         # --- UI: arrange layout

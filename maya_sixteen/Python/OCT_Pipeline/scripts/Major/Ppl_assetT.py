@@ -12,11 +12,11 @@ import shutil
 from PyQt4 import QtGui,QtCore,uic
 import logging
 import maya.OpenMayaUI as mui
-import sys,os,copy,re
+import inspect,sys,os,copy,re
 import maya.mel as mel
 import maya.cmds as mc
 import pymel.core as pm
-# import shiboken
+from types import FunctionType
 import sip
 from ..utility import Kits
 reload(Kits)
@@ -28,9 +28,12 @@ import Ppl_pubCheck as ppc
 reload(ppc)
 import Ppl_scInfo as psinf
 reload(psinf)
-from ..Minor import SetSmoothLevelTools_ui,Ppl_rnmtools_auto
+from ..Minor import SetSmoothLevelTools_ui,Ppl_rnmtools_auto,Ppl_check
 reload(SetSmoothLevelTools_ui)
 reload(Ppl_rnmtools_auto)
+reload(Ppl_check)
+from ..Major import Ppl_scInfo
+reload(Ppl_scInfo)
 SCRIPT_LOC = os.path.split(__file__)[0]
 PROJ_DIR = os.getenv('OCTV_PROJECTS')
 class Ppl_assetT_main(QtGui.QMainWindow):
@@ -48,12 +51,16 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         self.skchk = sk_checkTools.sk_checkTools()
         self.sksct = sk_sceneTools.sk_sceneTools()
         self.sksmth = sk_smoothSet.sk_smoothSet()
+        self.scInfo = Ppl_scInfo.Ppl_scInfo()
+        self.pplchk = Ppl_check.Ppl_check()
         # main window load/settings
         self.ui = self.loadUiWidget(ppl_UI,self)
         self.ui.setAttribute(QtCore.Qt.WA_DeleteOnClose,True)
         self.ui.destroyed.connect(self.cmd_onExitCode)
         self.ui.move(200,400)
-        self.buttonsList = [ea_bt.objectName() for ea_bt in self.ui.findChildren(QtGui.QPushButton) if str(ea_bt.objectName()).endswith('_bt')]
+        self.buttonsList = [ea_bt.objectName() for ea_bt in self.ui.findChildren(QtGui.QPushButton) if re.search('_bt[_]*',str(ea_bt.objectName()))]
+        # self.cbxDict = [ea_chbx.objectName() for ea_chbx in self.ui.findChildren(QtGui.QCheckBox) if re.search('_chk',str(ea_chbx.objectName()))]
+        self.cbxDict = dict([[ea_chbx.objectName(),ea_chbx] for ea_chbx in self.ui.findChildren(QtGui.QCheckBox) if re.search('_cbx',str(ea_chbx.objectName())) and not ea_chbx.setChecked(True)])
         self.ui.plsAbcAttr_tidy_bt.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.ui.plsAbcAttr_tidy_bt.customContextMenuRequested.connect(self.addAttrPopMenu)
         self.ui.show()
@@ -70,10 +77,44 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         self.topGrpDic = {'tx':'CHR','rg':'CHR','mo':'MODEL'}
         self.iify_infor = []
         # self.attr_op = {True: 'add', None: 'delete'}
+
+        self.addToolTips()
+        # self.setAllChkbxOn()
     def makeConnections(self): # connect buttons to fucntions
         for each_bt in self.buttonsList:
-            _fuction = getattr(self,"cmd_{}".format(each_bt)) if "cmd_{}".format(each_bt) in self.__class__.__dict__ else self._somFunc
-            self.ui.findChildren(QtGui.QPushButton, each_bt)[0].clicked.connect(_fuction)
+            _fuction = None
+            if re.search("_regchk_bt",each_bt):
+                fndbtn = self.ui.findChildren(QtGui.QPushButton, each_bt)[0] # find button object
+                fndbtn.clicked.connect(lambda state, x=each_bt:self.call_pplchk(x))
+            else:
+                _fuction = getattr(self, "cmd_{}".format(each_bt)) if "cmd_{}".format(each_bt) in self.__class__.__dict__ else self._somFunc
+                self.ui.findChildren(QtGui.QPushButton, each_bt)[0].clicked.connect(_fuction)
+    def addToolTips(self): # add tools tip for each button
+        for each_bt in self.buttonsList:
+            fndbtn = self.ui.findChildren(QtGui.QPushButton, each_bt)[0]  # find button object
+            tipStr = None
+            if re.search("_regchk_bt", each_bt):
+                infor_spl = each_bt.split("_regchk_bt")
+                func_name = 'autoRun' if infor_spl[0] == 'all' else infor_spl[0]
+
+                exCmd = "tipStr = self.pplchk.{}.__doc__".format(func_name)
+                exec (exCmd)
+                if tipStr:  fndbtn.setToolTip(u"{}".format(tipStr))
+            # elif re.search("(_tidy_bt)|(_chk_bt)",each_bt):
+            else:
+                # print each_bt
+                func_name = "cmd_{}".format(each_bt)
+                exCmd = "tipStr = self.{}.__doc__".format(func_name)
+                try:
+                    exec(exCmd)
+                except Exception,e:
+                    print e.message
+                if tipStr: fndbtn.setToolTip(u"{}".format(tipStr))
+    # def setAllChkbxOn(self):
+    #     for each_cbxnm in self.cbxDict:
+    #         each_cbx = self.ui.findChildren(QtGui.QCheckBox, each_cbxnm)[0]
+    #         each_cbx.setChecked(True)
+
     def addAttrPopMenu(self,point):# add  attribute popmenu config
         self.popMenu = QtGui.QMenu(self.ui)
         ac_add = QtGui.QAction('add',self.ui)
@@ -99,12 +140,19 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         print("some function return what a F~~")
     #  call tools buttons commands =================================
     def cmd_rnmT_bt(self):#重命名工具
+        """
+        >>一款比较强大的重命名工具点开来瞧瞧~~
+        """
         src_mel = os.path.abspath(os.path.join(self.mel_dir, 'Quick_rename_tool.mel'))
         src_mel = re.sub(r'\\','/',src_mel)
         mel.eval("source \"{}\"".format(src_mel))
         mel.eval("Quick_rename_tool()")
 
     def cmd_alterTxsPrf_bt(self):#修改贴图前缀匹配当前项目
+        u"""
+        >>  根据maya文件名获取项目缩写，修改所有贴图前缀为项目缩写
+                         同时修改 - 空格 等不规范字符
+        """
         mod = {'RENAME OLD':'rn','COPIED FOR NEW':'cp'}
         result = mc.promptDialog(title='Texture Prefix',message='Enter Prefix:',button=['COPIED FOR NEW','RENAME OLD','Cancel'],defaultButton='OK',
                                  cancelButton='Cancel',
@@ -203,8 +251,10 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         if res_error_str:
             print (res_error_str)
             mc.warning(res_error_str)
-
     def cmd_smoothSetT_bt(self): # smooth set 设置工具
+        u"""
+        >>smooth 级别设置工具
+        """
         # global appName
         MayaMainWin = sip.wrapinstance(long(mui.MQtUtil.mainWindow()), QtGui.QWidget)
         findWin = MayaMainWin.findChild(QtGui.QWidget, 'SetSmoothLevelWin')
@@ -213,43 +263,81 @@ class Ppl_assetT_main(QtGui.QMainWindow):
     #  call fuction buttons commands ================================
     # 根据名字选择
     def cmd_selByNm_bt(self):
+        u"""
+        >>根据名字选择
+        """
         srcStr = self.ui.pick_sel_l.text()
-        ls_objs = pm.ls(srcStr)
+        ls_objs = pm.ls(str(srcStr))
         pm.select(ls_objs)
     # 自动重命名
     def cmd_nm_tidy_bt(self):
+        u"""
+        >>规范化命名 : mo 文件： outliner 创建 MODEL组|MSH_all|MSH_geo/MSH_outfit
+                               所有子级别节点，添加 规范化的前缀 后缀 根据 模型当前名字 自动规范化命名
+                      rg 文件： outliner 还会创建  RIG   DEFORMER  FX 组，
+
+                     请 各位artist 整理相应节点到相应组下
+        """
         Ppl_rnmtools_auto.Pre_regNaming()
     # 添加后缀 _
     def cmd_suff_tidy_bt(self):
+        u"""
+        >>添加后缀 _
+        """
         self.skchk.checkRenameMSHPosfix()
     # 检查 namespace
     def cmd_chkNmsp(self):
+        u"""
+        >>检查 namespace
+        """
         self.skchk.checkModelDetailsWarning("nsCheck")
     # namespace工具
     def cmd_nmsp_tidy_bt(self):
+        u"""
+        >>namespace工具
+        """
         src_mel = os.path.abspath(os.path.join(self.mel_dir,'common_namespaceTools.mel'))
         src_mel = re.sub(r'\\', '/', src_mel)
         mel.eval("source \"{}\"".format(src_mel))
         mel.eval("common_namespaceTools")
     # 清理多余的显示层
     def cmd_dsly_tidy_bt(self):
+        u"""
+        >>清理多余的显示层
+        """
         self.sksct.checkCleanDisplayLayers()
         print("DisplayLayer Tidied!!!")
     # delete empty group
     def cmd_emgrp_tidy_bt(self):
-        allTrans = pm.ls(tr=True)
-        emt = []
-        for e in allTrans:
-            print e
+        u"""
+        >>删除空组 mo，tx 文件 清楚所有空组
+        """
+        emptGrp = None
+        if self.scInfo.section == 'mo':
+            emptGrp = [n for n in pm.ls(type='transform') if not n.getChildren(ad=True)]
+        else:
+            emptGrp = [n for n in pm.PyNode('MODEL').listRelatives(ad=True, type='transform') if not n.getChildren(ad=True)]
+        pm.delete(emptGrp)
     #添加 ct_an 标记 标记物体输出动画
     def cmd_anlab_tidy_bt(self):
+        u"""
+        >>添加 ct_an 标记 标记物体输出动画
+        """
         self.skchk.checkCTANSignAdd()
     def cmd_set_tidy_bt(self):# 自动标记set组
+        u"""
+        自动标记set组
+        """
         self.sksct.checkCacheSetAdd()
         self.sksct.checkTransAnimSetAdd()
         self.sksct.sk_sceneCacheAnimSetConfig("Cache", "ZM")
         self.sksct.sk_sceneCacheAnimSetConfig("Anim", "ZM")
     def cmd_plsAbcAttr_tidy_bt(self):
+        u"""
+        >>添加或删除alembic属性 ：参与渲染以及毛发的生长体模型，
+                              需要输出缓存必须添加alembic
+                              并且这些模型只能在MODEL组或FX组下
+        """
 
         # bluetx.append("add")
         # bluetx.append("</span>")
@@ -260,38 +348,86 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         self.customAttr('alembic',self._addAttr)
 
     def cmd_rmun_tidy_bt(self):
+        u"""
+        >>清除unknown,unused 节点，海龟渲染等相关节点
+        
+        """
         pchk = ppc.Ppl_pubCheck()
         pchk.checkDonotNodeCleanBase()
     #===================check panel commands=======================================
     def cmd_ref_chk_bt(self):#检查参考
+        u"""
+        >>检查参考
+        """
         self.skchk.checkModelDetailsWarning("refCheck")
     def cmd_nmsp_chk_bt(self):#检查namespace
+        u"""
+        >>#检查namespace
+        """
         self.skchk.checkModelDetailsWarning("nsCheck")
     def cmd_nm_chk_bt(self):#检查命名
+        u"""
+        >>检查命名
+        """
         self.skchk.checkModelDetailsWarning("MSHCheck")
     def cmd_fnm_chk_bt(self):#检查面数
+        u"""
+        >>检查面数
+        """
         self.skchk.checkModelDetailsWarning("faceCheck")
     def cmd_ins_chk_bt(self):#检查instance
+        u"""
+        >>检查instance
+        """
         self.skchk.checkModelDetailsWarning("insCheck")
     def cmd_sm_chk_bt(self):  # 检查smooth
+        u"""
+        >>检查smooth
+        """
         self.skchk.checkModelDetailsWarning("moothCheck")
     def cmd_flg_chk_bt(self):  # 检测属性标记
+        u"""
+        >>检测属性标记
+        """
         self.skchk.checkModelDetailsWarning("signCheck")
     def cmd_tautonymy_chk_bt(self):  # 检查 transform 同名
+        u"""
+        >>检查 transform 同名
+        """
         self.skchk.checkModelDetailsWarning("sameTransformCheck")
     def cmd_tautonymyShp_chk_bt(self): # 检查 shape同名
+        u"""
+        >>检查 shape同名
+        """
         self.skchk.checkModelDetailsWarning("sameShapeCheck")
     def cmd_tautonymyMsh_chk_bt(self): # 检查 mesh 同名
+        u"""
+        >>检查 mesh 同名
+        """
         self.skchk.checkModelDetailsWarning("sameShapeNodeCheck")
     def cmd_smthSet_chk_bt(self): # 检查smooth set
         self.skchk.checkModelDetailsWarning("smoothSet")
     def cmd_prxTr_chk_bt(self): # 检查proxy 位移
+        u"""
+        >>检查proxy 位移
+        """
         self.skchk.checkModelDetailsWarning("proxyInfo")
     def cmd_rndSta_chk_bt(self):#检查 render state
+        u"""
+        >>检查 render state
+        """
         self.skchk.checkModelDetailsWarning("renderState")
     def cmd_selSmth_tidy_bt(self):#选取物体smooth
+        u"""
+        >>选取物体smooth
+        """
         self.sksmth.smoothSetDoSmooth(useSmoothSet = 1,selMode = 1)
     def cmd_txsnm_chk_bt(self):#check 贴图命名
+        u"""
+        >>check 贴图命名 :  项目缩写为 前缀， 使用 数字 0-9 字母a-zA-Z 下划线 _  点.
+                           贴图文件命名及路径中 回避 中文
+                           贴图文件命名及路径中 不能有  空格 - () 等 特殊字符
+        """
         chk_labels = {'noExists': u'贴图不存在', 'iffyName': u'贴图命名 应由 (字母/数字/_/.) 组成', 'seqIffyName': u'序列贴图序号存在异常 正常为 ***.0001.jpg', 'prefIffyName':
             u'贴图前缀与当前任务不匹配'}
         res = self.chk_txf_name()
@@ -319,9 +455,63 @@ class Ppl_assetT_main(QtGui.QMainWindow):
                 ck_cnt +=1
         if ck_cnt: print res_str
         else: print(u">>>没有贴图节点被check")
+    #add to asset file regularity check
+    def call_pplchk(self,infor):
+        # print("Call Pipeline Check.........")
+        # print btn.objectName()
+        infor_spl = str(infor).split("_regchk_bt")
+        func_name = infor_spl[0]
+        if infor_spl[1]:
+            argvs_lst = []
+            for n in infor_spl[1:][0].split('_'):
+                if not n:continue
+                if re.search("^[\d]+$",n): argvs_lst.append(n)
+                else:argvs_lst.append("\"{}\"".format(n))
+            argvs = ",".join(argvs_lst)
+            cmd = "self.pplchk.autoRun(\'{},{}\')".format(func_name,argvs)
+            print cmd
+            exec(cmd)
+        else:
+            self.pplchk.autoRun(func_name)
+    def cmd_allReg_chk_bt(self):
+        u"""
+        >>检测所选择的项
+        
+        """
+        allFncs = dict([[x,y] for x,y in self.__class__.__dict__.items()])
+        # for x, y in allFncs:
+        #     if re.search('_check_all_\d', x) and type(y) == FunctionType and cbxs["{}_regchk_chk".format(x)].checkState() == 2:
+        #         # print x
+        #         chkAll_prc.append(x)
+        #     elif re.search('_check_indiv_', x) and type(y) == FunctionType and cbxs["{}_regchk_chk".format(x)].checkState() == 2:
+        #         chkIndiv_prc.append(x)
+        # chkAll_prc.sort()
+        # self.pplchk.autoRun('all')
+        # print self.cbxDict
+        # print allFncs
+        for ecbx in self.cbxDict:
+            # print(self.cbxDict[ecbx].checkState())
+            if self.cbxDict[ecbx].checkState()==2 and not re.search("_regchk_",ecbx):
+                fnc_nm = "cmd_{}".format(re.sub("_cbx$","_bt",str(ecbx)))
+                if fnc_nm in allFncs:
+                    exc_cmd = "self.{}()".format(fnc_nm)
+                    exec(exc_cmd)
 
 
-    # check all items
+        # allcbx = dict([[str(eacbx.objectName()), eacbx] for eacbx in .findChildren(self.ui.QCheckBox) if re.search("_chk$", eacbx.objectName())])
+        # allcbx = dict(self.cbxDict)
+
+    # def cmd_all_1_grpName_regchk_bt(self):
+    #     fram = inspect.currentframe()
+    #     infor = inspect.getframeinfo(fram).function
+    #     func_name = re.sub('cmd_','_check_',infor)
+    #     self.pplchk.autoRun(func_name)
+    #     # self.pplchk._check_all_1_grpName()
+    # def cmd_unfrz_regchk_bt(self):
+    #     fram = inspect.currentframe()
+    #     infor = inspect.getframeinfo(fram).function
+    #     func_name = re.sub('cmd_', '_check_', infor)
+    #     self.pplchk.autoRun(func_name)
     def cmd_all_chk_bt(self):
         print("\n".join(self.buttonsList))
 
@@ -340,8 +530,6 @@ class Ppl_assetT_main(QtGui.QMainWindow):
         uic.uiparser.logger.setLevel(logging.WARNING)
         ui = uic.loadUi(uifilename,parent)
         return ui
-
-
     def nonUniqueObjects(self): # a function list all taotunymy object
         all_nds = pm.ls()
         non_uniques = {}
@@ -367,6 +555,11 @@ class Ppl_assetT_main(QtGui.QMainWindow):
                         non_uniques[ndShtNm][ndTyp] = [ea_nd]
 
     def chk_txf_name(self,proj_abbr=None):  # texture file name check
+        u"""
+        >> 检测贴图命名
+        :param proj_abbr:
+        
+        """
         if not proj_abbr:  # project abbreviation
             fileName_shn = mc.file(q=True, sn=True, shn=True)
             proj_abbr = re.search('^[^_]*', fileName_shn).group()

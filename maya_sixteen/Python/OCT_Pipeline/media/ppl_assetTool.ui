@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>480</width>
+    <width>474</width>
     <height>500</height>
    </rect>
   </property>
@@ -26,14 +26,8 @@
    <string>前期Asset 整理检查</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_2">
-    <property name="topMargin">
-     <number>8</number>
-    </property>
-    <property name="bottomMargin">
-     <number>0</number>
-    </property>
-    <item>
+   <layout class="QGridLayout" name="gridLayout_3">
+    <item row="0" column="0">
      <widget class="QTabWidget" name="m_tab">
       <property name="font">
        <font>
@@ -41,7 +35,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -455,6 +449,9 @@ selection-color: rgb(85, 255, 255);</string>
            </item>
            <item row="2" column="4">
             <widget class="QPushButton" name="_check_indiv_unfreezeTrns_regchk_bt">
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
              <property name="text">
               <string>Unfreeze Object Check</string>
              </property>
@@ -708,24 +705,6 @@ selection-color: rgb(85, 255, 255);</string>
           </layout>
          </widget>
         </item>
-        <item>
-         <widget class="QLabel" name="tiplab">
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>15</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>9</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>*Tip:有相同颜色标签的按钮，支持选择对象操作</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="tab_2">
@@ -819,6 +798,27 @@ selection-color: rgb(85, 255, 255);</string>
       </widget>
      </widget>
     </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="tiplab">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>15</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>幼圆</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>*Tip:文字颜色与此相同的按钮，支持选择对象操作（不选择则作用于全局）</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -826,7 +826,7 @@ selection-color: rgb(85, 255, 255);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>480</width>
+     <width>474</width>
      <height>23</height>
     </rect>
    </property>

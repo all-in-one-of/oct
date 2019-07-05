@@ -33,6 +33,9 @@ class Ppl_check(object):
         self.iffyVtxs = {}
         self.abcMeshes = []
         self.iffySets = None
+        #==================================================
+        self.legitimateGrpName = ['CHR', 'MODEL', 'MSH_all', 'MSH_geo', 'MSH_outfit', 'RIG', 'DEFORMER', 'FX']
+
     def autoRun(self,chk_fnc_name='all'):# 运行检查 全部运行 或 运行指定的检测
         u"""
         >>Check all 检查所有
@@ -98,17 +101,17 @@ class Ppl_check(object):
             elif re.search('_check_indiv_', x) and type(y) == FunctionType and cbxs["{}_regchk_chk".format(x)].checkState()==2:
                 chkIndiv_prc.append(x)
         chkAll_prc.sort()
-
         return chkAll_prc,chkIndiv_prc
-    def get_chk_nodes(self,obtainData,objtyp='mesh',getPar=True,topNode = None):# 返回操作对象
+    def get_chk_nodes(self,obtainData=None,objtyp='mesh',getPar=True,topNode = None):# 返回操作对象
         check_objs = pm.selected()
+        if isinstance(topNode,str) or isinstance(topNode,unicode): topNode = pm.PyNode(topNode)
         if not check_objs:
-            check_objs = obtainData if obtainData.__class__.__name__ == 'list' else [obtainData]
+            if obtainData:  check_objs = obtainData if obtainData.__class__.__name__ == 'list' else list(obtainData)
         # if not check_objs:
         #     check_objs = self.checkNodesLst
         if not check_objs:
             if topNode:
-                check_objs = [n.getParent() for n in topNode.listRelatives(ad=True,c=True,type= nodeTyp,ni=True)] if getPar else [n for n in topNode.listRelatives(ad=True,c=True,type= nodeTyp,ni=True)]
+                check_objs = [n.getParent() for n in topNode.listRelatives(ad=True,c=True,type= objtyp,ni=True)] if getPar else [n for n in topNode.listRelatives(ad=True,c=True,type= objtyp,ni=True)]
             else:
                 check_objs = [n.getParent() for n in pm.ls(type=objtyp, ni=True)] if getPar else [n for n in pm.ls(type=objtyp, ni=True)]
         return check_objs
@@ -165,6 +168,8 @@ class Ppl_check(object):
         # if self._iffyMsg_name:
         #     for item in self._iffyMsg_name:
         #         om.MGlobal.displayInfo(u">>>{:<30}: {}".format(item,self._iffyMsg_name[item]))
+        if self.scinfo.section in ['mo','rg','tx']:
+            self.check_indiv_ObjNameReg()
 
     def _check_all_2_abcAttr(self):#检测MODEL，Fx组下的模型 是否有alembic 属性 ,且 有alembic属性的模型，只能在MODEL组下 和 FX组下(fx组内为 毛发生长体)
         u"""
@@ -276,11 +281,12 @@ class Ppl_check(object):
 
     def _check_indiv_unfreezeTrns(self,checkNode = None,nrbs=False,clear=False):
         u"""
-        >>Start Pipeline Check: check the transform node unfreeze
-                                检查transform节点 freeze
+        >>Start Pipeline Check: check the transform node chanel attributes :unfreeze locked
+                                检查transform节点 freeze  和 locked 状态
         注意：如果当前有选择物体，将仅作用于选择的物体
         """
         chk_trns = self.get_chk_nodes(checkNode)
+        print chk_trns
         msgAttr = '_iffyMsg_dags'
         if clear: self.clear_msgs(msgAttr)
         for trn in chk_trns:
@@ -343,6 +349,23 @@ class Ppl_check(object):
             return self.iffyVtxs
         else:
             om.MGlobal.displayInfo(u">>>mesh的vtx的位移值已经为0 ")
+    def check_indiv_ObjNameReg(self,chkNode=None):
+        legitimateGrpName = ['CHR', 'MODEL', 'MSH_all', 'MSH_geo', 'MSH_outfit', 'RIG', 'DEFORMER', 'FX']
+        iffy_dict = {}
+        modelChkChildren = self.get_chk_nodes(0, 'transform', False, 'MODEL')
+        msgAttr = '_iffyMsg_name'
+        for tr in modelChkChildren:
+            # tr = check_nodes[-3]#
+            if tr.nodeName() in legitimateGrpName: continue
+            tr_nm_spl = tr.nodeName().split('_')
+            if tr_nm_spl[0] != 'MSH' or tr_nm_spl[1] not in ['c', 'l', 'r'] or tr_nm_spl[2] not in ['l', 'm', 'h'] or len(tr_nm_spl) < 4:
+                print"ENENEN"
+                if '>>IFFY--Node Name Abnormal' in iffy_dict:
+                    iffy_dict['>>IFFY--Node Name Abnormal'].append(tr)
+                else:
+                    iffy_dict['>>IFFY--Node Name Abnormal'] = [tr]
+        for eaMsg in iffy_dict:
+            self.update_msgs(msgAttr,eaMsg,iffy_dict[eaMsg])
     def _reg_indiv_resVtxPos(self,userInput=None, prMode='freeze'):#重置cv点的位置信息 两种模式  freeze  是不改变位置，让cv 的位移值归零 ；reset ，让cv点回到值为0 的位置
         u"""
         >> 重置 mesh cv 点 两种模式 ：
@@ -408,7 +431,7 @@ class Ppl_check(object):
             om.MGlobal.displayInfo(">>>The Vertex position set to [0,0,0] : {}".format(pm_vtx.name()))
             return retDic
 
-    def creat_iffy_setsGrp(self):
+    def creat_iffy_setsGrp(self):#创建 sets组，列出异常节点
         nameDict = {'_iffyMsg_abcObjs':'Check_iffy_alembic_Objects','_iffyMsg_dags':'Check_iffy_DagNodes','_iffyMsg_name':'Check_iffy_object_name'}
         if pm.objExists("Pipeline_Check_iffy_sets"):
             self._reg_clearCheckSets()
@@ -434,13 +457,19 @@ class Ppl_check(object):
                             if dagNode not in members: members.append(dagNode)
                 elif msgAttr[ea_iffy].__class__.__name__ == 'list':
                     for msg in msgAttr[ea_iffy]:
-                        if re.search(":::[\w.:|]+", msg):
-                            strSpl = re.search(":::[\w.:|]+", msg).group().split(':::')
-                            for e in strSpl:
-                                if not e: continue
-                                pmObj = pm.PyNode(e)
-                                dagNode = pmObj.node()
-                                if dagNode not in members: members.append(dagNode)
+                        if not isinstance(msg,str) or not isinstance(msg,unicode):
+                            pmObj = msg
+                            dagNode = pmObj.node()
+                            if dagNode not in members: members.append(dagNode)
+                        else:
+                            if re.search(":::[\w.:|]+", msg):
+                                strSpl = re.search(":::[\w.:|]+", msg).group().split(':::')
+                                for e in strSpl:
+                                    if not e: continue
+                                    pmObj = pm.PyNode(e)
+                                    dagNode = pmObj.node()
+                                    if dagNode not in members: members.append(dagNode)
+
                 elif msgAttr[ea_iffy].__class__.__name__ == 'dict':
                     for msg in msgAttr[ea_iffy]:
                         if re.search(":::[\w.:|]+", msg):

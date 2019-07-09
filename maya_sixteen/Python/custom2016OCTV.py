@@ -237,6 +237,7 @@ def delVraypluginDir():
             shutil.rmtree(vraypluginPath)
         except Exception as e:
             print ('vrayplugins folder delete error , because {} '.format(e))
+
 delVraypluginDir()
 
 def customOCTV():

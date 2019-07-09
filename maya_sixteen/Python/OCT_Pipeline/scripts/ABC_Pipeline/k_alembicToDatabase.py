@@ -2,6 +2,7 @@
 
 import maya.cmds as cc
 import pypyodbc
+import re
 
 class MSSQL:
     def __init__(self,driver,host,user,pwd,db):
@@ -57,6 +58,10 @@ class k_alembicToDatabase:
 
 
         fileName = cc.file(q=1, sn=1, shn=1)
+        re_ver = re.compile(r'(.*)(_\d*\.|_c\d*\.|_C\d*\.)')
+        ver = re_ver.search(fileName)
+        if ver:fileName = re.sub(ver.group(2),'.',fileName)
+
         contrast_fileName=''
         if   '_rg' in fileName:contrast_fileName = fileName.replace('_rg','_tx')
         elif '_tx' in fileName:contrast_fileName = fileName.replace('_tx','_rg')

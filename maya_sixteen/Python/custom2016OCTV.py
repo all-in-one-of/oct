@@ -238,7 +238,7 @@ def delVraypluginDir():
         except Exception as e:
             print ('vrayplugins folder delete error , because {} '.format(e))
 
-if os.getenv('VRIPRCOPYPATH'):
+if not os.getenv('VRIPRCOPYPATH'):
     delVraypluginDir()
 
 def customOCTV():

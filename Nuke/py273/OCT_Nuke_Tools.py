@@ -451,3 +451,29 @@ def stuffShuffleSimple():
     newH =  38 + ((sel_shf_nm-1)/3 + 1)*40
     bd.knob('bdheight').setValue(newH)
     for ea in nuke.selectedNodes(): ea.setSelected(False)
+def stuffSuffer_auto():
+    """
+    auto create suffer .....
+    :return:
+    ben
+    """
+    read_node = nuke.selectedNodes('Read')
+    for ea_rd in read_node:
+        #ea_rd = read_node[0]
+        nuke.autoplace(ea_rd)
+        chnls = ea_rd.channels()
+        lys = list(set([ech.split('.')[0] for ech in chnls]))
+        px,py = ea_rd.xpos(),ea_rd.ypos() + 105
+        ea_rd.setSelected(False)
+        h_bias = 140
+        v_bias = 40
+        shuf_1=nuke.nodes.Shuffle()
+        shuf_1['in'].setValue(lys[0])
+        shuf_1.setInput(0,ea_rd)
+        #shuf_1['hide_input'].setValue(True)
+        shuf_1.setName("{}_".format(lys[0]))
+        #shuf_1.knob('label').setValue("ExShf_{}_{}".format(ea_rd.name().upper(),foundLy[i]))
+        shuf_1.setXYpos(px,py)
+        shuf_1.setSelected(True)
+        sel_shf_nm = len(nuke.selectedNodes("Shuffle"))
+    for ea in nuke.selectedNodes(): ea.setSelected(False)

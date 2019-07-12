@@ -13,8 +13,8 @@ class k_ABC_procedure():
 
 		self.k_re_ch = re.compile(r'^\w+_ch\d+.*')
 		self.k_re_pr = re.compile(r'^\w+_pr\d+.*')
-		self.k_re_geo = re.compile(r'.*:\w*Geo$|.*:\w*Geometry$')
-		self.k_re_cv = re.compile(r'.*:\w*master$')
+		self.k_re_geo = re.compile(r'.*:\w*MODEL$|.*:\w*model$')
+		self.k_re_cv  = re.compile(r'.*:\w*master$|.*:\w*MASTER$')
 		self.k_re_cache = (r'\||:')
 
 		if not cc.pluginInfo('AbcImport', q=True, l=1):
@@ -33,31 +33,32 @@ class k_ABC_procedure():
 
 		if mode == 'Group':
 			if cc.objExists(self.DHgroup):
-				try:
-					eachTarGroups = cc.listRelatives(self.DHgroup,c=1,f=1)
-					#获取GEO组 list
-					# eachTars_GeoGroup = [c for i in eachTarGroups for c in cc.listRelatives(i,c=1) if 'Geo' in c]
-					for eachTarGroup in eachTarGroups:
-						#角色ch
-						if self.k_re_ch.search(cc.ls(eachTarGroup,sn=1)[0]):
-							self.getInfoExpression(eachTarGroup,scenesPath,self.k_re_geo,'abc','_AlembicNode',kresult)
+				SubGroups = cc.listRelatives(self.DHgroup,c=1,f=1)
+				for SubGroup in SubGroups:
+					# 角色ch
+					if cc.ls(SubGroup, sn=1)[0] == 'CHR':
+						eachTarGroups = cc.listRelatives(SubGroup, c=1, f=1)
+						for eachTarGroup in eachTarGroups:
+							if self.k_re_ch.search(cc.ls(eachTarGroup,sn=1)[0]):
+								self.getInfoExpression(eachTarGroup,scenesPath,self.k_re_geo,'abc','_AlembicNode',kresult)
 
-						#道具pr
-						elif self.k_re_pr.search(cc.ls(eachTarGroup,sn=1)[0]):
-							self.getInfoExpression(eachTarGroup, scenesPath,self.k_re_cv, 'anim', '', kresult)
+					# 道具pr
+					elif cc.ls(SubGroup, sn=1)[0] == 'PROP':
+						eachTarGroups = cc.listRelatives(SubGroup, c=1, f=1)
+						for eachTarGroup in eachTarGroups:
+							if self.k_re_pr.search(cc.ls(eachTarGroup,sn=1)[0]):
+								self.getInfoExpression(eachTarGroup, scenesPath,self.k_re_cv, 'anim', '', kresult)
+					# else:
+					# 	for sub_eachTarGroup in cc.listRelatives(eachTarGroup,c=1,f=1):
+					# 		if self.k_re_ch.search(cc.ls(sub_eachTarGroup, sn=1)[0]):
+					#
+					# 			self.getInfoExpression(sub_eachTarGroup, scenesPath, self.k_re_geo, 'abc','_AlembicNode', kresult)
+					#
+					# 		# 道具pr
+					# 		elif self.k_re_pr.search(cc.ls(sub_eachTarGroup, sn=1)[0]):
+					# 			self.getInfoExpression(sub_eachTarGroup, scenesPath, self.k_re_cv, 'anim', '', kresult)
 
-						else:
-							for sub_eachTarGroup in cc.listRelatives(eachTarGroup,c=1,f=1):
-								if self.k_re_ch.search(cc.ls(sub_eachTarGroup, sn=1)[0]):
 
-									self.getInfoExpression(sub_eachTarGroup, scenesPath, self.k_re_geo, 'abc','_AlembicNode', kresult)
-
-								# 道具pr
-								elif self.k_re_pr.search(cc.ls(sub_eachTarGroup, sn=1)[0]):
-									self.getInfoExpression(sub_eachTarGroup, scenesPath, self.k_re_cv, 'anim', '', kresult)
-
-				except Exception as e:
-					print (e)
 			else:
 				cc.error('Cannot found animation group')
 
@@ -131,7 +132,6 @@ class k_ABC_procedure():
 		if mode=='fs':
 			k_abcjson = os.path.normpath(os.path.splitext(cc.file(q=1, sn=1))[0] + '.json')
 			k_abcjson = k_abcjson.replace('_fs_','_an_')
-			print (k_abcjson)
 			TargetInfo = json.loads(open(k_abcjson).read())
 			return (TargetInfo)
 
@@ -192,11 +192,8 @@ class k_ABC_procedure():
 		reflist = cc.file(q=True, reference=1)
 		for resolveRef in reflist:
 			if cc.referenceQuery(resolveRef, isLoaded=1):
-				print (resolveRef)
 				unresolveRef = cc.referenceQuery(resolveRef, un=1, wcn=1, filename=1)
-				print (unresolveRef)
 				RNRef = cc.referenceQuery(resolveRef, referenceNode=1)
-				print (RNRef)
 				rep_unresolveRef=unresolveRef.replace('ms_anim','ms_render')
 				cc.file(rep_unresolveRef, loadReference=RNRef)
 
@@ -204,18 +201,22 @@ class k_ABC_procedure():
 		"""导入ABC缓存"""
 		ABCfile = kargs['abcfile_sub']
 		ABCNodename = kargs['abcNodename']
+		typeGroupName = kargs['typeGroupName']
+		tarGroupName = kargs['tarGroupName']
+
+		typeGroupName_sub = re.sub(r"(^\|DH)",'|k_tempGroup',tarGroupName)
 
 
-		if cc.objExists('k_tempGroup'):
-			cc.delete('k_tempGroup')
-			cc.createNode('transform', n='k_tempGroup')
-		else:
-			cc.createNode('transform', n='k_tempGroup')
+		if cc.objExists('|k_tempGroup'):cc.delete('|k_tempGroup')
+		cc.createNode('transform', n='|k_tempGroup')
 
-		if cc.objExists(ABCNodename):
-			cc.delete(ABCNodename)
+		self.createGroup(typeGroupName_sub,'|k_tempGroup')
 
-		cc.AbcImport(ABCfile, mode='import', reparent='k_tempGroup')
+
+		if cc.objExists(ABCNodename):cc.delete(ABCNodename)
+
+		cc.AbcImport(ABCfile, mode='import', reparent=typeGroupName_sub)
+
 
 	def excuteExpAnim(self,kargs):
 		#烘焙关键帧
@@ -230,21 +231,29 @@ class k_ABC_procedure():
 		targetObject_cvs = cc.ls(targetObject, dag=1, type='nurbsCurve')
 		for targetObject_cv in targetObject_cvs:
 			targetObject_tr = cc.listRelatives(targetObject_cv, p=1)
-			targetObject_trs.append(targetObject_tr[0])
+			for i in targetObject_tr:
+				try:
+					cc.getAttr('{}.anim'.format(i))
+					targetObject_trs.append(targetObject_tr[0])
+				except:
+					pass
 
 		targetObject_trs = list(set(targetObject_trs))
+		if targetObject_trs:
+			cc.bakeResults(targetObject_trs, simulation=1, t=(startFrame, endFrame))
+			#cc.bakeResults(targetObject, simulation=1, t=(startFrame, endFrame), hierarchy='below')
 
-		cc.bakeResults(targetObject_trs, simulation=1, t=(startFrame, endFrame))
-		#cc.bakeResults(targetObject, simulation=1, t=(startFrame, endFrame), hierarchy='below')
+			cc.select(targetObject)
 
-		cc.select(targetObject)
+			cc.file(animfile, force=1,
+					options="precision=8;intValue=17;nodeNames=1;verboseUnits=0;whichRange=1;"
+							"options=keys;hierarchy=below;controlPoints=0;shapes=1;helpPictures=0;useChannelBox=1;"
+							"copyKeyCmd=-animation objects -option keys -hierarchy below -controlPoints 0 -shape 1",
+					type="animExport", pr=1, es=1)
 
-		cc.file(animfile, force=1,
-				options="precision=8;intValue=17;nodeNames=1;verboseUnits=0;whichRange=1;"
-						"options=keys;hierarchy=below;controlPoints=0;shapes=1;helpPictures=0;useChannelBox=1;"
-						"copyKeyCmd=-animation objects -option keys -hierarchy below -controlPoints 0 -shape 1",
-				type="animExport", pr=1, es=1)
-
+			cc.select(cl=1)
+		else:
+			cc.error('curves had no anim Attribute')
 
 
 	def excuteImpAnim(self,kargs):
@@ -263,6 +272,7 @@ class k_ABC_procedure():
 
 	def connectABC(self,kargs):
 		"""ABC缓存连接到 有材质无绑定的mesh上（仅限mesh）"""
+
 		topGroupName = kargs['tarGroupName']
 
 		#ABCNodename = os.path.splitext(os.path.basename(ABCfile))[0] + '_AlembicNode'
@@ -270,9 +280,11 @@ class k_ABC_procedure():
 
 		list_abcShapes = cc.listConnections(ABCNodename, s=0, sh=1, type='mesh')
 
+
 		if list_abcShapes:
 			for abcShape in list_abcShapes:
 				singleAbcShapeConnect = cc.listConnections(abcShape, d=0, sh=1, c=1, p=1)
+
 
 				# abcshape改成meshshape的名字
 				kcode = re.compile("^k_tempGroup\|\S*")
@@ -280,7 +292,7 @@ class k_ABC_procedure():
 					raise Exception("had not match ParentGroup!")
 				connectShape = kcode.search(singleAbcShapeConnect[0]).group()
 
-				ConnectShape = re.sub("^k_tempGroup", topGroupName, connectShape)
+				ConnectShape = re.sub("^k_tempGroup", self.DHgroup, connectShape)
 
 				# abc缓存与mesh连接
 				try:
@@ -294,15 +306,13 @@ class k_ABC_procedure():
 
 			for abcTranform in list_abcTranform:
 				singleAbcTranformConnect = cc.listConnections(abcTranform, d=0, sh=1, c=1, scn=1, p=1)
-
 				for i in range(len(singleAbcTranformConnect)):
 					if i % 2 == 1:
 						kcode = re.compile("^k_tempGroup\|\S*")
 						if not kcode.search(singleAbcTranformConnect[i - 1]):
 							raise Exception("had not match TopGroup!")
 						connectShape = kcode.search(singleAbcTranformConnect[i- 1]).group()
-
-						ConnectShape = re.sub("^k_tempGroup", topGroupName, connectShape)
+						ConnectShape = re.sub("^k_tempGroup", self.DHgroup, connectShape)
 
 						try:
 							cc.connectAttr(singleAbcTranformConnect[i], ConnectShape, f=1)
@@ -317,46 +327,82 @@ class k_ABC_procedure():
 
 	def createReference(self,kargs):
 		"""根据json信息，创建参考"""
-		k_re_group = re.compile("(\|\w+)")
-
-		if not cc.objExists(self.DHgroup):
-			cc.createNode('transform', n=self.DHgroup)
-
 
 		referenceNamespace=kargs['referenceNamespace']
 		referencePath = kargs['referencePath_re']
 		tarGroupName = kargs['tarGroupName']
 		typeGroupName = kargs['typeGroupName']
 
-		reGroup = k_re_group.findall(typeGroupName)
+		tarGroupName_sub = tarGroupName.replace(typeGroupName, '')
+
+		self.createGroup(typeGroupName,self.DHgroup)
 
 		k_referenceResolved = cc.file(referencePath,r=1,type='mayaBinary',iv=1,gl=1,
 							  shd=('displayLayers','shadingNetworks','renderLayersByName'),mnc=0,
 							  options='v=0;',namespace=referenceNamespace)
 
-		if len(reGroup) == 1 and reGroup[0] == self.DHgroup:
-			tarGroupName_sub = tarGroupName.replace(typeGroupName,'')
-			try:
-				cc.parent(tarGroupName_sub,self.DHgroup)
-			except Exception as e:
-				print(e)
-
-		if len(reGroup) == 2 and reGroup[0] == self.DHgroup:
-			if cc.objExists(reGroup[1]):
-				cc.error()
-			#处理子组
-			if not cc.objExists(typeGroupName):
-				cc.createNode('transform', n=reGroup[1])
-				cc.parent(reGroup[1], self.DHgroup)
-
-			tarGroupName_sub = tarGroupName.replace(typeGroupName, '')
-
-			try:
-				cc.parent(tarGroupName_sub,typeGroupName)
-			except Exception as e:
-				print(e)
+		try:
+			cc.parent(tarGroupName_sub,typeGroupName)
+		except Exception as e:
+			print(e)
 
 		return (k_referenceResolved)
+
+	def createGroup(self,groupName,rootName):
+		k_re_group = re.compile("(\|\w+:\w+|\|\w+)")
+		k_re_ns    = re.compile("(\w+:\w+)")
+
+
+		reGroup = k_re_group.findall(groupName)
+
+		if len(reGroup) == 1 and reGroup[0] == rootName:
+			if not cc.objExists(reGroup[0]):
+				cc.createNode('transform', n=reGroup[0])
+
+
+		elif len(reGroup) == 2 and reGroup[0] == rootName:
+			#处理子组
+
+			if not cc.objExists(reGroup[0]):
+				cc.createNode('transform', n=reGroup[0])
+
+			if not cc.objExists(reGroup[0]+reGroup[1]):
+				cc.createNode('transform', n=reGroup[1])
+				cc.parent(reGroup[1], reGroup[0])
+
+		elif len(reGroup) == 3 and reGroup[0] == rootName:
+			#处理子组
+			if not cc.objExists(reGroup[0]):
+				cc.createNode('transform', n=reGroup[0])
+
+			if not cc.objExists(reGroup[0]+reGroup[1]):
+				cc.createNode('transform', n=reGroup[1])
+				cc.parent(reGroup[1], reGroup[0])
+
+			if not cc.objExists(reGroup[0]+reGroup[1]+reGroup[2]):
+				if k_re_ns.search(reGroup[2]):
+					ns = reGroup[2].split(':')
+					if len(ns)==2:
+						ns_sub = re.sub(r'^\|','',ns[0])
+						cc.namespace(set=':')
+
+						try:cc.namespace(add=ns_sub)
+						except:pass
+
+						cc.namespace(set=ns_sub)
+						cc.createNode('transform', n=ns[1])
+						cc.namespace(set=':')
+						#cc.namespace(rm=ns_sub)
+						cc.parent(reGroup[2], (reGroup[0] + reGroup[1]))
+					else:cc.error('----- group namespace error ----')
+				else:
+					cc.createNode('transform', n=reGroup[2])
+					cc.parent(reGroup[2], (reGroup[0] + reGroup[1]))
+
+
+		else:cc.error('---------- had error format groupName -----------')
+
+
 
 	def change_referenceNamespace(self,kargs,ref):
 		"""修改参考命名空间"""
